@@ -18,6 +18,8 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Copy between apps:** Stremio → Nuvio and Nuvio → Stremio, reusing the same AIOStreams instance.
 - **Nuvio extras:** home-screen collections (Watch now, Genres, Decades, Themed, International, and Franchises with your own TMDB key), and one-click copy of the setup to the other profiles of the account. Collections are included in the backup.
 - **Restore** any previous backup or an exported JSON.
+- **Optional MDBList key** for watch tracking and MDBList search in AIOMetadata.
+- **Beginner's guide** in [English](https://wizard.stremio-nuvio.workers.dev/guide.html) and [Spanish](https://wizard.stremio-nuvio.workers.dev/guia.html).
 
 ## How it works
 

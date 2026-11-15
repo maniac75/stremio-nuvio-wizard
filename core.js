@@ -27,7 +27,7 @@ const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-accou
 const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.15.0';
+const WIZARD_VERSION = '0.16.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1007,7 +1007,7 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
+  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
@@ -1025,6 +1025,8 @@ async function handleValidateKey(body) {
       url = 'https://api4.thetvdb.com/v4/login';
       options = { ...options, method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apikey: key }) };
+    } else if (service === 'mdblist') {
+      url = 'https://api.mdblist.com/user?apikey=' + encodeURIComponent(key);
     } else if (service === 'torbox') {
       url = 'https://api.torbox.app/v1/api/user/me';
       options.headers = { Authorization: 'Bearer ' + key };
@@ -1034,14 +1036,14 @@ async function handleValidateKey(body) {
     }
     const response = await fetch(url, options);
     if (response.status === 401 || response.status === 403) {
-      return { status: 'invalid', message: 'La clave fue rechazada por ' + service.toUpperCase() + '.' };
+      return { status: 'invalid', message: 'La clave fue rechazada por ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
     }
     if (response.status === 429 || response.status >= 500) return { status: 'unknown', message: 'El servicio no pudo responder ahora. Prueba de nuevo más tarde.' };
     if (!response.ok) return unknown;
     const result = await response.json();
     if (service === 'tvdb' && !result?.data?.token) return { status: 'invalid', message: 'TVDB no aceptó esta API key.' };
     if (service === 'torbox' && result?.success === false) return { status: 'invalid', message: 'TorBox no aceptó esta API key.' };
-    return { status: 'valid', message: 'Clave verificada con ' + service.toUpperCase() + '.' };
+    return { status: 'valid', message: 'Clave verificada con ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
   } catch {
     return { status: 'unknown', message: 'No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.' };
   } finally {
@@ -1086,6 +1088,8 @@ async function configureAioMetadata(preset, options) {
   config.apiKeys.tmdb = options.tmdbMode === 'personal' ? options.tmdbKey : '';
   config.apiKeys.tvdb = options.tvdbMode === 'personal' ? options.tvdbKey : '';
   config.apiKeys.rpdb = options.rpdbMode === 'personal' ? options.rpdbKey : '';
+  // MDBList (opcional): búsqueda MDBList y registro de lo visto en la cuenta del usuario.
+  config.apiKeys.mdblist = options.mdblistKey || '';
   if (options.rpdbMode === 'personal') config.posterRatingProvider = 'rpdb';
   config.enableRatingPostersForLibrary = options.rpdbMode === 'personal';
   if (Array.isArray(config.catalogs) && options.rpdbMode !== 'personal') {
@@ -1815,6 +1819,7 @@ function normalizeOptions(body) {
     tmdbKey: body.tmdbMode === 'instance' ? '' : String(body.tmdbKey || '').trim(),
     tvdbKey: body.tvdbMode === 'instance' ? '' : String(body.tvdbKey || '').trim(),
     rpdbKey: body.rpdbMode === 'none' ? '' : String(body.rpdbKey || '').trim(),
+    mdblistKey: String(body.mdblistKey || '').trim().slice(0, 128),
     anime: body.anime === true,
     argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
     nuvioCollections: body.nuvioCollections !== false,

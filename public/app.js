@@ -396,6 +396,7 @@ function collect(){
     tmdbKey:document.getElementById('tmdbMode').value==='personal'?document.getElementById('tmdbKey').value.trim():'',
     tvdbKey:document.getElementById('tvdbMode').value==='personal'?document.getElementById('tvdbKey').value.trim():'',
     rpdbKey:document.getElementById('rpdbMode').value==='personal'?document.getElementById('rpdbKey').value.trim():'',
+    mdblistKey:document.getElementById('mdblistKey').value.trim(),
     kids:document.getElementById('kids').checked,
     anime:document.getElementById('anime').checked,
     argentinaTv:false,
@@ -548,7 +549,8 @@ async function checkEnteredKeys(step){
   var entries=step===3
     ?Array.from(document.querySelectorAll('.debrid')).map(function(row){return {input:row.querySelector('.key'),service:row.querySelector('.service').value};})
     :['tmdb','tvdb','rpdb'].filter(function(s){return document.getElementById(s+'Mode').value==='personal';})
-      .map(function(s){return {input:document.getElementById(s+'Key'),service:s};});
+      .map(function(s){return {input:document.getElementById(s+'Key'),service:s};})
+      .concat(document.getElementById('mdblistKey').value.trim()?[{input:document.getElementById('mdblistKey'),service:'mdblist'}]:[]);
   var results=await Promise.all(entries.map(function(item){return validateKeyInput(item.input,item.service);}));
   var index=results.findIndex(function(result){return result==='invalid'||result==='changed';});
   if(index>=0){entries[index].input.focus();return false;}
@@ -623,7 +625,7 @@ document.querySelectorAll('.metadataMode').forEach(function(select){
   select.addEventListener('change',syncMetadataModes);
 });
 syncMetadataModes();
-['tmdb','tvdb','rpdb'].forEach(function(service){
+['tmdb','tvdb','rpdb','mdblist'].forEach(function(service){
   var input=document.getElementById(service+'Key');
   input.addEventListener('input',function(){
     if(service==='tmdb')syncPelisAvailability();

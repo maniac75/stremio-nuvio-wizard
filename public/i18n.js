@@ -232,6 +232,9 @@ Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar 
 Aplicar a los perfiles marcados	Apply to the selected profiles
 Marca al menos un perfil.	Select at least one profile.
 Aplicando…	Applying…
+Una cuenta gratuita de MDBList guarda el historial de lo que ves y tus listas de pendientes. Si pegas tu clave, AIOMetadata registrará ahí lo que ves y podrás buscar en MDBList. En Nuvio, la misma clave muestra notas de IMDb y Rotten Tomatoes (Ajustes → Integraciones → MDBList). Si no te interesa, déjalo vacío.	A free MDBList account keeps your watch history and watchlists. If you paste your key, AIOMetadata will record what you watch there and you can search MDBList. In Nuvio, the same key shows IMDb and Rotten Tomatoes ratings (Settings → Integrations → MDBList). If you're not interested, leave it empty.
+Clave API de MDBList (opcional)	MDBList API key (optional)
+Obtener clave gratis ↗	Get a free key ↗
 Prefs.	Prefs.
 Complem.	Addons
 Crea un respaldo antes de continuar.	Create a backup before continuing.
@@ -577,6 +580,7 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     locale=next==='en'?'en':'es';document.documentElement.lang=locale;
     try{localStorage.setItem('stremio-wizard-ui-language',locale);}catch(_){}
     scan(document.body);
+    document.querySelectorAll('.guideTopLink').forEach(function(a){a.href=locale==='en'?'/guide.html':'/guia.html';});
     if(typeof syncFloatingNext==='function')syncFloatingNext();
   }
   selector.addEventListener('change',function(){setLanguage(this.value);});

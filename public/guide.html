@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="supermaniac75">
+<meta name="description" content="Beginner's guide: install Stremio or Nuvio, create your account and set up addons with a backup using Stremio &amp; Nuvio Wizard.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Stremio and Nuvio guide by supermaniac75">
+<meta property="og:url" content="https://wizard.stremio-nuvio.workers.dev/guide.html">
+<meta property="og:description" content="Learn to install the app, create your account and set up Debrid and addons step by step.">
+<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Stremio and Nuvio Wizard: set everything up step by step">
+<meta name="twitter:card" content="summary_large_image">
+<title>Stremio and Nuvio guide by supermaniac75</title>
+<style>
+:root{color-scheme:light;--bg:#f0f5f7;--paper:#fff;--ink:#173645;--muted:#607987;--line:#d8e5ea;--teal:#087f86;--pale:#e9f6f4;--amber:#fff6e8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#e4f2f2,#f3f7f9 460px,#edf3f6);font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+a{color:#08747d;text-underline-offset:3px}a:hover{color:#045b63}a:focus-visible,button:focus-visible{outline:3px solid #52b9b7;outline-offset:3px}
+.shell{width:min(1160px,calc(100% - 32px));margin:auto}.topbar{padding:22px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.brand{font-size:15px;font-weight:800;letter-spacing:-.02em;text-decoration:none;color:#173645}.toplink{font-size:13px;font-weight:750;text-decoration:none;color:#256c74}
+.hero{background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(26px,5vw,56px);box-shadow:0 18px 50px rgba(25,66,82,.07)}.eyebrow{color:#087f86;font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:11px}.hero h1{font-size:clamp(35px,5.8vw,62px);line-height:1.08;letter-spacing:-.055em;margin:12px 0 17px;max-width:790px}.hero h1 span{display:block;margin-top:14px;color:#47707a;font-size:clamp(17px,2.1vw,23px);font-weight:650;letter-spacing:-.02em;line-height:1.35}.lead{font-size:clamp(16px,2vw,19px);color:#4c6978;max-width:760px;margin:0}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 17px;border-radius:12px;font-weight:750;font-size:14px;text-decoration:none;border:1px solid #a9ced1}.btn.primary{background:#087f86;color:#fff;border-color:#087f86}.btn.secondary{background:#f0f8f7;color:#126f76}
+.path{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px;color:#587481;font-size:12px;font-weight:700}.path span{background:#f0f6f7;border:1px solid #e0ebee;padding:6px 10px;border-radius:999px}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;align-items:start;padding:28px 0 56px}.toc{position:sticky;top:20px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:18px}.toc strong{display:block;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#718a96;margin:0 0 10px}.toc a{display:block;padding:6px 4px;font-size:13px;text-decoration:none;font-weight:650;color:#4d6d7b}.toc a:hover{color:#087f86}
+.content{min-width:0}.panel{background:#fff;border:1px solid var(--line);border-radius:21px;padding:clamp(19px,3.4vw,32px);margin-bottom:16px;box-shadow:0 8px 27px rgba(25,66,82,.035);scroll-margin-top:20px}.panel h2{font-size:clamp(22px,3vw,29px);line-height:1.2;letter-spacing:-.025em;margin:0 0 13px}.panel h3{font-size:17px;margin:20px 0 7px}.panel p{margin:9px 0;color:#405e6d}.step{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:9px;background:var(--pale);color:#087780;font-size:14px;margin-right:8px;vertical-align:2px}.panel ol,.panel ul{margin:12px 0;padding-left:22px;color:#405e6d}.panel li{padding-left:4px;margin:8px 0}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.tile{border:1px solid var(--line);background:#f8fbfc;border-radius:15px;padding:17px}.tile b{display:block;margin-bottom:4px}.tile p{font-size:14px;margin:0}.tile p b{display:inline;margin:0}.callout{background:#eff8f6;border:1px solid #c4e4df;border-radius:15px;padding:15px 17px;margin:18px 0;color:#2b5b60}.callout.amber{background:var(--amber);border-color:#ebd9b5;color:#765625}.callout p{margin:3px 0;color:inherit}.altDebrid{display:flex;align-items:center;gap:7px 12px;flex-wrap:wrap;margin:14px 0 20px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:13px}.altDebrid b{color:#254d5a}.altDebrid a{font-weight:700;white-space:nowrap}.altDebrid span{flex-basis:100%;color:#657f8b}.referralRow{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:4px;vertical-align:middle}.referralRow code{overflow-wrap:anywhere;user-select:all;font-size:13px}.referralRow button,.referralRow a{display:inline-flex;align-items:center;border:1px solid #9ccac8;border-radius:8px;background:#fff;color:#08747d;font-family:inherit;font-size:11px;font-weight:700;line-height:1.2;padding:4px 8px;min-height:24px;text-decoration:none;cursor:pointer;white-space:nowrap}.referralRow button:hover,.referralRow a:hover{background:#e5f4f2}.addonColumns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;margin:15px 0}.addonGroup{border:1px solid var(--line);border-radius:15px;background:#f8fbfc;padding:7px 18px 3px;min-width:0}.addonGroup h3{margin:8px 0 4px}.addonList{list-style:none;padding:0!important;margin:0!important}.addonList li{padding:10px 0;margin:0;border-top:1px solid #e1ebef;color:#405e6d}.addonList strong{display:block;color:#1b4655}.addonList span{display:block;min-width:0;font-size:14px;line-height:1.5}@media(max-width:720px){.addonColumns{grid-template-columns:1fr}}.mini{font-size:13px;color:#627d89!important}.affiliate{font-size:12px;color:#68808b!important}.glossary{padding-left:20px}.glossary li{margin:8px 0}.langNote{display:block;padding:6px 10px 2px;font-size:10px;font-weight:700;color:#7b929c;text-transform:uppercase;letter-spacing:.04em}.footer{color:#738b96;text-align:center;font-size:12px;padding:0 0 35px}
+@media(max-width:760px){.shell{width:min(100% - 22px,680px)}.topbar{padding:14px 2px}.hero{border-radius:20px;padding:26px 20px}.layout{display:block;padding-top:16px}.toc{position:static;margin-bottom:16px;display:flex;gap:4px 12px;overflow-x:auto;white-space:nowrap;align-items:center}.toc strong{margin:0 7px 0 0;flex:none}.toc a{flex:none}.split{grid-template-columns:1fr}.panel{border-radius:17px}.heroActions .btn{flex:1 1 180px}}
+.topbarActions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-left:auto}.topbarActions .toplink{margin-left:8px;white-space:nowrap}
+.languageMenu{position:relative;color:#176d75;font-size:11px;font-weight:800}.languageMenu summary{display:flex;align-items:center;gap:4px;height:34px;padding:0 8px;border:1px solid #cbdfe2;border-radius:10px;background:#fff;cursor:pointer;list-style:none;min-width:67px}.languageMenu summary::-webkit-details-marker{display:none}.languageMenu .chevron{font-size:15px;margin-left:auto;line-height:1}.languageMenu[open] summary,.languageMenu summary:hover{background:#eaf6f4}.languageOptions{position:absolute;z-index:40;right:0;top:39px;display:grid;min-width:144px;padding:5px;background:#fff;border:1px solid #cbdfe2;border-radius:12px;box-shadow:0 12px 28px rgba(24,62,75,.16)}.languageOptions a{display:block;padding:6px 9px;border-radius:7px;color:#235c66;font-size:12px;text-decoration:none;white-space:nowrap}.languageOptions a:hover{background:#eaf6f4}
+.iconAction{display:inline-grid;place-items:center;width:34px;height:34px;padding:7px;border:1px solid #cbdfe2;border-radius:10px;background:#fff;color:#327b83;cursor:pointer;text-decoration:none}.iconAction:hover{background:#eaf6f4;color:#095c65}.iconAction svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.iconAction.whatsapp{color:#13845e}.iconAction.whatsapp:hover{color:#086645}
+.shareFeedback{position:fixed;z-index:50;left:50%;bottom:20px;transform:translateX(-50%);border-radius:10px;background:#173c4b;color:#fff;padding:8px 12px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.2);white-space:nowrap}.shareFeedback:empty{display:none}
+@media(max-width:680px){.topbar{gap:8px}.topbar .brand{flex-basis:100%}.topbarActions{width:100%;margin-left:0;justify-content:flex-end}.topbarActions .toplink{font-size:12px;margin-left:3px}}
+</style>
+<link rel="alternate" hreflang="es" href="https://wizard.stremio-nuvio.workers.dev/guia.html">
+<link rel="alternate" hreflang="en" href="https://wizard.stremio-nuvio.workers.dev/guide.html">
+</head>
+<body>
+<div class="shell">
+<nav class="topbar" aria-label="Navigation"><a class="brand" href="/">Stremio &amp; Nuvio Wizard</a><div class="topbarActions">
+  <details class="languageMenu notranslate" translate="no"><summary aria-label="Choose language" title="Choose language">🌐 <span id="currentLang">EN</span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="languageOptions"><a href="/guia.html" lang="es" data-native>Español</a><a href="/guide.html" lang="en" data-native>English</a><span class="langNote">Automatic translation</span><a href="#" lang="pt">Português</a><a href="#" lang="fr">Français</a><a href="#" lang="it">Italiano</a><a href="#" lang="de">Deutsch</a></div></details>
+  <a id="shareWhatsApp" class="iconAction whatsapp" href="https://wa.me/?text=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguide.html" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" title="Share on WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 0-8.3 14.1L2.5 21.5l5-1.3A9.5 9.5 0 1 0 12 2.5Z"/><path d="M8.2 7.8c.5-.5.9-.3 1.2.3l.9 1.6c.2.4.1.6-.2.9l-.6.6c.6 1.2 1.5 2.1 2.8 2.8l.6-.7c.3-.3.6-.4 1-.2l1.6.8c.7.4.8.8.3 1.4-.7.9-1.5 1.1-2.4.9-2.7-.6-5.5-3.3-6.1-6-.2-1 .1-1.8.9-2.4Z"/></svg></a>
+  <button id="shareGuide" class="iconAction" type="button" aria-label="Share the guide" title="Share the guide"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.2"/><circle cx="5" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m7 11 9-5M7 13l9 5"/></svg></button>
+  <button id="copyGuideLink" class="iconAction" type="button" aria-label="Copy guide link" title="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2.1-2.1a5 5 0 0 0-7.1-7.1L10.8 5M14 11a5 5 0 0 0-7.1 0l-2.1 2.1a5 5 0 0 0 7.1 7.1l1.3-1.3"/></svg></button>
+  <a class="toplink" href="/">Open wizard →</a><span class="shareFeedback" id="shareFeedback" role="status" aria-live="polite"></span>
+</div></nav>
+<header class="hero"><div class="eyebrow">Beginner's guide</div><h1>Your first Stremio or Nuvio setup, step by step<span>Guide by supermaniac75</span></h1><p class="lead">Install Stremio or Nuvio, create your account, decide whether you'll use Debrid and let the wizard set everything up for you. Follow the steps in order: no technical knowledge needed, and every unusual word is explained below.</p><div class="heroActions"><a class="btn primary" href="#instalar">Start the guide ↓</a><a class="btn secondary" href="/">I already have an account: open wizard</a></div><div class="path"><span>1 · Install</span><span>2 · Account</span><span>3 · Debrid (optional)</span><span>4 · Wizard</span><span>5 · Addons</span><span>6 · Test</span></div></header>
+<div class="layout">
+<nav class="toc" aria-label="In this guide"><strong>In this guide</strong><a href="#palabras">Words you'll see</a><a href="#instalar">Install the app</a><a href="#cuenta">Create the account</a><a href="#debrid">Choose Debrid</a><a href="#wizard">Use the wizard</a><a href="#addons">Recommended addons</a><a href="#final">Finish and test</a><a href="#registro">Track what you watch</a><a href="#dudas">FAQ</a></nav>
+<main class="content">
+<section class="panel" id="palabras"><h2>Words you'll see</h2><p>No need to memorize them. Come back here if one confuses you.</p><ul class="glossary">
+<li><b>Addon:</b> a piece you add to Stremio or Nuvio to show catalogs, links or subtitles. The apps come almost empty: addons are what bring the content.</li>
+<li><b>AIOStreams:</b> an addon that gathers links from many sources into one list and sorts them by quality and language. It's the heart of the setup.</li>
+<li><b>AIOMetadata:</b> the addon that shows title pages, posters, descriptions and catalogs in your language.</li>
+<li><b>Debrid:</b> a paid service (TorBox, Real-Debrid and others) that downloads the video for you and delivers it fast and without buffering. It's optional.</li>
+<li><b>API key:</b> a long code your Debrid service gives you so the wizard can connect to it. It's private, like a password.</li>
+<li><b>Backup:</b> a copy of your current addon list that the wizard makes before changing anything, so you can go back.</li>
+<li><b>P2P:</b> downloading directly from other users. It works without Debrid, but it can be slower and those users can see your IP address.</li>
+</ul></section>
+<section class="panel" id="instalar"><h2><span class="step">1</span>Install Stremio or Nuvio</h2><p>Pick one app to start with. They use separate accounts and store their addons separately. You can set up the second app later.</p>
+<div class="split"><div class="tile"><b>Stremio</b><p>Open the <a href="https://www.stremio.com/downloads" target="_blank" rel="noopener noreferrer">official downloads page ↗</a> and choose your system: Windows, Mac, Android, TV or the option for your device. Install and open the app.</p></div><div class="tile"><b>Nuvio</b><p>Go to <a href="https://nuvio.tv/" target="_blank" rel="noopener noreferrer">nuvio.tv ↗</a> and pick the download for your phone, computer or TV. Download the app from its official site.</p></div></div>
+<p class="mini">If you want to use the app on a TV, create the account and complete the wizard from a computer or phone. Then sign in on the TV with the same account. On iPhone, check what each app's official page offers, since it can vary by region.</p></section>
+<section class="panel" id="cuenta"><h2><span class="step">2</span>Create your account in the app</h2><ol><li>In Stremio or Nuvio, tap <b>Sign up</b> or <b>Create account</b> and use an email address you can access.</li><li>Confirm your email if the app asks you to. Keep the email and password: you'll use them in the wizard.</li><li>Open the app and sign in once to check the account works. If Nuvio asks for a profile, create or choose the one you'll use.</li></ol><div class="callout"><b>Each app needs its own account.</b> If you have both Stremio and Nuvio, create or use an account in each. The wizard can copy addons between them after you set up the first one.</div></section>
+<section class="panel" id="debrid"><h2><span class="step">3</span>Decide whether you'll use Debrid</h2><p>A Debrid service is optional. The wizard can use it to get playback links. You can also start without one. Link availability, quality and speed can vary.</p>
+<div class="split"><div class="tile"><b>I want to use TorBox</b><p>For its price and quality, I recommend the <b>TorBox Essential plan</b> to start. Sign up with your email and a TorBox password of its own (different from your Stremio or Nuvio one) and verify your email. Check the current price and terms before paying, and choose Essential. Then copy your <b>API key</b> from Settings → Account → API Key. The wizard will ask for it in step 3.</p></div><div class="tile"><b>I don't want Debrid yet</b><p>In step 3 of the wizard, tap <b>“I don't have Debrid”</b>. The wizard will use free sources. Some download the video from other users (P2P): they can take longer to start and those users can see your IP address. You can add Debrid later by running the wizard again.</p></div></div>
+<div class="altDebrid"><b>Other Debrid options to compare:</b> <a href="https://real-debrid.com/" target="_blank" rel="noopener noreferrer">Real-Debrid ↗</a><a href="https://www.premiumize.me/premium" target="_blank" rel="noopener noreferrer">Premiumize ↗</a><a href="https://alldebrid.com/" target="_blank" rel="noopener noreferrer">AllDebrid ↗</a><span>You can also use other providers the wizard supports; compare prices, limits and availability before choosing. Copy your service's API key or token and add it in step 3 of the wizard.</span></div>
+<div class="callout"><b>Use my referral link or code:</b> <span class="referralRow"><code id="referralCode">7b4a584a-00a5-430e-aa31-809aa4934cb0</code><button id="copyReferral" type="button" aria-label="Copy referral code">Copy</button><a id="torboxReferralLink" href="https://www.torbox.app/subscription?referral=7b4a584a-00a5-430e-aa31-809aa4934cb0" target="_blank" rel="noopener noreferrer" aria-label="Open TorBox referral link">Open link ↗</a></span><p>If you use the link, sign in and confirm the referral when TorBox asks. If you open the subscription page directly, type the code in the referral section. Check that the referral code is applied before paying.</p></div>
+<p class="affiliate">If you subscribe through the link or code and the referral is applied, TorBox may add extra time to your plan.</p>
+<p class="mini"><b>To avoid problems when subscribing:</b> use your usual connection without a VPN, proxy or iCloud Private Relay, and an up-to-date browser outside incognito mode. If the recurring payment fails, try the one-time payment. If you hit the attempt limit, wait an hour; TorBox recommends waiting 24 hours after the last attempt following some VPN or proxy rejections. If you see “You are not permitted to pay”, don't assume waiting will fix it: <a href="https://support.torbox.app/en/articles/14013985-i-get-an-error-when-subscribing" target="_blank" rel="noopener noreferrer">check the official help ↗</a> or contact support.</p>
+<p class="mini">Your TorBox API key is private. Don't share it or confuse it with your Stremio or Nuvio password.</p></section>
+<section class="panel" id="wizard"><h2><span class="step">4</span>Set up with the wizard</h2><p>Open the <a href="/">Stremio &amp; Nuvio Wizard</a> in another tab. It has five steps and <b>nothing changes in your account until you press the final button</b>.</p><ol>
+<li><b>Account:</b> choose Stremio or Nuvio, type the email and password of <em>that app</em> and tap “Connect account”. In Nuvio, also choose the profile you want to set up. In Stremio, “Remember account in this browser” is optional: it keeps your encrypted sign-in only in that browser.</li>
+<li><b>Backup:</b> tap “Create secure backup”. The wizard saves your current addon list (and, in Nuvio, the home rows) so you can go back. The backup stays encrypted in your browser for 30 days. You don't need this step's “Advanced options”.</li>
+<li><b>Preferences:</b> choose your main language (pick “English” if that's yours). If you have Debrid, keep “I have Debrid” and paste your API key; otherwise tap “I don't have Debrid”. In Nuvio, keep “Nuvio home collections” checked. Under “Additional content preferences” you can turn on Kids profile, anime, Remove 4K or “Cached only”, which shows only videos your Debrid already has ready, so they start instantly.</li>
+<li><b>Addons:</b> the recommended ones are already checked. TMDB and TVDB work with the built-in key: you don't need accounts there. The MDBList field is optional (see “Track what you watch”). The “Spanish-language addons” section is only useful if you watch content in Spanish.</li>
+<li><b>Review and apply:</b> tap “Refresh plan”, read the summary of what will be added or replaced, and tap “Apply to Stremio” or “Apply to Nuvio”.</li></ol>
+<div class="callout amber"><b>When you finish, save your AIOStreams details.</b> The final screen shows an AIOStreams user (UUID) and password. Tap “Save in browser” or “Download for password manager”. The wizard doesn't keep them, and you'll need them if you ever want to change that setup.</div></section>
+<section class="panel" id="addons"><h2><span class="step">5</span>Recommended addons</h2><p>A short list is easier to maintain. The wizard gathers the main sources in <b>AIOStreams</b> and always installs <b>AIOMetadata</b> for title pages and catalogs.</p>
+<div class="addonColumns"><div class="addonGroup"><h3>Checked by default</h3><ul class="addonList">
+<li><strong>AIOStreams</strong><span>Gathers and sorts links from many sources.</span></li>
+<li><strong>AIOMetadata</strong><span>Title pages, posters and catalogs in your language. Always installed.</span></li>
+<li><strong>SubSense</strong><span>Searches subtitles across several sources.</span></li>
+<li><strong>OpenSubtitles PRO</strong><span>A second subtitle provider, in case the first finds nothing.</span></li>
+<li><strong>Streailer</strong><span>Trailers and season recaps.</span></li>
+<li><strong>Debrid store</strong><span>Shows what you already have saved in your Debrid. Only if you use Debrid.</span></li>
+</ul></div>
+<div class="addonGroup"><h3>Spanish-language addons (optional)</h3><ul class="addonList">
+<li><strong>Peerflix</strong><span>Many Spanish-language links, configured automatically.</span></li>
+<li><strong>Cometa</strong><span>A source focused on Spanish-language content; works with or without Debrid.</span></li>
+<li><strong>Latinobrid</strong><span>Latin American Spanish only. Requires TorBox or Premiumize.</span></li>
+<li><strong>Linkañol</strong><span>Spain Spanish, useful for older titles. With TorBox or AllDebrid.</span></li>
+<li><strong>AnimES</strong><span>Anime in Spanish.</span></li>
+</ul></div></div>
+<p>Torrentio, Comet, MediaFusion and other well-known sources <b>are already inside AIOStreams</b>: no need to install them separately. If an addon doesn't respond on the day you use the wizard, it's skipped and the rest still installs; the final screen tells you which one was left out.</p>
+<p class="mini">Only use content you have the right to access. Third-party addons are independent of Stremio, Nuvio and this wizard, and they may change or stop working.</p></section>
+<section class="panel" id="final"><h2><span class="step">6</span>Check that it works</h2><ol>
+<li>Open Stremio or Nuvio with the <b>same account</b> you set up. If it was already open, close and reopen it. In Nuvio, enter the same profile.</li>
+<li>Search for a well-known movie and open its page. AIOStreams links should appear in the sources list. In Nuvio you'll also see new rows on the home screen: Watch Now, Genres, Decades and more.</li>
+<li>If nothing shows up, wait a minute and reopen the app.</li>
+<li>If you didn't like something, go back to step 2 of the wizard, open “Restore a previous setup” and choose the backup that was created.</li></ol>
+<div class="callout"><b>Using both apps?</b> On the final screen tap “Copy to the other account”, or use “Copy Stremio ↔ Nuvio” in step 1. The wizard backs up the account that receives the copy, and both apps end up using the same AIOStreams. Copying to Nuvio also adds the home rows.</div>
+<div class="callout"><b>Several Nuvio profiles?</b> When you finish, the wizard offers “Apply to the selected profiles” to copy the same setup to the account's other profiles, with a backup for each one.</div>
+<a class="btn primary" href="/">Open the wizard →</a></section>
+<section class="panel" id="registro"><h2>Optional: track what you watch</h2><p>Stremio and Nuvio already remember what you're watching in your account. If you also want a full history, watchlists or IMDb and Rotten Tomatoes ratings, you can connect a tracking service. It isn't needed to watch anything.</p><ul class="glossary">
+<li><b>MDBList (recommended):</b> create a free account at <a href="https://mdblist.com" target="_blank" rel="noopener noreferrer">mdblist.com ↗</a>, go to <a href="https://mdblist.com/preferences/" target="_blank" rel="noopener noreferrer">Preferences ↗</a>, open “API Access” and copy your key. Paste it in step 4 of the wizard: AIOMetadata will record what you watch there. In Nuvio, paste the same key in Settings → Integrations → MDBList to see ratings on each title page. The free plan allows 1,000 requests a day, enough for personal use.</li>
+<li><b>Simkl:</b> free and good for history and watchlists. In Nuvio, connect it from Settings → Integrations.</li>
+<li><b>Trakt:</b> the best known, but in 2026 it limited free accounts (250 watchlist items and 5 lists) and restricted third-party apps. Use it only if you already have it: Stremio connects it in Settings → Trakt and Nuvio in Settings → Integrations.</li>
+</ul><p class="mini">You can use more than one at a time, but picking one is simplest.</p></section>
+<section class="panel" id="dudas"><h2>FAQ</h2><h3>Can I use it without paying?</h3><p>Yes. Choose “I don't have Debrid” in step 3 of the wizard. The experience may differ, though: videos may take longer to start, playback may stop, and some titles may have no links. Free sources vary in availability and some use P2P, which depends on other users sharing the files.</p><h3>Is TorBox Essential required?</h3><p>No. It's a suggestion to start with if you want Debrid. Choose another supported provider or continue without Debrid.</p><h3>Do I need a new account if I already use Stremio or Nuvio?</h3><p>No. Sign in with your current account. The backup is especially useful if you already have addons installed.</p><h3>Is my app password the TorBox API key?</h3><p>No. They're different things. The email and password connect your Stremio or Nuvio account. The API key connects TorBox to the wizard.</p>
+<h3>Is it safe to type my app password?</h3><p>Your email and password go through the wizard's server only to sign in to Stremio or Nuvio, and they aren't stored. Backups stay encrypted in your own browser. The wizard's code is public: you can review it on GitHub.</p>
+<h3>What does Nuvio have that Stremio doesn't?</h3><p>Nuvio lets you customize the home screen with <b>collections</b>: rows like Watch Now, Genres, Decades or International. The wizard adds them for you. If you use your own TMDB key in step 4, it also adds a Franchises row (Star Wars, Marvel and others). Nuvio also has separate profiles within the same account.</p>
+<h3>Can I run the wizard again?</h3><p>Yes. Each time it creates a backup before changing anything, so you can try other options and go back.</p></section>
+</main></div><footer class="footer">Stremio &amp; Nuvio Wizard · Guide by supermaniac75 · 2026<div class="footerNote">An independent, unofficial project with no relation to Stremio or Nuvio. The wizard doesn't host or link to any content: it only configures third-party addons in your account.</div><div class="footerSupport">Found it useful? Support the project: <a href="https://ko-fi.com/supermaniac" target="_blank" rel="noopener noreferrer">Ko-fi</a> · <a href="https://github.com/sponsors/maniac75" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a> · <a href="https://github.com/maniac75/stremio-nuvio-wizard" target="_blank" rel="noopener noreferrer">Source code</a></div></footer></div>
+<script>
+document.getElementById('copyReferral').addEventListener('click', async function () {
+  const button = this;
+  const code = document.getElementById('referralCode').textContent.trim();
+  try {
+    await navigator.clipboard.writeText(code);
+    button.textContent = 'Copied ✓';
+  } catch (_) {
+    const input = document.createElement('textarea');
+    input.value = code;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    button.textContent = copied ? 'Copied ✓' : 'Select the code';
+  }
+  clearTimeout(button._resetTimer);
+  button._resetTimer = setTimeout(() => { button.textContent = 'Copy'; }, 6000);
+});
+const guideUrl = 'https://wizard.stremio-nuvio.workers.dev/guide.html';
+document.getElementById('torboxReferralLink').href = 'https://www.torbox.app/subscription?referral=7b4a584a-00a5-430e-aa31-809aa4934cb0';
+const shareTitle = 'Stremio and Nuvio guide by supermaniac75';
+document.getElementById('shareWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(shareTitle + '\n' + guideUrl);
+const languageCode = new URLSearchParams(location.search).get('_x_tr_tl') || new URLSearchParams(location.search).get('tl') || 'en';
+document.getElementById('currentLang').textContent = ({es:'ES',en:'EN',pt:'PT',fr:'FR',it:'IT',de:'DE'})[languageCode] || languageCode.toUpperCase().slice(0,2);
+document.querySelectorAll('.languageOptions a[lang]:not([data-native])').forEach(link => {
+  link.href = 'https://translate.google.com/translate?sl=en&tl=' + encodeURIComponent(link.getAttribute('lang')) + '&u=' + encodeURIComponent(guideUrl);
+});
+try { if (languageCode === 'en') localStorage.setItem('stremio-wizard-ui-language', 'en'); } catch (_) {}
+const feedback = document.getElementById('shareFeedback');
+function showShareFeedback(message) {
+  feedback.textContent = message;
+  clearTimeout(feedback._timer);
+  feedback._timer = setTimeout(() => { feedback.textContent = ''; }, 5000);
+}
+async function copyGuideUrl() {
+  try { await navigator.clipboard.writeText(guideUrl); }
+  catch (_) {
+    const input = document.createElement('textarea');
+    input.value = guideUrl; input.style.position = 'fixed'; input.style.opacity = '0';
+    document.body.appendChild(input); input.select();
+    const copied = document.execCommand('copy'); input.remove();
+    if (!copied) { showShareFeedback('Could not copy'); return; }
+  }
+  showShareFeedback('Link copied ✓');
+}
+document.getElementById('copyGuideLink').addEventListener('click', copyGuideUrl);
+document.getElementById('shareGuide').addEventListener('click', async () => {
+  if (!navigator.share) { await copyGuideUrl(); return; }
+  try { await navigator.share({ title: shareTitle, text: shareTitle, url: guideUrl }); }
+  catch (error) { if (error.name !== 'AbortError') showShareFeedback('Use Copy link'); }
+});
+</script>
+</body>
+</html>
