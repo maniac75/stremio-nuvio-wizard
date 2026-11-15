@@ -18,35 +18,36 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Copy between apps:** Stremio → Nuvio and Nuvio → Stremio, reusing the same AIOStreams instance.
 - **Restore** any previous backup or an exported JSON.
 
-## Self-hosting
+## How it works
 
-Requirements: Node.js 20+. No dependencies.
+- `public/` is the static front end (served by Cloudflare Workers Static Assets).
+- `core.js` holds all wizard logic; `worker.js` exposes it as a Cloudflare Worker and `server.js` as a plain Node server.
+- **Stateless:** the server keeps no data. Each backup is encrypted (AES-256-GCM) with a server-side key and handed back to *your* browser, which sends it back when you apply or restore. Backups expire after 30 days.
+- Per-IP rate limiting protects the sign-in endpoints.
+
+## Deploy on Cloudflare Workers
 
 ```bash
-git clone https://github.com/maniac75/stremio-nuvio-wizard.git
-cd stremio-nuvio-wizard
+npm install
+npx wrangler secret put BACKUP_KEY     # 32 random bytes in base64, e.g. `openssl rand -base64 32`
+npm run deploy
+```
+
+Local development: put `BACKUP_KEY=...` in `.dev.vars` and run `npm run dev`.
+
+## Self-hosting with Node
+
+Requirements: Node.js 20+.
+
+```bash
 npm start            # http://127.0.0.1:8787
 ```
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `PORT` | `8787` | HTTP port |
-| `HOST` | `127.0.0.1` | Bind address (keep it local and put HTTPS in front) |
-| `BACKUP_RETENTION_DAYS` | `30` | Backups older than this are deleted automatically |
-
-On first run the server creates `data/wizard.key` (backup encryption key) and `data/backups/`. Never commit or share them.
-
-Expose it with any HTTPS reverse proxy or tunnel. An optional Cloudflare Worker proxy is in `cloudflare-worker/`:
-
-```bash
-cd cloudflare-worker
-npx wrangler secret put ORIGIN   # your HTTPS origin, e.g. https://wizard.example.com
-npx wrangler deploy
-```
+`PORT` and `HOST` are optional. The backup key is read from `BACKUP_KEY` or generated in `data/wizard.key` on first run (never commit it). Put HTTPS in front of it.
 
 ## Privacy
 
-Passwords are used once to sign in and never stored. Backups are encrypted and deleted after 30 days. Full details: [PRIVACY.md](PRIVACY.md).
+Passwords are used once to sign in and never stored. The server stores nothing; encrypted backups live in your browser and expire after 30 days. Full details: [PRIVACY.md](PRIVACY.md).
 
 ## Contributing
 
@@ -67,6 +68,6 @@ If the wizard saved you time, you can support it on [Ko-fi](https://ko-fi.com/su
 Asistente paso a paso para configurar **Stremio** y **Nuvio**: conecta tu cuenta, crea un respaldo verificado, elige complementos, revisa los cambios y aplica. Proyecto **no oficial** y sin relación con Stremio ni Nuvio; no aloja ni enlaza contenido, sólo configura complementos de terceros en tu propia cuenta.
 
 - Úsalo en <https://wizard.stremio-nuvio.workers.dev> o sigue la [guía para principiantes](https://wizard.stremio-nuvio.workers.dev/guia.html).
-- Tu contraseña no se guarda. Los respaldos se cifran y se borran a los 30 días ([detalle](PRIVACY.md)).
+- Tu contraseña no se guarda y el servidor no guarda nada: los respaldos quedan cifrados en tu navegador y vencen a los 30 días ([detalle](PRIVACY.md)).
 - Errores y sugerencias en [Issues](https://github.com/maniac75/stremio-nuvio-wizard/issues), sin pegar claves ni contraseñas.
 - ¿Te sirvió? Apóyalo en [Ko-fi](https://ko-fi.com/supermaniac) o [GitHub Sponsors](https://github.com/sponsors/maniac75).

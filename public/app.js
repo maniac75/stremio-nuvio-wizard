@@ -48,16 +48,28 @@ function bytesToBase64(bytes){
 function base64ToBytes(value){
   return Uint8Array.from(atob(value),function(char){return char.charCodeAt(0);});
 }
+function keyStore(mode,action){
+  return new Promise(function(resolve,reject){
+    var open=indexedDB.open('stremio-wizard',1);
+    open.onupgradeneeded=function(){open.result.createObjectStore('keys');};
+    open.onerror=function(){reject(open.error);};
+    open.onsuccess=function(){
+      var db=open.result,tx=db.transaction('keys',mode),req=action(tx.objectStore('keys'));
+      tx.oncomplete=function(){db.close();resolve(req&&req.result);};
+      tx.onerror=function(){db.close();reject(tx.error);};
+    };
+  });
+}
 async function rememberedCryptoKey(){
-  if(!crypto.subtle)throw new Error('Este navegador no permite guardar la cuenta de forma cifrada.');
-  var storageKey='stremio-wizard-local-crypto-v1';
-  var secret=localStorage.getItem(storageKey);
-  if(!secret){
-    secret=bytesToBase64(crypto.getRandomValues(new Uint8Array(32)));
-    localStorage.setItem(storageKey,secret);
+  if(!crypto.subtle||!window.indexedDB)throw new Error('Este navegador no permite guardar la cuenta de forma cifrada.');
+  try{localStorage.removeItem('stremio-wizard-local-crypto-v1');}catch(_){}
+  var key=await keyStore('readonly',function(store){return store.get('remember-v2');});
+  if(!key){
+    // Clave no exportable: el navegador la usa, pero ningún script puede leerla ni copiarla.
+    key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+    await keyStore('readwrite',function(store){return store.put(key,'remember-v2');});
   }
-  var material=await crypto.subtle.digest('SHA-256',base64ToBytes(secret));
-  return crypto.subtle.importKey('raw',material,{name:'AES-GCM'},false,['encrypt','decrypt']);
+  return key;
 }
 function syncForgetButton(){
   document.getElementById('forgetAccount').style.display=localStorage.getItem(rememberedStorageKey)&&document.getElementById('platform').value==='stremio'?'inline-block':'none';
@@ -66,7 +78,7 @@ async function saveRememberedAccount(authKey,email){
   var iv=crypto.getRandomValues(new Uint8Array(12));
   var data=new TextEncoder().encode(JSON.stringify({authKey:authKey,email:email||''}));
   var encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},await rememberedCryptoKey(),data);
-  localStorage.setItem(rememberedStorageKey,JSON.stringify({v:1,iv:bytesToBase64(iv),data:bytesToBase64(new Uint8Array(encrypted))}));
+  localStorage.setItem(rememberedStorageKey,JSON.stringify({v:2,iv:bytesToBase64(iv),data:bytesToBase64(new Uint8Array(encrypted))}));
   syncForgetButton();
 }
 function forgetRememberedAccount(){
@@ -79,7 +91,7 @@ async function restoreRememberedAccount(){
   if(!saved)return;
   try{
     var record=JSON.parse(saved);
-    if(record.v!==1)throw new Error('Formato desconocido');
+    if(record.v!==2){forgetRememberedAccount();return;}
     var plain=await crypto.subtle.decrypt(
       {name:'AES-GCM',iv:base64ToBytes(record.iv)},
       await rememberedCryptoKey(),
@@ -400,7 +412,26 @@ function collect(){
   });
 }
 
+var backupVaultKey='stremio-wizard-backups-v2';
+function backupVaultList(){
+  try{var v=JSON.parse(localStorage.getItem(backupVaultKey)||'[]');return Array.isArray(v)?v.filter(function(x){return typeof x==='string'&&x.indexOf('b2.')===0;}):[];}
+  catch(_){return [];}
+}
+function backupVaultAdd(token){
+  if(typeof token!=='string'||token.indexOf('b2.')!==0)return;
+  var list=[token].concat(backupVaultList().filter(function(x){return x!==token;}));
+  for(var n=Math.min(list.length,8);n>0;n--){
+    try{localStorage.setItem(backupVaultKey,JSON.stringify(list.slice(0,n)));return;}catch(_){}
+  }
+}
 async function post(url,body){
+  if(url==='/api/connect'||url==='/api/analyze')body=Object.assign({},body,{storedBackups:backupVaultList()});
+  var data=await postRaw(url,body);
+  if(data&&data.backupId)backupVaultAdd(data.backupId);
+  if(data&&data.safetyBackupId)backupVaultAdd(data.safetyBackupId);
+  return data;
+}
+async function postRaw(url,body){
   var r=await fetch(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -1154,7 +1185,7 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
           form.querySelector('.actions').hidden=true;
           plan.hidden=true;
           status.textContent='Copia completada: '+sourceName+' → '+targetName+'. '+targetName+' tiene '+applied.total+
-            ' complementos verificados y utiliza el mismo AIOStreams. '+sourceName+' quedó intacto. Respaldo de '+targetName+': '+applied.backupId+'.';
+            ' complementos verificados y utiliza el mismo AIOStreams. '+sourceName+' quedó intacto. Respaldo de '+targetName+': '+(applied.backupLabel||'guardado en este navegador')+'.';
           var download=document.createElement('button');
           download.className='secondary';
           download.type='button';
@@ -1197,7 +1228,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
     document.getElementById('restoreBtn').style.display='inline-block';
 
     var details=[
-      'Copia de seguridad: '+d.backupId,
+      'Copia de seguridad: '+(d.backupLabel||'guardada en este navegador'),
       'AIOStreams: '+(c.profileMode==='tamtaro'?'configuración predeterminada de Tamtaro':'configuración recomendada')+' · Tamtaro '+d.aio.templateVersion,
       'Verificación '+platformName()+': '+(d.verification&&d.verification.collection?'correcta':'no confirmada'),
       'AIOStreams: '+(d.verification&&d.verification.aioOnline?'en línea':'sin respuesta'),
