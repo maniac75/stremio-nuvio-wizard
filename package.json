@@ -1,0 +1,14 @@
+{
+  "name": "stremio-nuvio-wizard",
+  "version": "0.13.0",
+  "private": true,
+  "description": "Step-by-step setup wizard for Stremio and Nuvio: connect your account, take a verified backup, choose add-ons and review before applying.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

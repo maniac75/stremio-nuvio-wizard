@@ -1,0 +1,52 @@
+:root{color-scheme:light;--bg:#eef3f7;--panel:#fff;--panel2:#f4f8fa;--line:#d7e3e9;--line2:#e7eef2;--text:#173040;--muted:#5b7180;--accent:#087f86;--accent2:#2874b5;--accent3:#2874b5;--good:#137a57;--bad:#b94351;--warn:#9a6113;--shadow:0 14px 44px rgba(21,51,73,.08)}
+html{background:#eef3f7}body{background:linear-gradient(180deg,#e6f2f3 0,#f3f7fa 310px,#edf2f6 100%);color:var(--text);background-attachment:scroll}.wrap{padding-top:28px}
+header{background:#fff;border-color:#dce7eb;box-shadow:0 18px 48px rgba(21,62,84,.08);padding:27px 30px}header:before,.card:before{display:none}
+h1{background:none;color:#123b4c;font-size:clamp(30px,4vw,43px)}.subtitle{color:#526b78;line-height:1.5}.statusbar{justify-content:flex-start}
+.pill{background:#f3f7f8;border-color:#dce7e9;color:#506b77;backdrop-filter:none;font-weight:650}.pill.good{background:#e8f6ee;border-color:#b8e3cb;color:#146b4d}.pill.bad{background:#fff0f1;border-color:#f2c8cd;color:#a93546}
+.uiLanguage{background:#fff;border-color:#c7d9df;color:#174557;backdrop-filter:none}.uiLanguage select option{background:#fff;color:#173040}
+.steps button{background:#fff;border-color:#dce7eb;color:#667d88}.steps button span{background:#edf4f5;color:#557080}.steps button.active{border-color:#6bb8b5;background:#e8f6f5;color:#086d74}.steps button.done{color:#197557}.steps button.done span{background:#e0f4e9}
+.card{background:#fff;border-color:#dce7eb;box-shadow:0 12px 36px rgba(20,53,74,.055);border-radius:19px;overflow:visible}h2{color:#193d4d}h3{color:#254a5b}label,.platformLabel{color:#345565;font-weight:600}.small{color:#627987}.section-kicker{color:#087f86}
+input,textarea{border-color:#cbdce3;background:#fff;color:#173040}input::placeholder,textarea::placeholder{color:#8297a1}
+select:not(.uiLanguage select){appearance:none;-webkit-appearance:none;border:1.5px solid #8cb8c2;background:#eff8f8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23066e78' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 13px center;padding-right:42px;color:#163b4a;font-weight:650;cursor:pointer}
+select:not(.uiLanguage select):hover{border-color:#087f86;background-color:#e5f4f3}input:focus,select:focus,textarea:focus{border-color:#087f86;box-shadow:0 0 0 3px rgba(8,127,134,.13);background-color:#fff}input[type=checkbox]{accent-color:#087f86;box-shadow:none}
+button.primary{background:#087f86;color:#fff;box-shadow:0 7px 18px rgba(8,127,134,.17)}button.secondary{background:#f1f6f8;border:1px solid #cbdde4;color:#245569}button.danger{background:#fff0f1;border:1px solid #ecc5c9;color:#a73948}button:hover:not(:disabled){filter:none;box-shadow:0 6px 16px rgba(19,68,88,.12)}
+.link{color:#08717a;font-weight:650}.divider{color:#78909c}.check{background:#f9fbfc;border-color:#e0e9ee;box-shadow:none;min-width:0}.check:hover{border-color:#88bcc0;background:#f5fafa;transform:none}.check label{color:#254655;min-width:0}.check .small{margin-top:4px}
+.note{background:#f1f7f9;border-color:#d5e5eb;color:#315667}pre{background:#f2f6f8;border-color:#dbe7eb;color:#244858}
+.fold{background:#f8fbfc;border-color:#dbe7eb}.fold>summary{color:#245364}.fold>summary:after{color:#087f86}.fold.optionDisclosure,.card:has(>.fold) .fold.optionDisclosure{border-color:#a9d4d3;background:#f3faf9;box-shadow:none}.fold.optionDisclosure>summary{color:#205262}.fold.optionDisclosure>summary:after{border-color:#acd3d3;background:#e5f4f2;color:#08717a}.fold.optionDisclosure:hover{border-color:#087f86;background:#edf8f7}
+.badge{background:#eef1fa;color:#52628d;border-color:#d9def3}.tag-rec{background:#e7f5ec;color:#176c4e;border-color:#bfe5cd}.tag-es{background:#e5f5f4;color:#087179;border-color:#bee3e1}.tag-opt{background:#edf4fc;color:#356b9a;border-color:#d1e2f4}.tag-redundant{background:#fff6e7;color:#8b621e;border-color:#f2dfb8}.tag-caution{background:#fff0f1;color:#a73b49;border-color:#f1cbd0}
+.platformSwitch{background:#edf3f5;border-color:#d4e2e8}button.platformChoice{color:#4c6a78}button.platformChoice.selected{background:#fff;border-color:#88bfc2;color:#174655;box-shadow:0 3px 12px rgba(21,51,73,.09)}
+.backupCallout{background:#eaf7f4;border-color:#a8d8c8;box-shadow:0 12px 26px rgba(21,67,62,.1)}.backupCallout p{color:#285344}.debridModeSwitch{background:#edf4f6;border-color:#cfdee4}.debridModeSwitch button.active{background:#fff;color:#086e76;box-shadow:inset 0 0 0 1px #71b9bc}
+.crossAppCard{background:#f2f8f9;border-color:#d4e6ea}.crossAppCard b{color:#245164}.crossAppCard>.secondary{color:#08717a;border-color:#a7cfd1}.toolButton{border-color:#8fc5c6!important;color:#08717a!important}
+dialog.toolDialog{background:#fff;border-color:#bfd9df;color:#173040;box-shadow:0 28px 85px rgba(16,40,58,.27)}dialog.toolDialog::backdrop{background:rgba(15,39,55,.6)}.copyLead{color:#3b5b69}.copyRoute{background:#f7fafb;border-color:#dce7eb}.copyRoute b{color:#08717a}.copySafety{background:#edf8f5;border-color:#c4e4d9;color:#27584b}.copySteps{background:#f3f8fa;border-color:#dce7eb}.copySteps li{color:#456372}.connectionFeedback{color:#137a57}
+.successBanner{background:#e8f6ee;border-color:#b8e2c8}.successBanner h2{color:#16694e}.successBanner p{color:#315e4e}.successIcon{background:#16805d;color:#fff}.aioCredentialsCard{background:#fff9eb;border-color:#e7d5a7}.aioCredentialsCard h3{color:#674914}.credentialBox{background:#fff;border-color:#e6d9bb}.credentialValue{color:#1d3d4c}.credentialWarning{background:#fff4db;border-color:#ead6a4;color:#624819}.installedDisclosure summary{background:#edf7f6;color:#08717a}footer{color:#718793}
+:where(button,input,select,textarea,summary,a):focus-visible{outline:3px solid #43a9a9;outline-offset:2px}
+@media(max-width:720px){.wrap{padding-top:8px}header{padding:17px;border-radius:17px}h1{font-size:29px}.card,.card.full{padding:16px;overflow:hidden}.dialogHeader{background:#fff;border-color:#dce7eb}.statusbar .uiLanguage select{background:transparent!important;padding:0!important;border:0!important}}
+#stremioAuthField details summary{color:#08717a!important;font-weight:650}
+#recommendedAddons .check{min-height:94px}
+@media(max-width:720px){#recommendedAddons .check{min-height:0}}
+button.primary:disabled{opacity:1;background:#dce8eb;color:#607b87;box-shadow:none;border:1px solid #d0dfe5}
+/* Compact account step */
+section[data-step="1"]>.field:first-of-type .platformLabel{text-align:center}
+.platformSwitch{margin-left:auto;margin-right:auto}
+.platformSwitch+.small{text-align:center}
+.accountControls{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:2px}
+.accountRemember{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+#rememberAccountField{display:inline-flex;align-items:center;gap:8px;margin:0;color:#4e6a77;font-size:12px;font-weight:600;cursor:pointer}
+#rememberAccountField input{width:16px;height:16px;min-height:0;margin:0;flex:none}
+.accountForget{padding:3px 0;border:0;background:transparent;color:#08717a;font-size:12px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+#connectBtn{min-width:174px;min-height:44px}
+.accountHint{margin-top:7px;min-height:18px}
+@media(max-width:720px){.accountControls{display:grid;gap:11px}.accountRemember{gap:8px 14px}.accountControls #connectBtn{width:100%;min-width:0}.accountHint{margin-top:5px}}
+@media(max-width:720px){.accountControls{width:100%;grid-template-columns:minmax(0,1fr)}.accountControls #connectBtn{display:block;width:100%}}
+footer{font-size:11px;line-height:1.5;text-align:center;color:#8498a2}
+.footerPrivacy{display:inline-block;vertical-align:top;margin-left:12px;text-align:left}
+.footerPrivacy summary{display:inline-block;cursor:pointer;color:#8498a2;text-decoration:underline;text-decoration-color:#b9c7ce;text-underline-offset:2px;list-style:none}
+.footerPrivacy summary::-webkit-details-marker{display:none}
+.footerPrivacy summary:hover{color:#416a79}
+.footerPrivacy[open]{display:block;margin:5px auto 0;text-align:center;max-width:760px}
+.footerPrivacy div{margin-top:6px;color:#718893;font-size:11px;line-height:1.5}
+@media(max-width:720px){.footerPrivacy{display:block;margin:4px 0 0;text-align:center}}
+
+/* Aviso no oficial y apoyo (15-nov-2026) */
+.footerNote,.footerSupport{font-size:12px;line-height:1.5;opacity:.85;margin-top:6px}
+.footerSupport a{margin:0 2px}

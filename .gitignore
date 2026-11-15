@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.env
+*.log
+*.bak
+data/backups/
+data/*.key
+data/activity.jsonl

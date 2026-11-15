@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="supermaniac75">
+<meta name="description" content="Guía para principiantes: instala Stremio o Nuvio, crea tu cuenta y configura complementos con respaldo usando Stremio &amp; Nuvio Wizard.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Guía de Stremio y Nuvio creada por supermaniac75">
+<meta property="og:url" content="https://wizard.stremio-nuvio.workers.dev/guia.html">
+<meta property="og:description" content="Aprende a instalar la app, crear tu cuenta y configurar Debrid y complementos paso a paso.">
+<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Stremio y Nuvio Wizard: configura todo paso a paso">
+<meta name="twitter:card" content="summary_large_image">
+<title>Guía de Stremio y Nuvio creada por supermaniac75</title>
+<style>
+:root{color-scheme:light;--bg:#f0f5f7;--paper:#fff;--ink:#173645;--muted:#607987;--line:#d8e5ea;--teal:#087f86;--pale:#e9f6f4;--amber:#fff6e8}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#e4f2f2,#f3f7f9 460px,#edf3f6);font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+a{color:#08747d;text-underline-offset:3px}a:hover{color:#045b63}a:focus-visible,button:focus-visible{outline:3px solid #52b9b7;outline-offset:3px}
+.shell{width:min(1160px,calc(100% - 32px));margin:auto}.topbar{padding:22px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.brand{font-size:15px;font-weight:800;letter-spacing:-.02em;text-decoration:none;color:#173645}.toplink{font-size:13px;font-weight:750;text-decoration:none;color:#256c74}
+.hero{background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(26px,5vw,56px);box-shadow:0 18px 50px rgba(25,66,82,.07)}.eyebrow{color:#087f86;font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:11px}.hero h1{font-size:clamp(35px,5.8vw,62px);line-height:1.08;letter-spacing:-.055em;margin:12px 0 17px;max-width:790px}.hero h1 span{display:block;margin-top:14px;color:#47707a;font-size:clamp(17px,2.1vw,23px);font-weight:650;letter-spacing:-.02em;line-height:1.35}.lead{font-size:clamp(16px,2vw,19px);color:#4c6978;max-width:760px;margin:0}.heroActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 17px;border-radius:12px;font-weight:750;font-size:14px;text-decoration:none;border:1px solid #a9ced1}.btn.primary{background:#087f86;color:#fff;border-color:#087f86}.btn.secondary{background:#f0f8f7;color:#126f76}
+.path{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px;color:#587481;font-size:12px;font-weight:700}.path span{background:#f0f6f7;border:1px solid #e0ebee;padding:6px 10px;border-radius:999px}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;align-items:start;padding:28px 0 56px}.toc{position:sticky;top:20px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:18px}.toc strong{display:block;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#718a96;margin:0 0 10px}.toc a{display:block;padding:6px 4px;font-size:13px;text-decoration:none;font-weight:650;color:#4d6d7b}.toc a:hover{color:#087f86}
+.content{min-width:0}.panel{background:#fff;border:1px solid var(--line);border-radius:21px;padding:clamp(19px,3.4vw,32px);margin-bottom:16px;box-shadow:0 8px 27px rgba(25,66,82,.035);scroll-margin-top:20px}.panel h2{font-size:clamp(22px,3vw,29px);line-height:1.2;letter-spacing:-.025em;margin:0 0 13px}.panel h3{font-size:17px;margin:20px 0 7px}.panel p{margin:9px 0;color:#405e6d}.step{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:9px;background:var(--pale);color:#087780;font-size:14px;margin-right:8px;vertical-align:2px}.panel ol,.panel ul{margin:12px 0;padding-left:22px;color:#405e6d}.panel li{padding-left:4px;margin:8px 0}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.tile{border:1px solid var(--line);background:#f8fbfc;border-radius:15px;padding:17px}.tile b{display:block;margin-bottom:4px}.tile p{font-size:14px;margin:0}.tile p b{display:inline;margin:0}.callout{background:#eff8f6;border:1px solid #c4e4df;border-radius:15px;padding:15px 17px;margin:18px 0;color:#2b5b60}.callout.amber{background:var(--amber);border-color:#ebd9b5;color:#765625}.callout p{margin:3px 0;color:inherit}.altDebrid{display:flex;align-items:center;gap:7px 12px;flex-wrap:wrap;margin:14px 0 20px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:13px}.altDebrid b{color:#254d5a}.altDebrid a{font-weight:700;white-space:nowrap}.altDebrid span{flex-basis:100%;color:#657f8b}.referralRow{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:4px;vertical-align:middle}.referralRow code{overflow-wrap:anywhere;user-select:all;font-size:13px}.referralRow button,.referralRow a{display:inline-flex;align-items:center;border:1px solid #9ccac8;border-radius:8px;background:#fff;color:#08747d;font-family:inherit;font-size:11px;font-weight:700;line-height:1.2;padding:4px 8px;min-height:24px;text-decoration:none;cursor:pointer;white-space:nowrap}.referralRow button:hover,.referralRow a:hover{background:#e5f4f2}.addonColumns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch;margin:15px 0}.addonGroup{border:1px solid var(--line);border-radius:15px;background:#f8fbfc;padding:7px 18px 3px;min-width:0}.addonGroup h3{margin:8px 0 4px}.addonList{list-style:none;padding:0!important;margin:0!important}.addonList li{padding:10px 0;margin:0;border-top:1px solid #e1ebef;color:#405e6d}.addonList strong{display:block;color:#1b4655}.addonList span{display:block;min-width:0;font-size:14px;line-height:1.5}@media(max-width:720px){.addonColumns{grid-template-columns:1fr}}.mini{font-size:13px;color:#627d89!important}.affiliate{font-size:12px;color:#68808b!important}.footer{color:#738b96;text-align:center;font-size:12px;padding:0 0 35px}
+@media(max-width:760px){.shell{width:min(100% - 22px,680px)}.topbar{padding:14px 2px}.hero{border-radius:20px;padding:26px 20px}.layout{display:block;padding-top:16px}.toc{position:static;margin-bottom:16px;display:flex;gap:4px 12px;overflow-x:auto;white-space:nowrap;align-items:center}.toc strong{margin:0 7px 0 0;flex:none}.toc a{flex:none}.split{grid-template-columns:1fr}.panel{border-radius:17px}.heroActions .btn{flex:1 1 180px}}
+.topbarActions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-left:auto}.topbarActions .toplink{margin-left:8px;white-space:nowrap}
+.languageMenu{position:relative;color:#176d75;font-size:11px;font-weight:800}.languageMenu summary{display:flex;align-items:center;gap:4px;height:34px;padding:0 8px;border:1px solid #cbdfe2;border-radius:10px;background:#fff;cursor:pointer;list-style:none;min-width:67px}.languageMenu summary::-webkit-details-marker{display:none}.languageMenu .chevron{font-size:15px;margin-left:auto;line-height:1}.languageMenu[open] summary,.languageMenu summary:hover{background:#eaf6f4}.languageOptions{position:absolute;z-index:40;right:0;top:39px;display:grid;min-width:144px;padding:5px;background:#fff;border:1px solid #cbdfe2;border-radius:12px;box-shadow:0 12px 28px rgba(24,62,75,.16)}.languageOptions a{display:block;padding:6px 9px;border-radius:7px;color:#235c66;font-size:12px;text-decoration:none;white-space:nowrap}.languageOptions a:hover{background:#eaf6f4}
+.iconAction{display:inline-grid;place-items:center;width:34px;height:34px;padding:7px;border:1px solid #cbdfe2;border-radius:10px;background:#fff;color:#327b83;cursor:pointer;text-decoration:none}.iconAction:hover{background:#eaf6f4;color:#095c65}.iconAction svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.iconAction.whatsapp{color:#13845e}.iconAction.whatsapp:hover{color:#086645}
+.shareFeedback{position:fixed;z-index:50;left:50%;bottom:20px;transform:translateX(-50%);border-radius:10px;background:#173c4b;color:#fff;padding:8px 12px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.2);white-space:nowrap}.shareFeedback:empty{display:none}
+@media(max-width:680px){.topbar{gap:8px}.topbar .brand{flex-basis:100%}.topbarActions{width:100%;margin-left:0;justify-content:flex-end}.topbarActions .toplink{font-size:12px;margin-left:3px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="topbar" aria-label="Navegación"><a class="brand" href="/">Stremio &amp; Nuvio Wizard</a><div class="topbarActions">
+  <details class="languageMenu notranslate" translate="no"><summary aria-label="Seleccionar idioma" title="Seleccionar idioma">🌐 <span id="currentLang">ES</span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="languageOptions"><a href="https://wizard.stremio-nuvio.workers.dev/guia.html" lang="es">Español</a><a href="https://translate.google.com/translate?sl=es&amp;tl=en&amp;u=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" lang="en">English</a><a href="https://translate.google.com/translate?sl=es&amp;tl=pt&amp;u=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" lang="pt">Português</a><a href="https://translate.google.com/translate?sl=es&amp;tl=fr&amp;u=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" lang="fr">Français</a><a href="https://translate.google.com/translate?sl=es&amp;tl=it&amp;u=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" lang="it">Italiano</a><a href="https://translate.google.com/translate?sl=es&amp;tl=de&amp;u=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" lang="de">Deutsch</a></div></details>
+  <a id="shareWhatsApp" class="iconAction whatsapp" href="https://wa.me/?text=https%3A%2F%2Fwizard.stremio-nuvio.workers.dev%2Fguia.html" target="_blank" rel="noopener noreferrer" aria-label="Compartir por WhatsApp" title="Compartir por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 0-8.3 14.1L2.5 21.5l5-1.3A9.5 9.5 0 1 0 12 2.5Z"/><path d="M8.2 7.8c.5-.5.9-.3 1.2.3l.9 1.6c.2.4.1.6-.2.9l-.6.6c.6 1.2 1.5 2.1 2.8 2.8l.6-.7c.3-.3.6-.4 1-.2l1.6.8c.7.4.8.8.3 1.4-.7.9-1.5 1.1-2.4.9-2.7-.6-5.5-3.3-6.1-6-.2-1 .1-1.8.9-2.4Z"/></svg></a>
+  <button id="shareGuide" class="iconAction" type="button" aria-label="Compartir la guía" title="Compartir la guía"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.2"/><circle cx="5" cy="12" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="m7 11 9-5M7 13l9 5"/></svg></button>
+  <button id="copyGuideLink" class="iconAction" type="button" aria-label="Copiar enlace de la guía" title="Copiar enlace"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2.1-2.1a5 5 0 0 0-7.1-7.1L10.8 5M14 11a5 5 0 0 0-7.1 0l-2.1 2.1a5 5 0 0 0 7.1 7.1l1.3-1.3"/></svg></button>
+  <a class="toplink" href="/">Abrir wizard →</a><span class="shareFeedback" id="shareFeedback" role="status" aria-live="polite"></span>
+</div></nav>
+<header class="hero"><div class="eyebrow">Guía para principiantes</div><h1>Tu primera configuración de Stremio o Nuvio, paso a paso<span>Guía creada por supermaniac75</span></h1><p class="lead">Instala Stremio o Nuvio, crea tu cuenta, decide si quieres utilizar Debrid, configura los complementos y guarda una copia de seguridad. Sigue los pasos en orden; no necesitas saber qué es una API para empezar.</p><div class="heroActions"><a class="btn primary" href="#instalar">Empezar la guía ↓</a><a class="btn secondary" href="/">Ya tengo cuenta: abrir wizard</a></div><div class="path"><span>1 · Instalar</span><span>2 · Cuenta</span><span>3 · Debrid opcional</span><span>4 · Wizard</span><span>5 · Probar</span></div></header>
+<div class="layout">
+<nav class="toc" aria-label="En esta guía"><strong>En esta guía</strong><a href="#instalar">Instalar la app</a><a href="#cuenta">Crear la cuenta</a><a href="#debrid">Elegir Debrid</a><a href="#wizard">Usar el wizard</a><a href="#addons">Add-ons recomendados</a><a href="#final">Terminar y probar</a><a href="#dudas">Dudas frecuentes</a></nav>
+<main class="content">
+<section class="panel" id="instalar"><h2><span class="step">1</span>Instala Stremio o Nuvio</h2><p>Elige una aplicación para empezar. Son cuentas distintas y sus complementos se guardan por separado. Puedes configurar la segunda aplicación después.</p>
+<div class="split"><div class="tile"><b>Stremio</b><p>Abre la <a href="https://www.stremio.com/downloads" target="_blank" rel="noopener noreferrer">página oficial de descargas ↗</a> y selecciona tu sistema: Windows, Mac, Android, TV o la opción disponible para tu dispositivo. Instala y abre la app.</p></div><div class="tile"><b>Nuvio</b><p>Ve a <a href="https://nuvio.tv/" target="_blank" rel="noopener noreferrer">nuvio.tv ↗</a> y elige la descarga indicada para tu teléfono, computador o TV. Descarga la aplicación desde su sitio oficial.</p></div></div>
+<p class="mini">Si quieres usar la aplicación en un televisor, crea la cuenta y completa el wizard desde un computador o teléfono. Después inicia sesión en el televisor con la misma cuenta. En iPhone, revisa la modalidad disponible en la página oficial de cada app, pues puede variar por región.</p></section>
+<section class="panel" id="cuenta"><h2><span class="step">2</span>Crea tu cuenta en la app</h2><ol><li>En Stremio o Nuvio, pulsa <b>Registrarse</b> o <b>Crear cuenta</b> y usa un correo al que tengas acceso.</li><li>Confirma el correo si la app lo solicita. Conserva el correo y la contraseña: son los datos que usarás en el wizard.</li><li>Abre la app e inicia sesión una vez para comprobar que la cuenta funciona. Si Nuvio te pide un perfil, crea o elige el que usarás.</li></ol><div class="callout"><b>Cada aplicación necesita su propia cuenta.</b> Si tienes Stremio y Nuvio, crea o usa una cuenta en cada una. El wizard permite copiar complementos entre ellas después de configurar la primera.</div></section>
+<section class="panel" id="debrid"><h2><span class="step">3</span>Decide si usarás Debrid</h2><p>Un servicio Debrid es opcional. El wizard puede utilizarlo para obtener enlaces de reproducción. También puedes comenzar sin contratar uno. La disponibilidad, la calidad y la velocidad de los enlaces pueden variar.</p>
+<div class="split"><div class="tile"><b>Quiero usar TorBox</b><p>Por su precio y calidad, recomiendo el <b>plan Essential de TorBox</b> para empezar. Regístrate con correo y una contraseña propia de TorBox, verifica el correo y, si quieres, vincula Google más adelante si tu cuenta ofrece esa opción. Revisa el precio y las condiciones vigentes antes de pagar, y elige Essential. Después, copia tu <b>clave API</b> desde Settings → Account → API Key. El wizard te la pedirá en el paso 3.</p></div><div class="tile"><b>No quiero Debrid todavía</b><p>En el paso 3 del wizard pulsa <b>«No tengo Debrid»</b>. Se habilitan fuentes HTTP y P2P compatibles. Las fuentes P2P dependen de otros usuarios que comparten los archivos. Esos usuarios pueden ver tu dirección IP.</p></div></div>
+<div class="altDebrid"><b>Otras opciones Debrid para comparar:</b> <a href="https://real-debrid.com/" target="_blank" rel="noopener noreferrer">Real-Debrid ↗</a><a href="https://www.premiumize.me/premium" target="_blank" rel="noopener noreferrer">Premiumize ↗</a><a href="https://alldebrid.com/" target="_blank" rel="noopener noreferrer">AllDebrid ↗</a><span>También puedes usar otros proveedores compatibles con el wizard; compara precios, límites y disponibilidad antes de elegir. Copia la clave API o token de tu servicio y agrégalo en el paso 3 del wizard.</span></div>
+<div class="callout"><b>Usa mi enlace o mi código de referido:</b> <span class="referralRow"><code id="referralCode">7b4a584a-00a5-430e-aa31-809aa4934cb0</code><button id="copyReferral" type="button" aria-label="Copiar código de referido">Copiar</button><a id="torboxReferralLink" href="https://www.torbox.app/subscription?referral=7b4a584a-00a5-430e-aa31-809aa4934cb0" target="_blank" rel="noopener noreferrer" aria-label="Abrir enlace de referido de TorBox">Abrir enlace ↗</a></span><p>Si entras desde el enlace, inicia sesión y confirma el referido cuando TorBox te lo pida. Si abres directamente la página de suscripción, escribe el código en la sección de referidos. Comprueba que el código de referido esté aplicado antes de pagar.</p></div>
+<p class="affiliate">Si contratas mediante el enlace o el código y el referido queda aplicado, TorBox puede añadir tiempo adicional a tu plan.</p>
+<p class="mini"><b>Para evitar problemas al contratar:</b> usa una conexión habitual sin VPN, proxy ni iCloud Private Relay y un navegador actualizado, fuera del modo incógnito. Si falla el cobro recurrente, prueba el pago único. Si alcanzas el límite de intentos, espera una hora; TorBox recomienda esperar 24 horas desde el último intento tras ciertos rechazos por VPN o proxy. Si aparece «You are not permitted to pay», no asumas que la espera lo solucionará: <a href="https://support.torbox.app/en/articles/14013985-i-get-an-error-when-subscribing" target="_blank" rel="noopener noreferrer">consulta la ayuda oficial ↗</a> o contacta a soporte.</p>
+<p class="mini">Tu clave API de TorBox es privada. No la publiques ni la confundas con la contraseña de Stremio o Nuvio.</p></section>
+<section class="panel" id="wizard"><h2><span class="step">4</span>Configura con el wizard</h2><p>Abre el <a href="/">Stremio &amp; Nuvio Wizard</a> en otra pestaña y recorre sus cinco pasos.</p><ol><li><b>Cuenta:</b> selecciona Stremio o Nuvio, escribe el correo y contraseña de <em>esa aplicación</em> y pulsa «Conectar cuenta». «Recordar cuenta» es opcional.</li><li><b>Respaldo:</b> pulsa «Crear backup seguro» antes de avanzar. La copia de seguridad te permite recuperar la lista anterior de complementos. También puedes importar un respaldo JSON anterior.</li><li><b>Preferencias:</b> deja «Configuración recomendada» y «Español Latino» si quieres usar los ajustes predeterminados. Marca «Tengo Debrid» y agrega la clave API o token de TorBox, Real-Debrid, Premiumize, AllDebrid o el proveedor compatible que elegiste. Si no usarás uno, elige «No tengo Debrid». La opción «Sólo cached» muestra únicamente archivos que ya están disponibles en el servicio Debrid. Actívala si quieres limitar los resultados a esos archivos.</li><li><b>Complementos:</b> revisa las casillas sugeridas. Las claves integradas de TMDB y TVDB sirven para empezar; RPDB y extras son opcionales. No necesitas instalar manualmente todos los complementos de la lista.</li><li><b>Revisar:</b> pulsa «Actualizar el plan», lee lo que se añadirá o reemplazará, confirma el respaldo y sólo entonces pulsa «Aplicar en Stremio» o la acción equivalente para Nuvio.</li></ol><div class="callout amber"><b>Antes de aplicar:</b> el wizard crea una instancia nueva de AIOStreams y modifica los complementos de la cuenta elegida. Comprueba el plan y guarda tu respaldo; la configuración anterior de AIOStreams no se modifica.</div></section>
+<section class="panel" id="addons"><h2><span class="step">5</span>Add-ons recomendados</h2><p>Una lista breve de complementos es más fácil de mantener. El wizard ya agrupa las fuentes principales en <b>AIOStreams</b> e instala <b>AIOMetadata</b> para mostrar la información y los catálogos de las películas y series.</p>
+<div class="addonColumns"><div class="addonGroup"><h3>Base recomendada</h3><ul class="addonList">
+<li><strong>AIOStreams</strong><span>Reúne y ordena las fuentes principales.</span></li>
+<li><strong>AIOMetadata</strong><span>Añade fichas, pósteres y catálogos. El wizard lo instala siempre.</span></li>
+<li><strong>SubSense</strong><span>Busca subtítulos en varias fuentes.</span></li>
+<li><strong>OpenSubtitles PRO</strong><span>Segundo proveedor de subtítulos para ampliar la cobertura.</span></li>
+<li><strong>Streailer</strong><span>Tráileres y resúmenes; recomendado para Stremio.</span></li>
+</ul></div>
+<div class="addonGroup"><h3>Opciones adicionales</h3><ul class="addonList">
+<li><strong>Kitsu</strong><span>Catálogos y búsquedas de anime.</span></li>
+<li><strong>Peerflix</strong><span>Más opciones en castellano.</span></li>
+<li><strong>Cometa</strong><span>Otra fuente enfocada en contenido hispano.</span></li>
+<li><strong>Stremify.Hayd</strong><span>Fuentes HTTP.</span></li>
+<li><strong>Linkañol</strong><span>Más enlaces en castellano de España con TorBox u otro Debrid compatible. Se configura e instala aparte; el wizard todavía no lo añade.</span></li>
+</ul></div></div><p>Comprueba cómo funcionan estos complementos antes de instalar otros.</p>
+<p>El complemento «Store por Debrid» permite explorar los archivos que ya tienes guardados en tu servicio Debrid. Su instalación es opcional. Si no tienes Debrid, el wizard oculta o adapta los complementos que lo requieren. Las fuentes y complementos de la comunidad pueden cambiar o dejar de funcionar.</p><p class="mini">Utiliza únicamente contenido al que tengas derecho de acceso. Los complementos de terceros son independientes de Stremio, Nuvio y este wizard.</p></section>
+<section class="panel" id="final"><h2><span class="step">6</span>Guarda y prueba</h2><ol><li>Al terminar, descarga el <b>JSON de AIOStreams</b> y guarda las credenciales que aparecen en la pantalla final en un lugar privado. Las necesitarás para editar ese AIO más adelante.</li><li>Abre Stremio o Nuvio con la <b>misma cuenta</b> que configuraste. Busca un título conocido y revisa que aparezcan catálogos, subtítulos y las fuentes elegidas.</li><li>Si no aparecen los cambios, cierra y vuelve a abrir la app o espera a que sincronice. Comprueba que elegiste la aplicación y el perfil correctos antes de volver a aplicar.</li><li>Si quieres recuperar la configuración anterior, restaura la copia de seguridad que creaste en el paso 2.</li></ol><div class="callout"><b>¿Usas las dos apps?</b> Vuelve al paso 1 del wizard y usa «Copiar Stremio ↔ Nuvio». El wizard crea una copia de seguridad de la cuenta que recibirá los complementos. Después copia la configuración y utiliza el mismo AIOStreams.</div><a class="btn primary" href="/">Abrir el wizard →</a></section>
+<section class="panel" id="dudas"><h2>Dudas frecuentes</h2><h3>¿Puedo usarlo sin pagar?</h3><p>Sí. Elige «No tengo Debrid» en el paso 3 del wizard. Sin embargo, la experiencia puede ser diferente: los videos pueden tardar más en comenzar, la reproducción puede interrumpirse y algunos títulos pueden no tener enlaces disponibles. Las fuentes gratuitas tienen disponibilidad variable y algunas utilizan P2P, que depende de otros usuarios que comparten los archivos.</p><h3>¿TorBox Essential es obligatorio?</h3><p>No. Es una recomendación para empezar si quieres contratar Debrid. Elige otro proveedor compatible o continúa sin Debrid.</p><h3>¿Debo crear una cuenta nueva si ya uso Stremio o Nuvio?</h3><p>No. Entra con tu cuenta actual. La copia de seguridad es especialmente útil si ya tienes complementos instalados.</p><h3>¿La contraseña de mi app es la API Key de TorBox?</h3><p>No. Son datos diferentes. El correo y la contraseña permiten conectar tu cuenta de Stremio o Nuvio. La clave API permite conectar TorBox al wizard.</p></section>
+</main></div><footer class="footer">Stremio &amp; Nuvio Wizard · Guía creada por supermaniac75 · 2026<div class="footerNote">Proyecto independiente y no oficial, sin relación con Stremio ni Nuvio. El wizard no aloja ni enlaza contenido: sólo configura complementos de terceros en tu cuenta.</div><div class="footerSupport">¿Te sirvió? Apoya el proyecto: <a href="https://ko-fi.com/supermaniac" target="_blank" rel="noopener noreferrer">Ko-fi</a> · <a href="https://github.com/sponsors/maniac75" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a> · <a href="https://github.com/maniac75/stremio-nuvio-wizard" target="_blank" rel="noopener noreferrer">Código fuente</a></div></footer></div>
+<script>
+document.getElementById('copyReferral').addEventListener('click', async function () {
+  const button = this;
+  const code = document.getElementById('referralCode').textContent.trim();
+  try {
+    await navigator.clipboard.writeText(code);
+    button.textContent = 'Copiado ✓';
+  } catch (_) {
+    const input = document.createElement('textarea');
+    input.value = code;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand('copy');
+    input.remove();
+    button.textContent = copied ? 'Copiado ✓' : 'Selecciona el código';
+  }
+  clearTimeout(button._resetTimer);
+  button._resetTimer = setTimeout(() => { button.textContent = 'Copiar'; }, 6000);
+});
+const guideUrl = 'https://wizard.stremio-nuvio.workers.dev/guia.html';
+document.getElementById('torboxReferralLink').href = 'https://www.torbox.app/subscription?referral=7b4a584a-00a5-430e-aa31-809aa4934cb0';
+const shareTitle = 'Guía de Stremio y Nuvio creada por supermaniac75';
+document.getElementById('shareWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(shareTitle + '\n' + guideUrl);
+const languageCode = new URLSearchParams(location.search).get('_x_tr_tl') || new URLSearchParams(location.search).get('tl') || 'es';
+document.getElementById('currentLang').textContent = ({es:'ES',en:'EN',pt:'PT',fr:'FR',it:'IT',de:'DE'})[languageCode] || languageCode.toUpperCase().slice(0,2);
+document.querySelectorAll('.languageOptions a[lang]').forEach(link => {
+  const lang = link.getAttribute('lang');
+  link.href = lang === 'es' ? guideUrl : 'https://translate.google.com/translate?sl=es&tl=' + encodeURIComponent(lang) + '&u=' + encodeURIComponent(guideUrl);
+});
+const feedback = document.getElementById('shareFeedback');
+function showShareFeedback(message) {
+  feedback.textContent = message;
+  clearTimeout(feedback._timer);
+  feedback._timer = setTimeout(() => { feedback.textContent = ''; }, 5000);
+}
+async function copyGuideUrl() {
+  try { await navigator.clipboard.writeText(guideUrl); }
+  catch (_) {
+    const input = document.createElement('textarea');
+    input.value = guideUrl; input.style.position = 'fixed'; input.style.opacity = '0';
+    document.body.appendChild(input); input.select();
+    const copied = document.execCommand('copy'); input.remove();
+    if (!copied) { showShareFeedback('No se pudo copiar'); return; }
+  }
+  showShareFeedback('Enlace copiado ✓');
+}
+document.getElementById('copyGuideLink').addEventListener('click', copyGuideUrl);
+document.getElementById('shareGuide').addEventListener('click', async () => {
+  if (!navigator.share) { await copyGuideUrl(); return; }
+  try { await navigator.share({ title: shareTitle, text: shareTitle, url: guideUrl }); }
+  catch (error) { if (error.name !== 'AbortError') showShareFeedback('Usa Copiar enlace'); }
+});
+</script>
+</body>
+</html>

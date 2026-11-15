@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="author" content="supermaniac75">
+<meta name="application-name" content="Stremio &amp; Nuvio Wizard">
+<meta name="apple-mobile-web-app-title" content="Stremio &amp; Nuvio Wizard">
+<meta property="og:title" content="Stremio &amp; Nuvio Wizard">
+<meta name="description" content="Configura Stremio o Nuvio paso a paso: conecta tu cuenta, guarda un respaldo y elige tus complementos.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wizard.stremio-nuvio.workers.dev/">
+<meta property="og:description" content="Un wizard para configurar Stremio y Nuvio paso a paso, con respaldo y complementos recomendados.">
+<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Stremio y Nuvio Wizard: configura todo paso a paso">
+<meta name="twitter:card" content="summary_large_image">
+<title>Stremio &amp; Nuvio Wizard</title>
+<script>document.title='Stremio & Nuvio Wizard';</script>
+<style>
+:root{color-scheme:dark;--bg:#06101a;--panel:rgba(13,27,39,.84);--panel2:#10283a;--line:rgba(129,211,255,.18);--line2:rgba(255,255,255,.08);--text:#f4fbff;--muted:#9ab4c7;--accent:#54e1c8;--accent2:#7c8cff;--accent3:#ff8ab3;--good:#67e6a7;--bad:#ff7189;--warn:#ffc766;--shadow:0 24px 70px rgba(0,0,0,.34)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:#06101a}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+radial-gradient(circle at 8% 0%,rgba(84,225,200,.18),transparent 28%),
+radial-gradient(circle at 92% 12%,rgba(124,140,255,.22),transparent 30%),
+radial-gradient(circle at 50% 100%,rgba(255,138,179,.10),transparent 30%),
+linear-gradient(180deg,#07131f 0%,#07111b 42%,#050b12 100%);
+color:var(--text);min-height:100vh;background-attachment:fixed}
+.wrap{width:min(1080px,calc(100% - 26px));margin:0 auto;padding:34px 0 66px}
+header{position:relative;display:flex;gap:22px;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;padding:22px 24px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,rgba(14,38,51,.88),rgba(20,24,52,.78));box-shadow:var(--shadow);overflow:hidden}
+header:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(84,225,200,.10),transparent 40%,rgba(124,140,255,.10));pointer-events:none}
+header>div{position:relative}
+h1{font-size:clamp(31px,4.2vw,48px);margin:0;letter-spacing:-.045em;background:linear-gradient(90deg,#ffffff,#bff7eb 42%,#b9c2ff 78%);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 a{color:inherit;text-decoration:none}h1 a:hover{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:7px}h1 a:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:4px}
+.uiLanguage{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(7,19,31,.72);backdrop-filter:blur(12px);color:#c9e8e7;font-size:12px;cursor:pointer}
+.uiLanguage .langIcon{font-size:13px;line-height:1;opacity:.9}
+.uiLanguage select{appearance:none;-webkit-appearance:none;width:auto;min-width:0;padding:0;border:0;outline:0;background:transparent;color:inherit;font:inherit;font-weight:800;cursor:pointer}
+.uiLanguage select option{background:#102535;color:#e6f3f7}
+.uiLanguage::after{content:'▾';font-size:10px;opacity:.6;margin-left:1px}
+.subtitle{color:#c4d8e5;margin-top:7px}
+.statusbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid var(--line);background:rgba(7,19,31,.72);backdrop-filter:blur(12px);padding:8px 11px;border-radius:999px;font-size:12px;color:#acc3d3}
+.pill.good{border-color:rgba(103,230,167,.38);color:#a6f3c9;background:rgba(24,75,57,.26)}.pill.bad{border-color:rgba(255,113,137,.38);color:#ffb5c1;background:rgba(91,31,45,.26)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{position:relative;background:linear-gradient(180deg,rgba(15,31,45,.92),rgba(9,21,32,.94));border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 16px 48px rgba(0,0,0,.20);overflow:hidden}
+.card:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),var(--accent3),transparent);opacity:.72}
+.card.full{grid-column:1/-1}
+.locked{opacity:.40;pointer-events:none;filter:saturate(.55) blur(.15px)}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;margin:14px 0}.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}
+h2{font-size:19px;margin:0 0 14px;letter-spacing:-.015em}
+h3{font-size:14px;color:#d3e7f2;margin:20px 0 10px}
+label{display:block;font-size:13px;color:#c9dce7;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid rgba(142,192,220,.22);background:rgba(4,13,23,.72);color:var(--text);border-radius:13px;padding:12px 13px;font:inherit;outline:none;transition:.18s ease}
+input:focus,select:focus,textarea:focus{border-color:rgba(84,225,200,.72);box-shadow:0 0 0 3px rgba(84,225,200,.11);background:rgba(6,18,29,.92)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:12px}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.check{display:flex;align-items:flex-start;gap:10px;background:linear-gradient(180deg,rgba(7,22,33,.72),rgba(5,17,28,.74));border:1px solid rgba(129,211,255,.14);border-radius:15px;padding:12px;transition:.18s ease}
+.check:hover{border-color:rgba(84,225,200,.30);transform:translateY(-1px)}
+.check label{margin:0;color:#e8f4fa;flex:1}
+button{appearance:none;border:0;border-radius:13px;padding:11px 16px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:.18s ease;box-shadow:none}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}
+button.primary{background:linear-gradient(135deg,#43d5bb,#657cff 72%);color:#fff;box-shadow:0 10px 28px rgba(84,225,200,.14)}
+button.secondary{background:rgba(23,48,67,.86);color:#e9f7ff;border:1px solid rgba(134,204,237,.18)}
+button.danger{background:rgba(91,31,45,.48);color:#ffc3cc;border:1px solid rgba(255,113,137,.28)}
+button:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.debrid{display:grid;grid-template-columns:170px minmax(0,1fr) 42px;gap:8px;align-items:start;margin-bottom:12px}
+.debrid>div{min-width:0}
+.debrid>div>label{height:20px;line-height:20px;margin-bottom:6px}
+.debrid select,.debrid input{height:48px}
+.debrid>.remove{margin-top:26px;height:48px;padding:0}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.metadataOwn{margin-top:10px}.metadataOwn[hidden]{display:none}
+.link{color:#70e9d3;text-decoration:none;font-size:12px}.link:hover{text-decoration:underline}.linkrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+pre{white-space:pre-wrap;word-break:break-word;background:rgba(3,12,21,.82);border:1px solid rgba(129,211,255,.13);border-radius:14px;padding:13px;max-height:340px;overflow:auto;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbf2ff}
+.result{display:none;margin-top:15px}.result.show{display:block}
+.installedDisclosure{margin-top:14px}.installedDisclosure summary{cursor:pointer;color:#a6f3df;font-weight:700;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:rgba(23,48,67,.5)}.installedDisclosure[open] summary{margin-bottom:10px}
+.result.good{border-left:4px solid var(--good)}.result.bad{border-left:4px solid var(--bad)}
+.successBanner{display:flex;align-items:flex-start;gap:16px;padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(51,155,111,.21),rgba(56,132,151,.13));border:1px solid rgba(103,230,167,.35)}
+.successBanner h2{margin:0 0 7px;font-size:23px;color:#cbffe4}.successBanner p{margin:0;line-height:1.5;color:#e1f4ed}
+.successIcon{flex:0 0 40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#67e6a7;color:#092018;font-size:26px;font-weight:900}
+.aioCredentialsCard{margin-top:14px;padding:16px;border:1px solid rgba(255,199,102,.35);border-radius:16px;background:linear-gradient(135deg,rgba(82,62,23,.24),rgba(31,45,61,.45))}
+.aioCredentialsCard h3{margin:0 0 6px;color:#ffe8b4;font-size:18px}.aioCredentialsCard>p{margin:0 0 13px;line-height:1.5}
+.credentialGrid{display:grid;grid-template-columns:1fr 1.45fr;gap:9px;margin:12px 0}
+.credentialBox{min-width:0;padding:11px 12px;border:1px solid rgba(129,211,255,.16);border-radius:12px;background:rgba(3,12,21,.72)}
+.credentialBox .small{display:block;margin-bottom:5px}.credentialValue{display:block;color:#f2fbff;font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;word-break:break-word;user-select:all}
+.credentialWarning{margin-top:11px;padding:11px 12px;border-radius:12px;background:rgba(255,199,102,.08);border:1px solid rgba(255,199,102,.18);color:#f4dfb3;font-size:12px;line-height:1.5}
+.credentialActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.credentialActions button{flex:0 1 auto}
+.note{border:1px solid rgba(123,192,222,.16);background:rgba(9,26,39,.72);border-radius:14px;padding:13px;color:#cfe1eb;font-size:13px}
+.badge,.rec-tag{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:800;letter-spacing:.02em;margin:2px 3px 2px 0;white-space:nowrap}
+.badge{background:rgba(124,140,255,.16);color:#c9d0ff;border:1px solid rgba(124,140,255,.24)}
+.tag-rec{background:rgba(103,230,167,.14);color:#9cf0c2;border:1px solid rgba(103,230,167,.26)}
+.tag-es{background:rgba(84,225,200,.14);color:#9df3e4;border:1px solid rgba(84,225,200,.26)}
+.tag-opt{background:rgba(102,178,255,.13);color:#a9d8ff;border:1px solid rgba(102,178,255,.24)}
+.tag-redundant{background:rgba(255,199,102,.12);color:#ffdc93;border:1px solid rgba(255,199,102,.24)}
+.tag-caution{background:rgba(255,113,137,.12);color:#ffb2bf;border:1px solid rgba(255,113,137,.24)}
+.section-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:#73dec9;font-weight:800;margin-bottom:6px}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{color:#6f8fa2;text-align:center;margin-top:28px;font-size:12px}
+[data-step][hidden],.fold[hidden]{display:none!important}
+.steps{display:flex;gap:7px;margin:0 0 17px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:thin}
+.steps button{flex:1;min-width:max-content;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:rgba(11,28,42,.8);color:var(--muted);padding:9px 12px;border-radius:12px;font-weight:650;font-size:12px;white-space:nowrap}
+.steps button span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(129,211,255,.12)}.steps button b{font:inherit;font-weight:inherit}
+.steps button.active{border-color:var(--accent);background:rgba(84,225,200,.14);color:var(--text)}
+.steps button.done{color:#b7f2dc}.steps button.done span{background:rgba(103,230,167,.22)}
+.steps button:disabled{opacity:.55}
+.step-actions{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:3px 0 15px}
+.fold{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:rgba(7,22,33,.55);padding:0 12px}
+.fold>summary{cursor:pointer;color:#d9f3f5;font-weight:700;padding:13px 3px;list-style:none}.fold>summary::-webkit-details-marker{display:none}.fold>summary:after{content:'⌄';float:right;color:var(--accent)}.fold[open]>summary:after{content:'⌃'}
+.fold[open]{padding-bottom:14px}.fold .checks{margin-top:5px}
+.card:has(>.fold){padding:8px 12px}.card:has(>.fold):before{opacity:.3}.card:has(>.fold) .fold{margin:0;border:0;background:none}
+.fold.optionDisclosure,.card:has(>.fold) .fold.optionDisclosure{margin-top:14px;border:1px solid rgba(84,225,200,.48);border-radius:15px;background:linear-gradient(100deg,rgba(24,67,78,.74),rgba(22,40,69,.7));padding:0 14px;box-shadow:0 6px 20px rgba(0,0,0,.13)}
+.card:has(>.fold) .fold.optionDisclosure{margin:0}
+.fold.optionDisclosure>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:13px 3px;color:#fff;font-size:15px}
+.fold.optionDisclosure>summary:after{content:'Abrir opciones  ▾';float:none;flex:none;border:1px solid rgba(84,225,200,.5);border-radius:999px;padding:7px 12px;color:#bcfff0;background:rgba(29,85,92,.55);font-size:12px;font-weight:700}
+.fold.optionDisclosure[open]>summary:after{content:'Ocultar opciones  ▴'}
+html[lang=en] .fold.optionDisclosure>summary:after{content:'Open options  ▾'}
+html[lang=en] .fold.optionDisclosure[open]>summary:after{content:'Hide options  ▴'}
+.fold.optionDisclosure:hover{border-color:var(--accent);background:linear-gradient(100deg,rgba(30,79,87,.8),rgba(33,51,89,.75))}
+.fold.optionDisclosure>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+@media(max-width:550px){.fold.optionDisclosure>summary{align-items:flex-start;flex-direction:column;gap:7px}}
+.security-card{box-shadow:none;opacity:.85}
+.platformLabel{font-size:13px;color:#c9dce7;margin-bottom:8px}
+.platformSwitch{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;background:rgba(3,12,21,.75);border:1px solid var(--line);border-radius:17px;margin-bottom:8px;max-width:580px}
+button.platformChoice{display:flex;align-items:center;justify-content:center;gap:12px;min-height:65px;background:transparent;color:#a9c1d0;border:1px solid transparent;border-radius:13px;font-size:16px}
+button.platformChoice img{width:34px;height:34px;object-fit:contain;flex:none}
+button.platformChoice.selected{background:linear-gradient(135deg,rgba(84,225,200,.19),rgba(124,140,255,.24));border-color:rgba(84,225,200,.55);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.24)}
+button.platformChoice:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.backupCallout{position:sticky;top:10px;z-index:6;border:1px solid rgba(103,230,167,.56);background:linear-gradient(120deg,#102c33,#16283b);border-radius:18px;padding:18px 20px;box-shadow:0 16px 38px rgba(0,0,0,.4)}
+.backupCallout p{margin:3px 0 9px;line-height:1.5;color:#eafaf2}
+.backupCallout .actions{margin-top:13px}
+.backupCallout button.primary{min-height:46px}
+button.floatingNext{position:fixed;right:20px;bottom:max(20px,env(safe-area-inset-bottom));z-index:30;padding:14px 24px;box-shadow:0 14px 36px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.2);font-size:15px}
+.wrap:has(.floatingNext:not([hidden])){padding-bottom:108px}
+@media(max-width:550px){.backupCallout{top:6px;padding:13px}.backupCallout .actions button{flex:1}.platformSwitch{max-width:none}button.platformChoice{font-size:14px;gap:6px}button.platformChoice img{width:29px;height:29px}}
+@media(max-width:780px){.wrap{width:min(100% - 18px,1080px);padding-top:14px}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}.row{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.debrid{grid-template-columns:1fr}.debrid>.remove{margin-top:0;justify-self:start}header{padding:19px 18px;border-radius:20px}.statusbar{justify-content:flex-start}}
+
+dialog.toolDialog{width:min(740px,calc(100% - 24px));max-height:min(88vh,920px);overflow:auto;padding:22px;border:1px solid rgba(84,225,200,.4);border-radius:22px;background:#102535;color:var(--text);box-shadow:0 28px 85px rgba(0,0,0,.7)}
+dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)}
+.dialogHeader{display:flex;justify-content:space-between;align-items:center;gap:16px}.dialogHeader h2{margin:0}.dialogHeader button{flex:none}
+.copyLead{margin:14px 0 12px;color:#d8e8f0;line-height:1.55}
+.copyRoutes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.copyRoute{border:1px solid rgba(123,192,222,.18);background:rgba(7,22,34,.72);border-radius:14px;padding:13px}
+.copyRoute b{display:block;color:#bff9eb;font-size:14px;margin-bottom:5px}.copyRoute span{display:block;color:var(--muted);font-size:12px;line-height:1.5}
+.copySafety{margin:12px 0 6px;padding:12px 13px;border-radius:14px;background:rgba(84,225,200,.08);border:1px solid rgba(84,225,200,.2);font-size:12px;line-height:1.5;color:#d3e6e4}
+.copyDirectionSummary{margin:8px 0 12px;line-height:1.55}
+.copySteps{margin:10px 0 14px;padding:12px 14px;border-radius:12px;background:rgba(3,15,25,.48);border:1px solid rgba(123,192,222,.12)}
+.copySteps ol{margin:8px 0 0;padding-left:20px}.copySteps li{margin:5px 0;color:#c9dce6;font-size:12px;line-height:1.45}
+.toolButton{border-color:rgba(84,225,200,.48)!important;color:#bdffef!important}
+.crossAppCard{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:20px;padding:14px 15px;border:1px solid rgba(84,225,200,.2);border-radius:15px;background:linear-gradient(110deg,rgba(17,52,63,.56),rgba(20,31,57,.5))}
+.crossAppCard>b,.crossAppCard b{display:block;color:#dffbf5;margin-bottom:4px}.crossAppCard>.secondary{flex:none;white-space:nowrap;border-color:rgba(84,225,200,.34);color:#bdffef}
+.debridModeSwitch{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px;border:1px solid var(--line);border-radius:15px;background:rgba(4,15,25,.72)}
+.debridModeSwitch button{border:0;background:transparent;color:var(--muted);box-shadow:none}.debridModeSwitch button.active{background:linear-gradient(135deg,rgba(84,225,200,.18),rgba(124,140,255,.2));color:var(--text);box-shadow:inset 0 0 0 1px rgba(84,225,200,.45)}
+.check.freeUnavailable{display:none!important}
+@media(max-width:640px){.copyRoutes{grid-template-columns:1fr}}
+@media(max-width:550px){dialog.toolDialog{padding:16px}.dialogHeader{align-items:flex-start}.dialogHeader button{padding:8px 10px}}
+.connectionFeedback{margin-top:8px;padding:7px 0;color:#8fe2ad;font-weight:700;border:0;background:transparent}
+
+/* Mobile layout: designed as a native single-column flow, not a scaled desktop page. */
+@media(max-width:720px){
+  html,body{max-width:100%;overflow-x:hidden}body{background-attachment:scroll}
+  .wrap{width:100%;padding:8px 10px calc(74px + env(safe-area-inset-bottom))}
+  header{display:block;margin:0 0 12px;padding:16px;border-radius:18px;overflow:visible}
+  h1{font-size:30px;line-height:1.02;letter-spacing:-.04em}.subtitle{font-size:12.5px;line-height:1.42;margin-top:8px}header .small{font-size:10.5px}
+  .statusbar{width:100%;display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;align-items:center;justify-content:flex-start}
+  .statusbar .pill{width:auto;min-width:0;flex:0 1 auto;text-align:center;padding:8px 11px;font-size:10.5px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .statusbar .uiLanguage{width:auto;min-width:0;flex:0 0 auto;justify-content:center;padding:8px 10px}
+  .statusbar .uiLanguage select{min-height:0!important;height:auto!important;padding:0!important;font-size:11px!important;line-height:1!important;border:0!important;border-radius:0!important}
+  #accessStatus{display:none}
+  .crossAppCard{display:block;margin-top:18px;padding:13px}.crossAppCard>.secondary{width:100%;margin-top:11px;white-space:normal}
+  .steps{gap:4px;margin:0 0 10px;padding:2px 0 6px;overflow:hidden}
+  .steps button{flex:1 1 0;min-width:0;gap:4px;padding:8px 3px;border-radius:10px;font-size:0}.steps button b{display:none}.steps button::after{content:attr(data-short);font-size:9px}.steps button span{width:19px;height:19px;font-size:9px;flex:0 0 19px}
+  .grid{display:block}.card,.card.full{width:100%;margin:0 0 10px;padding:16px;border-radius:18px;overflow:hidden}
+  .card:has(>.fold){padding:8px 10px}.card h2{font-size:18px;line-height:1.25;margin-bottom:13px}
+  .row,.checks{grid-template-columns:1fr;gap:9px}.field{margin-bottom:11px}
+  label,.platformLabel{font-size:12.5px}input,select,textarea{font-size:16px;min-height:48px;border-radius:12px;padding:11px 12px}
+  input[type=checkbox]{min-height:0;width:20px;height:20px;flex:0 0 20px}input[type=file]{font-size:13px;min-height:48px;padding:10px}
+  button{min-height:44px;border-radius:12px;padding:10px 13px;font-size:13px}.actions{gap:8px;margin-top:12px}
+  .actions>button{flex:1 1 145px}.actions>.small{flex:1 1 100%;line-height:1.45}.step-actions{display:grid;grid-template-columns:1fr;gap:8px;margin:5px 0 12px}.step-actions button{width:100%}
+  .platformSwitch{width:100%;max-width:none;min-width:0;padding:5px;border-radius:15px}.platformSwitch button.platformChoice{min-width:0;min-height:56px;font-size:14px;gap:8px;overflow:hidden}.platformSwitch button.platformChoice img{width:28px;height:28px}
+  .check{padding:11px;border-radius:13px;gap:9px}.check:hover{transform:none}.small{font-size:11.5px}.badge,.rec-tag{white-space:normal;line-height:1.25}
+  .debrid{grid-template-columns:1fr;gap:5px}.debrid>div>label{height:auto;line-height:1.3;margin-bottom:6px}.debrid select,.debrid input{height:auto}.debrid>.remove{width:100%;height:42px;margin:0}
+  .backupCallout{position:relative;top:auto;padding:14px;border-radius:15px;box-shadow:none}.backupCallout .actions{display:grid;grid-template-columns:1fr}.backupCallout .actions button{width:100%}
+  .fold,.fold.optionDisclosure,.card:has(>.fold) .fold.optionDisclosure{border-radius:13px;padding-left:10px;padding-right:10px}
+  .fold.optionDisclosure>summary{min-height:52px;padding:11px 2px;font-size:13.5px;align-items:flex-start;flex-direction:column;gap:7px}.fold.optionDisclosure>summary:after{padding:6px 9px;font-size:10.5px}
+  pre{max-width:100%;font-size:10.5px;padding:11px;overflow-x:auto}.note{padding:11px;font-size:12px}code{overflow-wrap:anywhere;word-break:break-word}
+  .successBanner{gap:11px;padding:13px}.successIcon{flex-basis:34px;height:34px;font-size:21px}.successBanner h2{font-size:18px}
+  .aioCredentialsCard{padding:13px}.credentialGrid{grid-template-columns:1fr}.credentialActions{display:grid;grid-template-columns:1fr 1fr}.credentialActions button{width:100%}.credentialActions button:last-child{grid-column:1/-1}
+  button.floatingNext{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;padding:13px 16px;font-size:14px}
+  footer{margin-top:20px;font-size:10px;padding-bottom:env(safe-area-inset-bottom)}
+  dialog.toolDialog{width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:calc(14px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));border:0;border-radius:0}
+  .dialogHeader{position:sticky;top:calc(-14px - env(safe-area-inset-top));z-index:5;margin:-14px -14px 10px;padding:calc(14px + env(safe-area-inset-top)) 14px 10px;background:#102535;border-bottom:1px solid var(--line);align-items:center}.dialogHeader h2{font-size:18px;line-height:1.2}.dialogHeader button{min-height:38px;padding:7px 9px;font-size:11px}
+  .copyRoutes{grid-template-columns:1fr;gap:8px}.copyLead{font-size:12.5px}.copyRoute,.copySafety,.copySteps{padding:11px}.copySteps ol{padding-left:18px}
+}
+@media(max-width:380px){
+  .wrap{padding-left:8px;padding-right:8px}header{padding:14px}h1{font-size:27px}
+  .statusbar .pill{font-size:10px;padding:7px 9px}.statusbar .uiLanguage{padding:7px 9px}.steps button{min-width:0;padding-left:2px;padding-right:2px}.steps button::after{font-size:8.5px}
+  .card,.card.full{padding:14px}.actions>button{flex-basis:100%}
+}
+.guideTopLink{display:block;width:max-content;max-width:100%;margin:0 4px 9px auto;color:#176e77;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}.guideTopLink:hover{text-decoration:underline;text-underline-offset:3px;color:#084d58}.guideTopLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+</style>
+<link rel="stylesheet" href="/polish.css">
+</head>
+<body>
+<div class="wrap">
+<a class="guideTopLink" href="/guia.html">Guía para principiantes ↗</a>
+<header>
+  <div>
+    <h1><a id="homeLink" href="/" title="Volver al inicio">Stremio &amp; Nuvio Wizard</a></h1>
+    <div class="subtitle">Configura Stremio o Nuvio paso a paso, con respaldo y revisión antes de aplicar.</div>
+    <div class="small" style="margin-top:5px">Creado por <b>supermaniac75</b></div>
+  </div>
+  <div class="statusbar">
+    <span class="pill" id="accessStatus">Acceso…</span>
+    <span class="pill" id="wizardStatus">Wizard…</span>
+    <span class="pill" id="aioStatus">AIOStreams…</span>
+    <span class="pill" id="tamStatus">Tamtaro…</span>
+    <label class="uiLanguage" for="uiLanguage" title="Idioma de la página"><span class="langIcon" aria-hidden="true">🌐</span><select id="uiLanguage" aria-label="Idioma de la página"><option value="es">ES</option><option value="en">EN</option></select></label>
+  </div>
+</header>
+
+<dialog id="copyAccountsDialog" class="toolDialog" aria-labelledby="copyAccountsTitle">
+  <div class="dialogHeader"><h2 id="copyAccountsTitle">Copiar configuración entre Stremio y Nuvio</h2><button class="secondary" type="button" id="closeCopyAccounts">Cerrar ✕</button></div>
+  <p class="copyLead">Esta herramienta replica en una app la lista de complementos que ya tienes en la otra. La cuenta conectada en el paso 1 será el origen; la otra cuenta será el destino.</p>
+  <div class="copyRoutes">
+    <div class="copyRoute"><b>Stremio → Nuvio</b><span>Copia los complementos de Stremio a Nuvio y reutiliza exactamente el mismo AIOStreams. Cinemeta y Streailer se omiten porque Nuvio no los usa.</span></div>
+    <div class="copyRoute"><b>Nuvio → Stremio</b><span>Copia los complementos de Nuvio a Stremio y conserva Cinemeta y Streailer si ya estaban instalados en Stremio.</span></div>
+  </div>
+  <div class="copySafety"><b>Protección:</b> antes de cambiar la cuenta de destino, el wizard crea y verifica un respaldo de esa cuenta. La cuenta de origen nunca se modifica. Si la copia falla, intenta restaurar el destino.</div>
+  <div id="copyAccountsContent"></div>
+</dialog>
+<nav class="steps" aria-label="Progreso del asistente"><button type="button" data-goto="1" data-short="Cuenta" class="active"><span>1</span><b>Cuenta</b></button><button type="button" data-goto="2" data-short="Backup" disabled><span>2</span><b>Respaldo</b></button><button type="button" data-goto="3" data-short="Prefs." disabled><span>3</span><b>Preferencias</b></button><button type="button" data-goto="4" data-short="Addons" disabled><span>4</span><b>Complementos</b></button><button type="button" data-goto="5" data-short="Revisar" disabled><span>5</span><b>Revisar</b></button></nav>
+<div class="grid">
+<section class="card full" data-step="1">
+  <h2 id="accountTitle">1 · Conecta tu cuenta Stremio</h2>
+  <div class="field"><div class="platformLabel">¿Dónde quieres instalar los complementos?</div><input id="platform" type="hidden" value="stremio"><div class="platformSwitch" role="group" aria-label="Aplicación donde instalar"><button id="platformStremio" class="platformChoice selected" type="button" aria-pressed="true"><img src="/stremio-icon.svg" alt="" width="34" height="34">Stremio</button><button id="platformNuvio" class="platformChoice" type="button" aria-pressed="false"><img src="/nuvio-icon.png" alt="" width="34" height="34">Nuvio</button></div><div class="small">Elige la app que quieres configurar. Stremio y Nuvio guardan sus complementos por separado.</div></div>
+  <div class="field" id="nuvioProfileField" hidden><label for="profileId">Perfil de Nuvio</label><select id="profileId"><option value="1">Se detectará al conectar</option></select><div class="small">Si hay varios perfiles, elige cuál vas a configurar antes de crear el respaldo.</div></div>
+  <div class="row">
+    <div class="field"><label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" placeholder="correo@ejemplo.com"></div>
+    <div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••••••"></div>
+  </div>
+  <div id="stremioAuthField" hidden><input id="authKey" type="hidden" autocomplete="off"></div>
+  <div class="accountControls">
+    <div class="accountRemember">
+      <label id="rememberAccountField" for="rememberAccount" title="Guarda tu token de acceso en este navegador para reconectar automáticamente. Úsalo sólo en un equipo personal."><input id="rememberAccount" type="checkbox"><span>Recordar cuenta en este navegador</span></label>
+      <button class="accountForget" id="forgetAccount" type="button" style="display:none">Olvidar cuenta guardada</button>
+    </div>
+    <button class="primary" id="connectBtn" type="button">Conectar cuenta</button>
+  </div>
+  <div class="small accountHint" id="accountHint">Este paso no cambia tus complementos.</div>
+  <div id="accountResult" class="result note"></div>
+  <div class="actions"><button class="primary" id="nextAccount" type="button" hidden>Continuar al respaldo →</button></div>
+  <div class="crossAppCard">
+    <div>
+      <b>¿También usas la otra app?</b>
+      <div class="small">Copia tu configuración de complementos entre Stremio y Nuvio sin volver a instalar todo desde cero. El wizard respalda primero la cuenta de destino y reutiliza el mismo AIOStreams.</div>
+    </div>
+    <button class="secondary" type="button" id="copyAccountsBtn">Copiar Stremio ↔ Nuvio</button>
+  </div>
+</section>
+
+<section class="card full locked" id="backupCard" data-step="2" hidden>
+  <h2>2 · Respalda tu cuenta</h2>
+  <div class="backupCallout"><div class="section-kicker">PASO NECESARIO PARA CONTINUAR</div><p><b>Crea un respaldo antes de continuar.</b> El wizard verificará la lista actual de complementos. Al terminar, podrás pasar a preferencias.</p><div class="small" id="backupIntro">Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIO anterior no se modificará.</div><div class="actions"><button class="primary" id="backupBtn" type="button" disabled>Crear backup seguro</button><button class="primary" id="nextBackup" type="button" hidden>Continuar a preferencias →</button></div></div>
+  <input id="aioInstallMode" type="hidden" value="new">
+  <details class="fold" id="aioExportField"><summary>Agregar copia de los ajustes del AIO anterior (opcional)</summary><div class="field"><label for="aioBackupInput">Exportación JSON de AIOStreams</label><input id="aioBackupInput" type="file" accept=".json,application/json"><div class="small">Puedes adjuntarla si ya la tienes. No hace falta para seguir. Guárdala en privado: puede contener claves.</div></div></details>
+  <details class="fold" id="restoreOptions"><summary>Opcional: restaurar una copia anterior</summary><div class="small">Restaurar reemplaza los complementos actuales. Usa estas opciones sólo si quieres volver a una configuración anterior.</div><div class="actions"><button class="secondary" id="restoreJsonBtn" type="button" disabled>Restaurar desde JSON</button><button class="danger" id="restoreBtn" type="button" style="display:none">Restaurar backup anterior</button><input id="restoreJsonInput" type="file" accept=".json,application/json" style="display:none"></div></details>
+  <div id="installedAddons" class="result note"></div>
+  <div id="backupStatus" class="result note"></div>
+  <details id="organizer" style="margin-top:15px" hidden><summary>Ordenar addons y elegir catálogos</summary><div class="small" style="margin:8px 0">Los botones suben o bajan addons. Desmarcar un catálogo lo quita de Inicio y Descubrir; puedes recuperarlo restaurando el backup.</div><div id="organizerList"></div><div class="actions"><button class="secondary" id="organizeBtn" type="button">Guardar orden y catálogos</button></div><div id="organizeResult" class="result note"></div></details>
+  <div class="actions"><button class="secondary" type="button" data-goto="1">← Volver a la cuenta</button></div>
+</section>
+
+<section class="card setupCard locked" data-step="3" hidden>
+  <h2>3 · Tus preferencias</h2>
+  <div class="note" id="backupNotice" role="status" style="margin-bottom:15px"></div>
+  <input id="instanceMode" type="hidden" value="recommended">
+  <div class="small" style="margin-bottom:12px">El nuevo AIOStreams se instalará en Midnight nightly. La URL anterior queda en el respaldo.</div>
+  <div class="field"><label for="profileMode">Configuración AIOStreams</label><select id="profileMode"><option value="recommended" selected>Configuración recomendada</option><option value="tamtaro">Configuración predeterminada de Tamtaro</option></select><div class="small">La recomendada ya incluye filtros y orden de resultados. La de Tamtaro conserva los ajustes de su plantilla actual. Ambas crean un AIO nuevo sin cambiar el anterior.</div></div>
+  <div class="field"><label for="language">Idioma principal</label>
+    <select id="language">
+      <option value="es-MX" selected>Español Latino</option>
+      <option value="es-ES">Español España</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+  <details class="fold optionDisclosure"><summary>Preferencias adicionales de contenido</summary>
+  <div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="contentPreferences" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="contentPreferences" data-checked="false">Borrar selección</button></div>
+  <div class="checks" id="contentPreferences">
+    <div class="check"><input id="kids" type="checkbox"><label for="kids"><b>Perfil Kids</b><div class="small">Catálogos infantiles y filtro de edad más estricto en AIOMetadata.</div></label></div>
+    <div class="check"><input id="anime" type="checkbox"><label for="anime"><b>Anime / Kitsu</b><div class="small">Agrega Kitsu para catálogos, metadata y búsquedas de anime.</div></label></div>
+    <div class="check"><input id="argentinaTv" type="checkbox"><label for="argentinaTv"><b>Argentina TV</b><div class="small">Añade canales de TV en vivo de Argentina como addon separado.</div></label></div>
+    <div class="check"><input id="no4k" type="checkbox"><label for="no4k"><b>Quitar 4K</b><div class="small">Oculta resultados 2160p/4K para ahorrar ancho de banda o usar equipos más modestos.</div></label></div>
+    <div class="check"><input id="cachedOnly" type="checkbox"><label for="cachedOnly"><b>Sólo cached</b><div class="small">Muestra sólo archivos ya disponibles en el Debrid; evita esperar descargas nuevas.</div></label></div>
+    <div class="check"><input id="removeWatchHub" type="checkbox" checked><label for="removeWatchHub"><b>Quitar WatchHub</b><div class="small">Elimina el addon oficial de enlaces a servicios comerciales; no afecta tu biblioteca.</div></label></div>
+  </div></details>
+</section>
+
+<section class="card setupCard locked" data-step="3" hidden>
+  <h2>Fuentes de streaming</h2>
+  <div class="debridModeSwitch" role="group" aria-label="Modo de streaming">
+    <button class="active" type="button" id="withDebridBtn">Tengo Debrid</button>
+    <button type="button" id="noDebridBtn">No tengo Debrid</button>
+  </div>
+  <input id="debridMode" type="hidden" value="debrid">
+  <div id="freeModeNote" class="note" hidden style="margin-top:12px"><b>Modo gratuito.</b> AIOStreams usará fuentes HTTP y P2P compatibles, sin exigir una cuenta Debrid. Algunas fuentes P2P dependen de seeders y pueden exponer tu IP a otros peers.</div>
+  <div id="debridFields">
+    <div class="small" style="margin:12px 0">Puedes usar uno o varios servicios Debrid al mismo tiempo.</div>
+    <div id="debridList"></div>
+    <button class="secondary" id="addDebridBtn">+ Agregar servicio</button>
+    <div class="field" style="margin-top:18px" id="debridioField"><label for="debridioKey">Debridio en AIOStreams <span class="rec-tag tag-opt">OPCIONAL</span></label><input id="debridioKey" type="password" autocomplete="off" placeholder="API key de Debridio"><div class="small">Activa Debridio y Watchtower dentro de AIOStreams si ingresas una clave. Sirve igual para Stremio y Nuvio.</div><div class="linkrow"><a class="link" href="https://debridio.com" target="_blank" rel="noreferrer noopener">Obtener API key de Debridio</a></div></div>
+  </div>
+</section>
+<div class="step-actions" data-step="3" hidden><button class="secondary" type="button" data-goto="2">← Volver al respaldo</button><button class="primary" id="nextPreferences" type="button">Continuar a complementos →</button><span class="small" id="preferencesHint"></span></div>
+
+<section class="card setupCard locked" data-step="4" hidden>
+  <h2>4 · Fichas y pósteres</h2>
+  <div class="field"><label for="tmdbMode">TMDB <span class="rec-tag tag-rec">RECOMENDADO</span></label><select id="tmdbMode" class="metadataMode"><option value="instance">Clave integrada de AIOMetadata</option><option value="personal">Usar mi propia clave</option></select><div id="tmdbOwn" class="metadataOwn" hidden><label for="tmdbKey">Mi API key v3 o Read Access Token v4 de TMDB</label><input id="tmdbKey" type="password" autocomplete="off"><div class="linkrow"><a class="link" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer noopener">Obtener API key ↗</a></div><div class="small keyStatus" id="tmdbKeyStatus" role="status"></div></div></div>
+  <div class="field"><label for="tvdbMode">TVDB <span class="rec-tag tag-opt">OPCIONAL</span></label><select id="tvdbMode" class="metadataMode"><option value="instance">Clave integrada de AIOMetadata</option><option value="personal">Usar mi propia clave</option></select><div id="tvdbOwn" class="metadataOwn" hidden><label for="tvdbKey">Mi API key de TVDB</label><input id="tvdbKey" type="password" autocomplete="off"><div class="linkrow"><a class="link" href="https://www.thetvdb.com/api-information" target="_blank" rel="noreferrer noopener">Información de TVDB ↗</a></div><div class="small keyStatus" id="tvdbKeyStatus" role="status"></div></div></div>
+  <div class="field"><label for="rpdbMode">RPDB <span class="rec-tag tag-opt">OPCIONAL VISUAL</span></label><select id="rpdbMode" class="metadataMode"><option value="none">Sin posters RPDB</option><option value="personal">Usar mi propia clave</option></select><div id="rpdbOwn" class="metadataOwn" hidden><label for="rpdbKey">Mi API key de RPDB</label><input id="rpdbKey" type="password" autocomplete="off"><div class="linkrow"><a class="link" href="https://ratingposterdb.com/api-key/" target="_blank" rel="noreferrer noopener">Obtener API key ↗</a></div><div class="small keyStatus" id="rpdbKeyStatus" role="status"></div></div></div>
+  <div class="small" id="metadataHint">TMDB y TVDB pueden usar las claves internas de la instancia, sin mostrarlas ni guardarlas en el wizard. RPDB requiere una clave propia para activar sus posters.</div>
+</section>
+
+<section class="card setupCard locked" data-step="4" hidden>
+  <h2>Complementos para añadir</h2>
+  <div id="freeAddonNotice" class="note" hidden style="margin-bottom:12px"><b>Modo gratuito activo.</b> AIOStreams ya se configurará con fuentes HTTP/P2P. Aquí sólo quedan disponibles complementos standalone que también funcionan sin Debrid.</div>
+  <div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="recommendedAddons" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="recommendedAddons" data-checked="false">Borrar selección</button></div>
+  <div class="checks" id="recommendedAddons">
+    <div class="check"><input id="trailers" type="checkbox" checked><label for="trailers"><b>Streailer</b> <span class="rec-tag tag-rec">RECOMENDADO</span><div class="small">Trailers y resúmenes de temporada en el idioma elegido.</div></label></div>
+    <div class="check"><input id="subtitles" type="checkbox" checked><label for="subtitles"><b>SubSense</b> <span class="rec-tag tag-rec">RECOMENDADO</span><div class="small">Busca subtítulos en varias fuentes y los reúne en un solo addon.</div></label></div>
+    <div class="check"><input id="openSubtitles" type="checkbox" checked><label for="openSubtitles"><b>OpenSubtitles PRO</b> <span class="rec-tag tag-rec">RECOMENDADO</span><div class="small">Segundo proveedor de subtítulos para ampliar cobertura y servir de respaldo.</div></label></div>
+    <div class="check"><input id="stores" type="checkbox" checked><label for="stores"><b>Store por Debrid</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Catálogo para explorar lo que ya tienes guardado en cada servicio Debrid.</div></label></div>
+  </div>
+  <div class="small" style="margin-top:11px">AIOStreams reúne las fuentes principales. Aquí puedes sumar subtítulos, tráileres y otras opciones. AIOMetadata se instala siempre.</div>
+
+  <details class="fold optionDisclosure"><summary>Complementos en español (opcional)</summary>
+  <div class="small" style="margin-bottom:9px">Estas opciones aparecen en la guía de <a class="link" href="https://stremio-and-nuvio-esp.gitbook.io/docs" target="_blank" rel="noreferrer noopener">Stremio & Nuvio ESP ↗</a>. Se configuran automáticamente cuando es posible.</div>
+  <div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="spanishAddons" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="spanishAddons" data-checked="false">Borrar selección</button></div>
+  <div class="checks" id="spanishAddons">
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="peerflix" id="esPeerflix"><label for="esPeerflix"><b>Peerflix</b> <span class="rec-tag tag-es">RECOMENDADO ES</span><div class="small">Muy útil para castellano. El wizard lo configura en español, excluye 3D/VHS/Screener y usa tu Debrid.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="cometa" id="esCometa"><label for="esCometa"><b>Cometa</b> <span class="rec-tag tag-es">RECOMENDADO ES</span><div class="small">Versión de Comet enfocada en contenido hispano; prioriza español y puede usar Debrid o P2P según el modo elegido.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="stremify" id="esStremify"><label for="esStremify"><b>Stremify.Hayd</b> <span class="rec-tag tag-es">RECOMENDADO ES</span><div class="small">Fuentes HTTP. Se configura con CineHDplus y VerHDlink como recomienda la guía.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="animes" id="esAnimes"><label for="esAnimes"><b>AnimES</b> <span class="rec-tag tag-opt">SI VES ANIME</span><div class="small">AnimeFLV, AnimeAV1, TioAnime, AnimeJara, JKAnime y más, con catálogos y streams.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="pelis" id="esPelis" disabled aria-describedby="pelisRequirement"><label for="esPelis"><b>PeLis</b> <span class="rec-tag tag-opt">OPCIONAL CASTELLANO</span><div class="small">Especializado en castellano. Requiere TorBox o AllDebrid; el wizard crea su configuración.</div><div class="small" id="pelisRequirement">Pelis necesita tu propia API de TMDB para instalarse. Selecciona «Usar mi propia clave» en TMDB e ingrésala para habilitarlo.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="linkanol" id="esLinkanol"><label for="esLinkanol"><b>Linkañol</b> <span class="rec-tag tag-opt">OPCIONAL CASTELLANO</span><div class="small">Útil para contenido antiguo en español de España. Automatizado con TorBox o AllDebrid.</div></label></div>
+  </div>
+  <div class="linkrow">
+    <a class="link" href="https://config.peerflix.mov" target="_blank" rel="noreferrer noopener">Peerflix ↗</a>
+    <a class="link" href="https://cometa.stremx.net/configure" target="_blank" rel="noreferrer noopener">Cometa ↗</a>
+    <a class="link" href="https://stremify.hayd.uk" target="_blank" rel="noreferrer noopener">Stremify ↗</a>
+    <a class="link" href="https://pigamer37.alwaysdata.net/configure" target="_blank" rel="noreferrer noopener">AnimES ↗</a>
+    <a class="link" href="https://enspanish.vercel.app/configure" target="_blank" rel="noreferrer noopener">PeLis ↗</a>
+    <a class="link" href="https://8bcec99c5d97-spanish-links-addon.baby-beamup.club/configure" target="_blank" rel="noreferrer noopener">Linkañol ↗</a>
+  </div>
+
+  </details>
+  <details class="fold optionDisclosure"><summary>Fuentes adicionales y opciones avanzadas</summary>
+  <div class="small" style="margin-bottom:9px">Se instalan por separado. La mayoría ya está incluida en AIOStreams, por eso vienen desactivados. Puedes activarlos si quieres otra fuente directa.</div>
+  <div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="advancedAddons" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="advancedAddons" data-checked="false">Borrar selección</button></div>
+  <div class="checks" id="advancedAddons">
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="torrentio" id="saTorrentio"><label for="saTorrentio"><b>Torrentio standalone</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">NO NECESARIO CON AIO</span><div class="small">Fuente directa adicional; AIOStreams ya consulta Torrentio.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="comet" id="saComet"><label for="saComet"><b>Comet standalone</b> <span class="rec-tag tag-redundant">NO NECESARIO CON AIO</span><div class="small">Rápido y compatible con Debrid o P2P; AIO ya lo integra.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="meteor" id="saMeteor"><label for="saMeteor"><b>Meteor standalone</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">NO NECESARIO CON AIO</span><div class="small">Buena alternativa, pero ya forma parte del AIO.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="webstreamr" id="saWeb"><label for="saWeb"><b>WebStreamr</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">Fuentes HTTP útiles para nicho; AIO ya las consulta.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="sootiohttp" id="saSootio"><label for="saSootio"><b>Sootio HTTP</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">Fuentes HTTP adicionales, pero Sootio ya está dentro del AIO.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="hdhub" id="saHd"><label for="saHd"><b>HdHub</b> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">HD/4K con TorBox; AIO ya lo consulta.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="tpbplus" id="saTpb"><label for="saTpb"><b>ThePirateBay+</b> <span class="rec-tag tag-caution">NO RECOMENDADO CON DEBRID</span><div class="small">P2P directo. Con Debrid normalmente sólo agrega ruido y exposición innecesaria.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="jackettio" id="saJack"><label for="saJack"><b>Jackettio</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Indexadores adicionales; puede aportar resultados raros que AIO no encuentre.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="torrentsdb" id="saTdb"><label for="saTdb"><b>TorrentsDB</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Otra base de torrents; útil como redundancia.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="stremthru" id="saTorz"><label for="saTorz"><b>StremThru Torz</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">AIOStreams ya usa STorz; con Debrid usa tus servicios y en modo gratuito usa P2P.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="mediafusion" id="saMf"><label for="saMf"><b>MediaFusion</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">Muy completo; puede usar Debrid o fuentes P2P, pero AIO ya lo integra.</div></label></div>
+  </div>
+  <div class="linkrow">
+    <a class="link" href="https://torrentio.strem.fun/configure" target="_blank" rel="noreferrer noopener">Torrentio ↗</a>
+    <a class="link" href="https://comet.feels.legal" target="_blank" rel="noreferrer noopener">Comet ↗</a>
+    <a class="link" href="https://jackettio.elfhosted.com" target="_blank" rel="noreferrer noopener">Jackettio ↗</a>
+    <a class="link" href="https://torrentsdb.com" target="_blank" rel="noreferrer noopener">TorrentsDB ↗</a>
+    <a class="link" href="https://mediafusionfortheweebs.midnightignite.me" target="_blank" rel="noreferrer noopener">MediaFusion ↗</a>
+  </div>
+  </details>
+</section>
+
+<section class="card full setupCard locked" data-step="4" hidden>
+  <details class="fold optionDisclosure"><summary>Agregar un complemento por URL (opcional)</summary>
+  <label>Una URL <code>manifest.json</code> por línea</label>
+  <textarea id="customAddons" rows="4" placeholder="https://.../manifest.json&#10;stremio://.../manifest.json"></textarea>
+  <div class="actions"><button class="secondary" id="validateBtn">Validar URLs</button><span class="small" id="validateHint"></span></div>
+  </details>
+</section>
+
+<section class="card full setupCard locked" data-step="4" hidden><details class="fold"><summary>Guardar o importar opciones para otra cuenta</summary><div class="small">Exporta las selecciones del wizard sin contraseñas, claves Debrid ni URL privadas. Al importar tendrás que ingresar las claves y URLs personalizadas de esa cuenta.</div><div class="actions"><button class="secondary" id="exportProfile" type="button">Descargar perfil sin claves</button><button class="secondary" id="importProfile" type="button">Importar perfil</button><input id="profileInput" type="file" accept=".json,application/json" hidden></div></details></section>
+
+<div class="step-actions" data-step="4" hidden><button class="secondary" type="button" data-goto="3">← Volver a preferencias</button><button class="primary" id="nextAddons" type="button">Continuar a revisión →</button></div>
+
+<section class="card full setupCard locked" id="applyCard" data-step="5" hidden>
+  <h2>5 · Revisa y aplica los cambios</h2>
+  <div class="small" id="applyIntro">Comprueba qué se añadirá, reemplazará o conservará antes de cambiar Stremio.</div>
+  <div class="actions"><button class="secondary" type="button" data-goto="4">← Modificar opciones</button><button class="secondary" id="reviewBtn">Actualizar el plan</button></div>
+  <div id="analysisResult" class="result note"></div>
+  <div id="confirmPlan" class="check" hidden style="margin-top:16px"><input id="confirmPlanCheck" type="checkbox"><label for="confirmPlanCheck"><b>Confirmo el respaldo y el plan mostrado</b><div class="small" id="confirmPlanHint">Se creará un AIO nuevo y se reemplazará su entrada en Stremio. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo.</div></label></div>
+  <div class="actions"><button class="primary" id="configureBtn" disabled>Aplicar en Stremio</button><button class="secondary" id="aioPushBtn" type="button" disabled hidden>Actualizar sólo AIO</button><span class="small" id="workHint"></span></div>
+  <div id="configureResult" class="result note"></div>
+</section>
+
+</div>
+<button class="floatingNext primary" id="floatingNext" type="button" hidden aria-label="Continuar al siguiente paso">Continuar →</button>
+<footer><span>Stremio &amp; Nuvio Wizard · creado por supermaniac75 · 2026</span>
+  <div class="footerNote">Proyecto independiente y no oficial, sin relación con Stremio ni Nuvio. El wizard no aloja ni enlaza contenido: sólo configura complementos de terceros en tu cuenta.</div>
+  <div class="footerSupport"><span>¿Te sirvió? Apoya el proyecto:</span> <a class="link" href="https://ko-fi.com/supermaniac" target="_blank" rel="noopener noreferrer">Ko-fi</a> · <a class="link" href="https://github.com/sponsors/maniac75" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a> · <a class="link" href="https://github.com/maniac75/stremio-nuvio-wizard" target="_blank" rel="noopener noreferrer">Código fuente</a></div>
+  <details class="footerPrivacy"><summary>Privacidad y seguridad</summary>
+    <div>Tu correo y contraseña pasan por el servidor del wizard sólo para iniciar sesión en Stremio o Nuvio y no se guardan. Si eliges «Recordar cuenta», el token de acceso queda en este navegador: úsalo sólo en un equipo personal. Los respaldos se guardan cifrados (AES-256-GCM) en el servidor, máximo 12 por cuenta, y se borran a los 30 días; pueden incluir URLs de complementos con tus claves Debrid. Las credenciales nuevas de AIO no se guardan. Antes de aplicar cambios se verifica el respaldo.</div>
+  </details>
+</footer>
+</div>
+
+<script src="/app.js"></script>
+<script src="/i18n.js"></script>
+</body>
+</html>
