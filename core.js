@@ -1383,47 +1383,52 @@ async function buildStandaloneAddons(preset, options) {
   }
 
   if (selected.has('pelis')) {
-    if (!options.tmdbKey) {
-      throw new Error('PeLis requiere una API key de TMDB');
-    }
-    const pelisDebrid =
-      options.debrids.find(d => d.service === 'alldebrid') ||
-      options.debrids.find(d => d.service === 'torbox');
-    if (!pelisDebrid) {
-      throw new Error('PeLis automático requiere TorBox o AllDebrid');
-    }
+    try {
+      if (!options.tmdbKey) {
+        throw new Error('PeLis requiere una API key de TMDB');
+      }
+      const pelisDebrid =
+        options.debrids.find(d => d.service === 'alldebrid') ||
+        options.debrids.find(d => d.service === 'torbox');
+      if (!pelisDebrid) {
+        throw new Error('PeLis automático requiere TorBox o AllDebrid');
+      }
 
-    const form = new URLSearchParams();
-    form.set('tmdb_token', options.tmdbKey);
-    form.set('provider', pelisDebrid.service);
-    form.set('debrid_token', pelisDebrid.key);
-    form.set('catalogs_enabled', '1');
-    form.set('catalog_movies', '1');
-    form.set('catalog_series', '1');
-    const resolutions = options.no4k
-      ? ['1080p','720p','sd','other']
-      : ['8k','4k','1080p','720p','sd','other'];
-    for (const res of resolutions) form.append('resolutions', res);
-    if (!options.cachedOnly) form.set('include_uncached', '1');
+      const form = new URLSearchParams();
+      form.set('tmdb_token', options.tmdbKey);
+      form.set('provider', pelisDebrid.service);
+      form.set('debrid_token', pelisDebrid.key);
+      form.set('catalogs_enabled', '1');
+      form.set('catalog_movies', '1');
+      form.set('catalog_series', '1');
+      const resolutions = options.no4k
+        ? ['1080p','720p','sd','other']
+        : ['8k','4k','1080p','720p','sd','other'];
+      for (const res of resolutions) form.append('resolutions', res);
+      if (!options.cachedOnly) form.set('include_uncached', '1');
 
-    const response = await fetch('https://enspanish.vercel.app/configure', {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:form.toString(),
-      redirect:'manual'
-    });
-    const location = response.headers.get('location') || '';
-    if (![302,303].includes(response.status) || !location) {
-      const raw = await response.text().catch(() => '');
-      const alert = raw.match(/<div class="alert alert-error"[^>]*>[\s\S]*?<div>([\s\S]*?)<\/div>/i);
-      const reason = alert ? alert[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400) : '';
-      const safeReason = reason.replaceAll(options.tmdbKey, '[clave TMDB]').replaceAll(pelisDebrid.key, '[clave Debrid]');
-      throw new Error('PeLis rechazó la configuración' + (safeReason ? ': ' + safeReason : ' (HTTP ' + response.status + ')'));
+      const response = await fetch('https://enspanish.vercel.app/configure', {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:form.toString(),
+        redirect:'manual'
+      });
+      const location = response.headers.get('location') || '';
+      if (![302,303].includes(response.status) || !location) {
+        const raw = await response.text().catch(() => '');
+        const alert = raw.match(/<div class="alert alert-error"[^>]*>[\s\S]*?<div>([\s\S]*?)<\/div>/i);
+        const reason = alert ? alert[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400) : '';
+        const safeReason = reason.replaceAll(options.tmdbKey, '[clave TMDB]').replaceAll(pelisDebrid.key, '[clave Debrid]');
+        throw new Error('PeLis rechazó la configuración' + (safeReason ? ': ' + safeReason : ' (HTTP ' + response.status + ')'));
+      }
+      const match = location.match(/^\/([^/]+)\/configure/);
+      if (!match) throw new Error('PeLis devolvió una respuesta inesperada');
+      const url = 'https://enspanish.vercel.app/' + match[1] + '/manifest.json';
+      out.push(await optional({ transportUrl: url }, url));
+    } catch (error) {
+      skipped.push('PeLis');
+      logError('PeLis omitido:', error);
     }
-    const match = location.match(/^\/([^/]+)\/configure/);
-    if (!match) throw new Error('PeLis devolvió una respuesta inesperada');
-    const url = 'https://enspanish.vercel.app/' + match[1] + '/manifest.json';
-    out.push(await optional({ transportUrl: url }, url));
   }
 
   const result = out.filter(Boolean);

@@ -601,6 +601,7 @@ function initAccess(){
 
 function syncPelisAvailability(){
   var input=document.getElementById('esPelis');
+  if(!input)return;
   var available=document.getElementById('tmdbMode').value==='personal'&&!!document.getElementById('tmdbKey').value.trim();
   input.disabled=isFreeMode()||!available;
   if(input.disabled){input.checked=false;delete input.dataset.freePrevious;}
