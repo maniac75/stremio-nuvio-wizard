@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Beta: se despliega aparte del sitio actual. Al aprobarla se renombra a "wizard".
-  "name": "wizard-beta",
+  "name": "wizard",
   "main": "worker.js",
   "compatibility_date": "2026-11-01",
   "compatibility_flags": ["nodejs_compat"],
