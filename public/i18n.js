@@ -362,6 +362,11 @@ Clave de edición / contraseña	Editing key / password
 Copiar UUID	Copy UUID
 Copiar clave	Copy key
 Copiar ambos	Copy both
+Guardar en el navegador	Save in browser
+Guardado en el navegador ✓	Saved in browser ✓
+Descargar para gestor de contraseñas	Download for password manager
+Queda guardado para este sitio. Búscalo como «AIOStreams» en el gestor de contraseñas del navegador.	Saved for this site. Look for "AIOStreams" in your browser's password manager.
+El navegador no permitió guardarlo. Usa «Descargar para gestor de contraseñas» o cópialo a mano.	The browser did not allow saving it. Use "Download for password manager" or copy it manually.
 Importante:	Important:
 el wizard no guarda esta contraseña en el servidor ni en sus backups. Se mantiene sólo durante esta sesión y en el JSON que descargues.	the wizard does not store this password on the server or in its backups. It is only kept during this session and in the JSON file you download.
 Antes de cerrar o recargar esta página, guárdala en un gestor de contraseñas o en otro lugar seguro.	Before closing or reloading this page, save it in a password manager or another secure location.

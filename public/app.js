@@ -1249,7 +1249,10 @@ document.getElementById('configureBtn').addEventListener('click',async function(
           '<button class="secondary" id="copyAioUuid" type="button">Copiar UUID</button>'+
           '<button class="secondary" id="copyAioPassword" type="button">Copiar clave</button>'+
           '<button class="secondary" id="copyAioCredentials" type="button">Copiar ambos</button>'+
+          (window.PasswordCredential&&navigator.credentials?'<button class="primary" id="storeAioCredentials" type="button">Guardar en el navegador</button>':'')+
+          '<button class="secondary" id="exportAioCsv" type="button">Descargar para gestor de contraseñas</button>'+
         '</div>'+
+        '<p class="small" id="aioSaveHint" hidden></p>'+
         '<div class="credentialWarning"><b>Importante:</b> el wizard no guarda esta contraseña en el servidor ni en sus backups. Se mantiene sólo durante esta sesión y en el JSON que descargues. <b>Antes de cerrar o recargar esta página, guárdala en un gestor de contraseñas o en otro lugar seguro.</b></div>'+
       '</div>';
     }
@@ -1271,6 +1274,37 @@ document.getElementById('configureBtn').addEventListener('click',async function(
       if(passwordButton)passwordButton.addEventListener('click',function(){copyTextValue(lastRecovery.password,passwordButton,'Clave copiada ✓');});
       if(bothButton)bothButton.addEventListener('click',function(){
         copyTextValue('AIOStreams\nUUID: '+lastRecovery.uuid+'\nClave de edición: '+lastRecovery.password,bothButton,'Credenciales copiadas ✓');
+      });
+      var aioOrigin='';
+      try{aioOrigin=new URL(lastRecovery.manifestUrl).origin;}catch(_){}
+      var saveHint=document.getElementById('aioSaveHint');
+      var storeButton=document.getElementById('storeAioCredentials');
+      if(storeButton)storeButton.addEventListener('click',async function(){
+        try{
+          // Chrome/Edge: abre el aviso nativo "¿Guardar contraseña?" del navegador.
+          await navigator.credentials.store(new PasswordCredential({id:lastRecovery.uuid,password:lastRecovery.password,
+            name:'AIOStreams'+(aioOrigin?' ('+new URL(aioOrigin).hostname+')':'')}));
+          storeButton.textContent='Guardado en el navegador ✓';
+          saveHint.hidden=false;
+          saveHint.textContent='Queda guardado para este sitio. Búscalo como «AIOStreams» en el gestor de contraseñas del navegador.';
+        }catch(_){
+          saveHint.hidden=false;
+          saveHint.textContent='El navegador no permitió guardarlo. Usa «Descargar para gestor de contraseñas» o cópialo a mano.';
+        }
+      });
+      var csvButton=document.getElementById('exportAioCsv');
+      if(csvButton)csvButton.addEventListener('click',function(){
+        // Formato CSV de Chrome: lo importan Contraseñas de Apple, Chrome, Edge, 1Password y Bitwarden.
+        var cell=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
+        var csv='name,url,username,password,note\r\n'+[
+          'AIOStreams',aioOrigin||'',lastRecovery.uuid,lastRecovery.password,
+          'Creado con Stremio & Nuvio Wizard el '+new Date().toISOString().slice(0,10)
+        ].map(cell).join(',')+'\r\n';
+        var blob=new Blob([csv],{type:'text/csv'});
+        var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AIOStreams-para-importar.csv';a.click();
+        setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+        saveHint.hidden=false;
+        saveHint.innerHTML='<b>Importa el archivo en tu gestor y luego bórralo</b>: contiene la clave sin cifrar. En Mac: app Contraseñas › Archivo › Importar contraseñas.';
       });
     }
 
