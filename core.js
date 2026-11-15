@@ -59,7 +59,7 @@ async function assertPublicUrl(url) {
   const parsed = new URL(url);
   if (!/^https?:$/.test(parsed.protocol)) throw new Error('Protocolo no permitido');
   const host = parsed.hostname.replace(/^\[|\]$/g, '').toLowerCase();
-  if (host === 'localhost' || /\.(local|lan|home|internal|localhost|ts\.net)$/.test(host)) {
+  if (host === 'localhost' || /\.(local|lan|home|internal|localhost)$/.test(host)) {
     throw new Error('No se permiten direcciones locales: ' + host);
   }
   const isLiteral = /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(':');
