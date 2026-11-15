@@ -250,7 +250,7 @@ var serviceApiLinks = {
   easydebrid:'https://paradise-cloud.com/dashboard/'
 };
 
-var freeStandaloneAddons = new Set(['comet','webstreamr','sootiohttp','tpbplus','torrentsdb','stremthru','mediafusion','cometa','animes']);
+var freeStandaloneAddons = new Set(['comet','webstreamr','sootiohttp','torrentsdb','stremthru','mediafusion','cometa','animes']);
 function isFreeMode(){return document.getElementById('debridMode').value==='free';}
 function rememberCheckboxState(input,free){
   var card=input.closest('.check');
@@ -396,7 +396,7 @@ function collect(){
     rpdbKey:document.getElementById('rpdbMode').value==='personal'?document.getElementById('rpdbKey').value.trim():'',
     kids:document.getElementById('kids').checked,
     anime:document.getElementById('anime').checked,
-    argentinaTv:document.getElementById('argentinaTv').checked,
+    argentinaTv:false,
     no4k:document.getElementById('no4k').checked,
     cachedOnly:free?false:document.getElementById('cachedOnly').checked,
     removeWatchHub:document.getElementById('removeWatchHub').checked,
@@ -1401,7 +1401,7 @@ document.getElementById('profileInput').addEventListener('change',async function
       if(p[id]&&Array.from(document.getElementById(id).options).some(function(x){return x.value===p[id];}))
         document.getElementById(id).value=p[id];
     });
-    ['kids','anime','argentinaTv','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores'].forEach(function(id){
+    ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores'].forEach(function(id){
       if(typeof p[id]==='boolean')document.getElementById(id).checked=p[id];
     });
     document.querySelectorAll('.standaloneAddon').forEach(function(x){x.checked=Array.isArray(p.standaloneAddons)&&p.standaloneAddons.includes(x.value);});

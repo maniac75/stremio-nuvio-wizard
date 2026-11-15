@@ -1116,318 +1116,411 @@ async function buildStandaloneAddons(preset, options) {
   const primary = options.debrids[0];
 
   if (selected.has('torrentio')) {
-    if (!primary) throw new Error('Torrentio standalone requiere al menos un Debrid');
-    const base = presetAddon(preset, 'torrentio', options.language);
-    const transportUrl = renderItTemplate(base.transportUrl, {
-      no4k: options.no4k ? '4k,' : '',
-      maxSize: '',
-      limit: 10,
-      transportUrl:
-        '|sort=qualitysize|debridoptions=' +
-        (options.cachedOnly ? 'nodownloadlinks,' : '') +
-        'nocatalog|' + primary.service + '=' + primary.key
-    });
-    const addon = await manifestAddon(base, transportUrl);
-    addon.manifest.name = (addon.manifest.name || 'Torrentio') + ' | ' + primary.service;
-    out.push(addon);
+    try {
+      if (!primary) throw new Error('Torrentio standalone requiere al menos un Debrid');
+      const base = presetAddon(preset, 'torrentio', options.language);
+      const transportUrl = renderItTemplate(base.transportUrl, {
+        no4k: options.no4k ? '4k,' : '',
+        maxSize: '',
+        limit: 10,
+        transportUrl:
+          '|sort=qualitysize|debridoptions=' +
+          (options.cachedOnly ? 'nodownloadlinks,' : '') +
+          'nocatalog|' + primary.service + '=' + primary.key
+      });
+      const addon = await manifestAddon(base, transportUrl);
+      addon.manifest.name = (addon.manifest.name || 'Torrentio') + ' | ' + primary.service;
+      out.push(addon);
+    } catch (error) {
+      skipped.push('torrentio' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'torrentio', error);
+    }
   }
 
   if (selected.has('comet')) {
-    const base = presetAddon(preset, 'comet', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const data = {
-      ...decoded.data,
-      debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
-      cachedOnly: options.cachedOnly,
-      enableTorrent: options.debrids.length === 0,
-      maxResultsPerResolution: 10,
-      resolutions: {
-        ...(decoded.data.resolutions || {}),
-        r2160p: options.no4k ? false : (decoded.data.resolutions?.r2160p ?? true)
-      }
-    };
-    out.push(await optional(base, encodeTransportData(decoded, data)));
+    try {
+      const base = presetAddon(preset, 'comet', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const data = {
+        ...decoded.data,
+        debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
+        cachedOnly: options.cachedOnly,
+        enableTorrent: options.debrids.length === 0,
+        maxResultsPerResolution: 10,
+        resolutions: {
+          ...(decoded.data.resolutions || {}),
+          r2160p: options.no4k ? false : (decoded.data.resolutions?.r2160p ?? true)
+        }
+      };
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('comet' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'comet', error);
+    }
   }
 
   if (selected.has('meteor')) {
-    if (!primary) throw new Error('Meteor standalone requiere al menos un Debrid');
-    const base = presetAddon(preset, 'meteor', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const langCode = options.language === 'es-MX' ? 'la' : options.language.slice(0, 2);
-    const data = {
-      ...decoded.data,
-      cachedOnly: options.cachedOnly,
-      maxResultsPerRes: 10,
-      debridApiKey: primary.key,
-      debridService: primary.service,
-      languages: {
-        ...(decoded.data.languages || {}),
-        preferred: [langCode, 'multi']
-      },
-      resolutions: options.no4k
-        ? (decoded.data.resolutions || []).filter(r => r !== '4k')
-        : (decoded.data.resolutions || [])
-    };
-    out.push(await optional(base, encodeTransportData(decoded, data)));
+    try {
+      if (!primary) throw new Error('Meteor standalone requiere al menos un Debrid');
+      const base = presetAddon(preset, 'meteor', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const langCode = options.language === 'es-MX' ? 'la' : options.language.slice(0, 2);
+      const data = {
+        ...decoded.data,
+        cachedOnly: options.cachedOnly,
+        maxResultsPerRes: 10,
+        debridApiKey: primary.key,
+        debridService: primary.service,
+        languages: {
+          ...(decoded.data.languages || {}),
+          preferred: [langCode, 'multi']
+        },
+        resolutions: options.no4k
+          ? (decoded.data.resolutions || []).filter(r => r !== '4k')
+          : (decoded.data.resolutions || [])
+      };
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('meteor' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'meteor', error);
+    }
   }
 
   if (selected.has('webstreamr')) {
-    out.push(await optional(presetAddon(preset, 'webstreamrmbg', options.language)));
+    try {
+      out.push(await optional(presetAddon(preset, 'webstreamrmbg', options.language)));
+    } catch (error) {
+      skipped.push('webstreamr' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'webstreamr', error);
+    }
   }
 
   if (selected.has('sootiohttp')) {
-    out.push(await optional(presetAddon(preset, 'sootiohttp', options.language)));
+    try {
+      out.push(await optional(presetAddon(preset, 'sootiohttp', options.language)));
+    } catch (error) {
+      skipped.push('sootiohttp' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'sootiohttp', error);
+    }
   }
 
   if (selected.has('hdhub')) {
-    const torbox = options.debrids.find(d => d.service === 'torbox');
-    if (!torbox) throw new Error('HdHub standalone requiere TorBox');
-    const base = presetAddon(preset, 'hdhub', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const data = {
-      ...decoded.data,
-      torbox: torbox.key,
-      content: options.language === 'es-MX' ? 'latin' : (decoded.data.content || ''),
-      mq: 10
-    };
-    out.push(await optional(base, encodeTransportData(decoded, data)));
-  }
-
-  if (selected.has('tpbplus')) {
-    out.push(await optional(presetAddon(preset, 'tpbplus', options.language)));
+    try {
+      const torbox = options.debrids.find(d => d.service === 'torbox');
+      if (!torbox) throw new Error('HdHub standalone requiere TorBox');
+      const base = presetAddon(preset, 'hdhub', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const data = {
+        ...decoded.data,
+        torbox: torbox.key,
+        content: options.language === 'es-MX' ? 'latin' : (decoded.data.content || ''),
+        mq: 10
+      };
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('hdhub' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'hdhub', error);
+    }
   }
 
   if (selected.has('jackettio')) {
-    if (!primary) throw new Error('Jackettio standalone requiere al menos un Debrid');
-    const base = presetAddon(preset, 'jackettio', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const data = {
-      ...decoded.data,
-      debridEntries: [primary],
-      debridApiKey: primary.key,
-      debridId: primary.service,
-      hideUncached: options.cachedOnly,
-      qualities: options.no4k
-        ? (decoded.data.qualities || []).filter(q => Number(q) !== 2160)
-        : (decoded.data.qualities || [])
-    };
-    out.push(await optional(base, encodeTransportData(decoded, data)));
+    try {
+      if (!primary) throw new Error('Jackettio standalone requiere al menos un Debrid');
+      const base = presetAddon(preset, 'jackettio', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const data = {
+        ...decoded.data,
+        debridEntries: [primary],
+        debridApiKey: primary.key,
+        debridId: primary.service,
+        hideUncached: options.cachedOnly,
+        qualities: options.no4k
+          ? (decoded.data.qualities || []).filter(q => Number(q) !== 2160)
+          : (decoded.data.qualities || [])
+      };
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('jackettio' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'jackettio', error);
+    }
   }
 
   if (selected.has('torrentsdb')) {
-    const base = presetAddon(preset, 'torrentsdb', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const data = {
-      ...decoded.data,
-      sort: options.debrids.length ? 'qualitysize' : decoded.data.sort
-    };
-    for (const entry of options.debrids) data[entry.service] = entry.key;
-    if (options.no4k) {
-      data.qualityfilter = [
-        ...(decoded.data.qualityfilter || []),
-        '4k','brremux','hdrall','dolbyvisionwithhdr','dolbyvision'
-      ];
+    try {
+      const base = presetAddon(preset, 'torrentsdb', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const data = {
+        ...decoded.data,
+        sort: options.debrids.length ? 'qualitysize' : decoded.data.sort
+      };
+      for (const entry of options.debrids) data[entry.service] = entry.key;
+      if (options.no4k) {
+        data.qualityfilter = [
+          ...(decoded.data.qualityfilter || []),
+          '4k','brremux','hdrall','dolbyvisionwithhdr','dolbyvision'
+        ];
+      }
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('torrentsdb' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'torrentsdb', error);
     }
-    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('stremthru')) {
-    const base = presetAddon(preset, 'stremthrutorz', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const codeMap = {
-      realdebrid:'rd',
-      alldebrid:'ad',
-      premiumize:'pm',
-      debridlink:'dl',
-      torbox:'tb',
-      easydebrid:'ed'
-    };
-    const data = {
-      ...decoded.data,
-      stores: options.debrids.length
-        ? options.debrids.map(d => ({ c: codeMap[d.service] || d.service, t: d.key }))
-        : [{ c:'p2p', t:'' }],
-      cached: options.cachedOnly
-    };
-    out.push(await optional(base, encodeTransportData(decoded, data)));
+    try {
+      const base = presetAddon(preset, 'stremthrutorz', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const codeMap = {
+        realdebrid:'rd',
+        alldebrid:'ad',
+        premiumize:'pm',
+        debridlink:'dl',
+        torbox:'tb',
+        easydebrid:'ed'
+      };
+      const data = {
+        ...decoded.data,
+        stores: options.debrids.length
+          ? options.debrids.map(d => ({ c: codeMap[d.service] || d.service, t: d.key }))
+          : [{ c:'p2p', t:'' }],
+        cached: options.cachedOnly
+      };
+      out.push(await optional(base, encodeTransportData(decoded, data)));
+    } catch (error) {
+      skipped.push('stremthru' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'stremthru', error);
+    }
   }
 
   if (selected.has('mediafusion')) {
-    const base = deepMerge(
-      preset.languages?.en?.mediafusion || {},
-      preset.languages?.[options.language]?.mediafusion || {}
-    );
-    const config = deepClone(preset.mediafusionConfig || {});
-    const langName = options.language === 'es-MX'
-      ? 'Latino'
-      : options.language === 'es-ES' ? 'Spanish' : 'English';
-
-    if (Array.isArray(config.language_sorting)) {
-      config.language_sorting = [
-        langName,
-        ...config.language_sorting.filter(x => x !== langName)
-      ];
-    }
-    if (options.no4k && Array.isArray(config.selected_resolutions)) {
-      config.selected_resolutions = config.selected_resolutions.filter(
-        x => !['4k','2160p','1440p'].includes(String(x).toLowerCase())
+    try {
+      const base = deepMerge(
+        preset.languages?.en?.mediafusion || {},
+        preset.languages?.[options.language]?.mediafusion || {}
       );
+      const config = deepClone(preset.mediafusionConfig || {});
+      const langName = options.language === 'es-MX'
+        ? 'Latino'
+        : options.language === 'es-ES' ? 'Spanish' : 'English';
+
+      if (Array.isArray(config.language_sorting)) {
+        config.language_sorting = [
+          langName,
+          ...config.language_sorting.filter(x => x !== langName)
+        ];
+      }
+      if (options.no4k && Array.isArray(config.selected_resolutions)) {
+        config.selected_resolutions = config.selected_resolutions.filter(
+          x => !['4k','2160p','1440p'].includes(String(x).toLowerCase())
+        );
+      }
+      if (options.debrids.length) {
+        const providers = options.debrids.map((d,index) => ({
+          name: serviceNamesForMediaFusion(d.service),
+          service: d.service,
+          token: d.key,
+          enable_watchlist_catalogs: false,
+          qbittorrent_config: null,
+          only_show_cached_streams: options.cachedOnly,
+          use_mediaflow: true,
+          sabnzbd_config: null,
+          nzbget_config: null,
+          nzbdav_config: null,
+          easynews_config: null,
+          priority: index,
+          enabled: true
+        }));
+        config.streaming_providers = providers;
+        config.streaming_provider = providers[0];
+      }
+      const encrypted = await fetchJson(
+        'https://mediafusionfortheweebs.midnightignite.me/encrypt-user-data',
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(config)
+        },
+        30000
+      );
+      if (!encrypted?.encrypted_str) throw new Error('MediaFusion no devolvió una configuración válida');
+      const url = 'https://mediafusionfortheweebs.midnightignite.me/' + encrypted.encrypted_str + '/manifest.json';
+      out.push(await optional(base, url));
+    } catch (error) {
+      skipped.push('mediafusion' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'mediafusion', error);
     }
-    if (options.debrids.length) {
-      const providers = options.debrids.map((d,index) => ({
-        name: serviceNamesForMediaFusion(d.service),
-        service: d.service,
-        token: d.key,
-        enable_watchlist_catalogs: false,
-        qbittorrent_config: null,
-        only_show_cached_streams: options.cachedOnly,
-        use_mediaflow: true,
-        sabnzbd_config: null,
-        nzbget_config: null,
-        nzbdav_config: null,
-        easynews_config: null,
-        priority: index,
-        enabled: true
-      }));
-      config.streaming_providers = providers;
-      config.streaming_provider = providers[0];
-    }
-    const encrypted = await fetchJson(
-      'https://mediafusionfortheweebs.midnightignite.me/encrypt-user-data',
-      {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(config)
-      },
-      30000
-    );
-    if (!encrypted?.encrypted_str) throw new Error('MediaFusion no devolvió una configuración válida');
-    const url = 'https://mediafusionfortheweebs.midnightignite.me/' + encrypted.encrypted_str + '/manifest.json';
-    out.push(await optional(base, url));
   }
 
   if (selected.has('cometa')) {
-    const base = presetAddon(preset, 'comet', options.language);
-    const decoded = decodeTransportData(base.transportUrl);
-    const data = {
-      ...decoded.data,
-      debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
-      cachedOnly: options.cachedOnly,
-      enableTorrent: options.debrids.length === 0,
-      maxResultsPerResolution: 10,
-      languages: {
-        ...(decoded.data.languages || {}),
-        required: ['es'],
-        preferred: ['es']
+    try {
+      const base = presetAddon(preset, 'comet', options.language);
+      const decoded = decodeTransportData(base.transportUrl);
+      const data = {
+        ...decoded.data,
+        debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
+        cachedOnly: options.cachedOnly,
+        enableTorrent: options.debrids.length === 0,
+        maxResultsPerResolution: 10,
+        languages: {
+          ...(decoded.data.languages || {}),
+          required: ['es'],
+          preferred: ['es']
+        }
+      };
+      const url =
+        'https://cometa.stremx.net/' +
+        Buffer.from(JSON.stringify(data)).toString('base64') +
+        '/manifest.json';
+      out.push(await optional(base, url));
+    } catch (error) {
+      skipped.push('cometa' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'cometa', error);
+    }
+  }
+
+  if (selected.has('latinobrid')) {
+    try {
+      // Latinobrid (stremx): español latino con TorBox, Premiumize u Offcloud.
+      const lbDebrid = options.debrids.find(d => ['torbox', 'premiumize', 'offcloud'].includes(d.service));
+      if (lbDebrid) {
+        const config = { service: lbDebrid.service, apiKey: lbDebrid.key, uncached: !options.cachedOnly, extraCatalogs: false };
+        const url = 'https://latinobrid.stremx.net/' + Buffer.from(JSON.stringify(config)).toString('base64') + '/manifest.json';
+        out.push(await optional({ transportUrl: url }, url));
+      } else {
+        skipped.push('Latinobrid (requiere TorBox o Premiumize)');
       }
-    };
-    const url =
-      'https://cometa.stremx.net/' +
-      Buffer.from(JSON.stringify(data)).toString('base64') +
-      '/manifest.json';
-    out.push(await optional(base, url));
+    } catch (error) {
+      skipped.push('latinobrid' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'latinobrid', error);
+    }
   }
 
   if (selected.has('peerflix')) {
-    const supportedPeerflix = new Set([
-      'torbox','alldebrid','realdebrid','premiumize','debridlink','offcloud'
-    ]);
-    const peerDebrid = options.debrids.find(d => supportedPeerflix.has(d.service));
-    if (!peerDebrid) throw new Error('Peerflix necesita un Debrid compatible');
-    const parts = [
-      'language=es',
-      'qualityfilter=threed,vhs,screener',
-      'limitpq=4',
-      'sort=language,quality,size',
-      'debridoptions=' + (options.cachedOnly ? 'nodownloadlinks,' : '') + 'nocatalog',
-      peerDebrid.service + '=' + peerDebrid.key
-    ];
-    const url = 'https://addon.peerflix.mov/' + parts.join('%7C') + '/manifest.json';
-    out.push(await optional({ transportUrl: url }, url));
+    try {
+      const supportedPeerflix = new Set([
+        'torbox','alldebrid','realdebrid','premiumize','debridlink','offcloud'
+      ]);
+      const peerDebrid = options.debrids.find(d => supportedPeerflix.has(d.service));
+      if (!peerDebrid) throw new Error('Peerflix necesita un Debrid compatible');
+      const parts = [
+        'language=es',
+        'qualityfilter=threed,vhs,screener',
+        'limitpq=4',
+        'sort=language,quality,size',
+        'debridoptions=' + (options.cachedOnly ? 'nodownloadlinks,' : '') + 'nocatalog',
+        peerDebrid.service + '=' + peerDebrid.key
+      ];
+      const url = 'https://addon.peerflix.mov/' + parts.join('%7C') + '/manifest.json';
+      out.push(await optional({ transportUrl: url }, url));
+    } catch (error) {
+      skipped.push('peerflix' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'peerflix', error);
+    }
   }
 
   if (selected.has('stremify')) {
-    const providers = Buffer.from('cinehdplus,verhdlink').toString('base64');
-    const url = 'https://stremify.hayd.uk/' + providers + '/manifest.json';
-    out.push(await optional({ transportUrl: url }, url));
+    try {
+      const providers = Buffer.from('cinehdplus,verhdlink').toString('base64');
+      const url = 'https://stremify.hayd.uk/' + providers + '/manifest.json';
+      out.push(await optional({ transportUrl: url }, url));
+    } catch (error) {
+      skipped.push('stremify' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'stremify', error);
+    }
   }
 
   if (selected.has('animes')) {
-    const url = 'https://pigamer37.alwaysdata.net/onAirCatalogs=animeav1/manifest.json';
-    out.push(await optional({ transportUrl: url }, url));
+    try {
+      const url = 'https://pigamer37.alwaysdata.net/onAirCatalogs=animeav1/manifest.json';
+      out.push(await optional({ transportUrl: url }, url));
+    } catch (error) {
+      skipped.push('animes' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'animes', error);
+    }
   }
 
   if (selected.has('linkanol')) {
-    const linkDebrid =
-      options.debrids.find(d => d.service === 'torbox') ||
-      options.debrids.find(d => d.service === 'alldebrid');
-    if (!linkDebrid) {
-      throw new Error('Linkañol automático requiere TorBox o AllDebrid');
+    try {
+      const linkDebrid =
+        options.debrids.find(d => d.service === 'torbox') ||
+        options.debrids.find(d => d.service === 'alldebrid');
+      if (!linkDebrid) {
+        throw new Error('Linkañol automático requiere TorBox o AllDebrid');
+      }
+      const body = {
+        host: '8bcec99c5d97-spanish-links-addon.baby-beamup.club'
+      };
+      body[linkDebrid.service + '_token'] = linkDebrid.key;
+      const built = await fetchJson(
+        'https://8bcec99c5d97-spanish-links-addon.baby-beamup.club/build-install-url',
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(body)
+        },
+        30000
+      );
+      if (!built?.url) throw new Error('Linkañol no devolvió una URL de instalación');
+      const url = String(built.url).replace(/^stremio:\/\//i, 'https://');
+      out.push(await optional({ transportUrl: url }, url));
+    } catch (error) {
+      skipped.push('linkanol' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'linkanol', error);
     }
-    const body = {
-      host: '8bcec99c5d97-spanish-links-addon.baby-beamup.club'
-    };
-    body[linkDebrid.service + '_token'] = linkDebrid.key;
-    const built = await fetchJson(
-      'https://8bcec99c5d97-spanish-links-addon.baby-beamup.club/build-install-url',
-      {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(body)
-      },
-      30000
-    );
-    if (!built?.url) throw new Error('Linkañol no devolvió una URL de instalación');
-    const url = String(built.url).replace(/^stremio:\/\//i, 'https://');
-    out.push(await optional({ transportUrl: url }, url));
   }
 
   if (selected.has('pelis')) {
     try {
-      if (!options.tmdbKey) {
-        throw new Error('PeLis requiere una API key de TMDB');
-      }
-      const pelisDebrid =
-        options.debrids.find(d => d.service === 'alldebrid') ||
-        options.debrids.find(d => d.service === 'torbox');
-      if (!pelisDebrid) {
-        throw new Error('PeLis automático requiere TorBox o AllDebrid');
-      }
+      try {
+        if (!options.tmdbKey) {
+          throw new Error('PeLis requiere una API key de TMDB');
+        }
+        const pelisDebrid =
+          options.debrids.find(d => d.service === 'alldebrid') ||
+          options.debrids.find(d => d.service === 'torbox');
+        if (!pelisDebrid) {
+          throw new Error('PeLis automático requiere TorBox o AllDebrid');
+        }
 
-      const form = new URLSearchParams();
-      form.set('tmdb_token', options.tmdbKey);
-      form.set('provider', pelisDebrid.service);
-      form.set('debrid_token', pelisDebrid.key);
-      form.set('catalogs_enabled', '1');
-      form.set('catalog_movies', '1');
-      form.set('catalog_series', '1');
-      const resolutions = options.no4k
-        ? ['1080p','720p','sd','other']
-        : ['8k','4k','1080p','720p','sd','other'];
-      for (const res of resolutions) form.append('resolutions', res);
-      if (!options.cachedOnly) form.set('include_uncached', '1');
+        const form = new URLSearchParams();
+        form.set('tmdb_token', options.tmdbKey);
+        form.set('provider', pelisDebrid.service);
+        form.set('debrid_token', pelisDebrid.key);
+        form.set('catalogs_enabled', '1');
+        form.set('catalog_movies', '1');
+        form.set('catalog_series', '1');
+        const resolutions = options.no4k
+          ? ['1080p','720p','sd','other']
+          : ['8k','4k','1080p','720p','sd','other'];
+        for (const res of resolutions) form.append('resolutions', res);
+        if (!options.cachedOnly) form.set('include_uncached', '1');
 
-      const response = await fetch('https://enspanish.vercel.app/configure', {
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:form.toString(),
-        redirect:'manual'
-      });
-      const location = response.headers.get('location') || '';
-      if (![302,303].includes(response.status) || !location) {
-        const raw = await response.text().catch(() => '');
-        const alert = raw.match(/<div class="alert alert-error"[^>]*>[\s\S]*?<div>([\s\S]*?)<\/div>/i);
-        const reason = alert ? alert[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400) : '';
-        const safeReason = reason.replaceAll(options.tmdbKey, '[clave TMDB]').replaceAll(pelisDebrid.key, '[clave Debrid]');
-        throw new Error('PeLis rechazó la configuración' + (safeReason ? ': ' + safeReason : ' (HTTP ' + response.status + ')'));
+        const response = await fetch('https://enspanish.vercel.app/configure', {
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:form.toString(),
+          redirect:'manual'
+        });
+        const location = response.headers.get('location') || '';
+        if (![302,303].includes(response.status) || !location) {
+          const raw = await response.text().catch(() => '');
+          const alert = raw.match(/<div class="alert alert-error"[^>]*>[\s\S]*?<div>([\s\S]*?)<\/div>/i);
+          const reason = alert ? alert[1].replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 400) : '';
+          const safeReason = reason.replaceAll(options.tmdbKey, '[clave TMDB]').replaceAll(pelisDebrid.key, '[clave Debrid]');
+          throw new Error('PeLis rechazó la configuración' + (safeReason ? ': ' + safeReason : ' (HTTP ' + response.status + ')'));
+        }
+        const match = location.match(/^\/([^/]+)\/configure/);
+        if (!match) throw new Error('PeLis devolvió una respuesta inesperada');
+        const url = 'https://enspanish.vercel.app/' + match[1] + '/manifest.json';
+        out.push(await optional({ transportUrl: url }, url));
+      } catch (error) {
+        skipped.push('PeLis');
+        logError('PeLis omitido:', error);
       }
-      const match = location.match(/^\/([^/]+)\/configure/);
-      if (!match) throw new Error('PeLis devolvió una respuesta inesperada');
-      const url = 'https://enspanish.vercel.app/' + match[1] + '/manifest.json';
-      out.push(await optional({ transportUrl: url }, url));
     } catch (error) {
-      skipped.push('PeLis');
-      logError('PeLis omitido:', error);
+      skipped.push('pelis' + ': ' + String(error?.message || error).slice(0, 120));
+      logError('Complemento omitido:', 'pelis', error);
     }
   }
 
@@ -1526,6 +1619,7 @@ function addonPlan(addon, options) {
     ['stremify', id === 'com.stremify', 'Stremify.Hayd'],
     ['animes', id === 'com.animeflv.stremio.addon' || low === 'animes', 'AnimES'],
     ['linkanol', id === 'org.spanish.links' || low.includes('linkañol') || low.includes('linkanol'), 'Linkañol'],
+    ['latinobrid', id === 'community.latinobrid', 'Latinobrid'],
     ['pelis', low === 'pelis' || low.startsWith('pelis '), 'PeLis']
   ];
   const selectedOptional = optionalMatchers.find(
@@ -1607,7 +1701,7 @@ async function buildDesiredAddons(options, currentAddons) {
 }
 
 const FREE_STANDALONE_ADDONS = new Set([
-  'comet','webstreamr','sootiohttp','tpbplus','torrentsdb','stremthru',
+  'comet','webstreamr','sootiohttp','torrentsdb','stremthru',
   'mediafusion','cometa','animes'
 ]);
 
@@ -1651,7 +1745,7 @@ function normalizeOptions(body) {
     tvdbKey: body.tvdbMode === 'instance' ? '' : String(body.tvdbKey || '').trim(),
     rpdbKey: body.rpdbMode === 'none' ? '' : String(body.rpdbKey || '').trim(),
     anime: body.anime === true,
-    argentinaTv: body.argentinaTv === true,
+    argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
     stores: noDebrid ? false : body.stores !== false,
     trailers: body.trailers !== false,
     subtitles: body.subtitles !== false,
@@ -1833,6 +1927,7 @@ async function handleAnalyze(body) {
     ['stremify','com.stremify','Stremify.Hayd'],
     ['animes','com.animeflv.stremio.addon','AnimES'],
     ['linkanol','org.spanish.links','Linkañol'],
+    ['latinobrid','community.latinobrid','Latinobrid'],
     ['pelis','__dynamic_pelis__','PeLis']
   ];
   for (const [key,id,label] of standaloneDefs) {
@@ -1844,7 +1939,7 @@ async function handleAnalyze(body) {
       addIfMissing(
         present,
         label,
-        ['peerflix','cometa','stremify','animes','linkanol','pelis'].includes(key)
+        ['peerflix','cometa','stremify','animes','linkanol','pelis','latinobrid'].includes(key)
           ? 'Complemento de la comunidad española seleccionado.'
           : 'Complemento standalone seleccionado como respaldo o alternativa.'
       );

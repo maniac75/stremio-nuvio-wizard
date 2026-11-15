@@ -68,7 +68,8 @@ Perfil Kids	Kids profile
 Catálogos infantiles y filtro de edad más estricto en AIOMetadata.	Kids catalogs and a stricter age filter in AIOMetadata.
 Anime / Kitsu	Anime / Kitsu
 Agrega Kitsu para catálogos, metadata y búsquedas de anime.	Adds Kitsu for anime catalogs, metadata, and search.
-Añade canales de TV en vivo de Argentina como addon separado.	Adds live Argentine TV channels as a separate addon.
+Películas y series sólo en español latino, del mismo equipo de Cometa. Requiere TorBox o Premiumize.	Latin American Spanish movies and series only, from the Cometa team. Requires TorBox or Premiumize.
+RECOMENDADO LATINO	RECOMMENDED LATAM
 Quitar 4K	Remove 4K
 Oculta resultados 2160p/4K para ahorrar ancho de banda o usar equipos más modestos.	Hides 2160p/4K results to save bandwidth or use less powerful devices.
 Sólo cached	Cached only

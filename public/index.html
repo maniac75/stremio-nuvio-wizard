@@ -297,7 +297,6 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
   <div class="checks" id="contentPreferences">
     <div class="check"><input id="kids" type="checkbox"><label for="kids"><b>Perfil Kids</b><div class="small">Catálogos infantiles y filtro de edad más estricto en AIOMetadata.</div></label></div>
     <div class="check"><input id="anime" type="checkbox"><label for="anime"><b>Anime / Kitsu</b><div class="small">Agrega Kitsu para catálogos, metadata y búsquedas de anime.</div></label></div>
-    <div class="check"><input id="argentinaTv" type="checkbox"><label for="argentinaTv"><b>Argentina TV</b><div class="small">Añade canales de TV en vivo de Argentina como addon separado.</div></label></div>
     <div class="check"><input id="no4k" type="checkbox"><label for="no4k"><b>Quitar 4K</b><div class="small">Oculta resultados 2160p/4K para ahorrar ancho de banda o usar equipos más modestos.</div></label></div>
     <div class="check"><input id="cachedOnly" type="checkbox"><label for="cachedOnly"><b>Sólo cached</b><div class="small">Muestra sólo archivos ya disponibles en el Debrid; evita esperar descargas nuevas.</div></label></div>
     <div class="check"><input id="removeWatchHub" type="checkbox" checked><label for="removeWatchHub"><b>Quitar WatchHub</b><div class="small">Elimina el addon oficial de enlaces a servicios comerciales; no afecta tu biblioteca.</div></label></div>
@@ -348,12 +347,14 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <div class="check"><input class="standaloneAddon" type="checkbox" value="peerflix" id="esPeerflix"><label for="esPeerflix"><b>Peerflix</b> <span class="rec-tag tag-es">RECOMENDADO ES</span><div class="small">Muy útil para castellano. El wizard lo configura en español, excluye 3D/VHS/Screener y usa tu Debrid.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="cometa" id="esCometa"><label for="esCometa"><b>Cometa</b> <span class="rec-tag tag-es">RECOMENDADO ES</span><div class="small">Versión de Comet enfocada en contenido hispano; prioriza español y puede usar Debrid o P2P según el modo elegido.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="animes" id="esAnimes"><label for="esAnimes"><b>AnimES</b> <span class="rec-tag tag-opt">SI VES ANIME</span><div class="small">AnimeFLV, AnimeAV1, TioAnime, AnimeJara, JKAnime y más, con catálogos y streams.</div></label></div>
+    <div class="check"><input class="standaloneAddon" type="checkbox" value="latinobrid" id="esLatinobrid"><label for="esLatinobrid"><b>Latinobrid</b> <span class="rec-tag tag-es">RECOMENDADO LATINO</span><div class="small">Películas y series sólo en español latino, del mismo equipo de Cometa. Requiere TorBox o Premiumize.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="linkanol" id="esLinkanol"><label for="esLinkanol"><b>Linkañol</b> <span class="rec-tag tag-opt">OPCIONAL CASTELLANO</span><div class="small">Útil para contenido antiguo en español de España. Automatizado con TorBox o AllDebrid.</div></label></div>
   </div>
   <div class="linkrow">
     <a class="link" href="https://config.peerflix.mov" target="_blank" rel="noreferrer noopener">Peerflix ↗</a>
     <a class="link" href="https://cometa.stremx.net/configure" target="_blank" rel="noreferrer noopener">Cometa ↗</a>
     <a class="link" href="https://pigamer37.alwaysdata.net/configure" target="_blank" rel="noreferrer noopener">AnimES ↗</a>
+    <a class="link" href="https://latinobrid.stremx.net/configure" target="_blank" rel="noreferrer noopener">Latinobrid ↗</a>
     <a class="link" href="https://8bcec99c5d97-spanish-links-addon.baby-beamup.club/configure" target="_blank" rel="noreferrer noopener">Linkañol ↗</a>
   </div>
 
@@ -368,7 +369,6 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <div class="check"><input class="standaloneAddon" type="checkbox" value="webstreamr" id="saWeb"><label for="saWeb"><b>WebStreamr</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">Fuentes HTTP útiles para nicho; AIO ya las consulta.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="sootiohttp" id="saSootio"><label for="saSootio"><b>Sootio HTTP</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">Fuentes HTTP adicionales, pero Sootio ya está dentro del AIO.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="hdhub" id="saHd"><label for="saHd"><b>HdHub</b> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">HD/4K con TorBox; AIO ya lo consulta.</div></label></div>
-    <div class="check"><input class="standaloneAddon" type="checkbox" value="tpbplus" id="saTpb"><label for="saTpb"><b>ThePirateBay+</b> <span class="rec-tag tag-caution">NO RECOMENDADO CON DEBRID</span><div class="small">P2P directo. Con Debrid normalmente sólo agrega ruido y exposición innecesaria.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="jackettio" id="saJack"><label for="saJack"><b>Jackettio</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Indexadores adicionales; puede aportar resultados raros que AIO no encuentre.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="torrentsdb" id="saTdb"><label for="saTdb"><b>TorrentsDB</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Otra base de torrents; útil como redundancia.</div></label></div>
     <div class="check"><input class="standaloneAddon" type="checkbox" value="stremthru" id="saTorz"><label for="saTorz"><b>StremThru Torz</b> <span class="rec-tag tag-es">GUÍA ES</span> <span class="rec-tag tag-redundant">YA INCLUIDO EN AIO</span><div class="small">AIOStreams ya usa STorz; con Debrid usa tus servicios y en modo gratuito usa P2P.</div></label></div>
