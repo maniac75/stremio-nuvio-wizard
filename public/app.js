@@ -153,8 +153,8 @@ function showInstalledAddons(addons){
   var repeated=Object.keys(counts).filter(function(key){return counts[key]>1;});
   var html='<h3>Complementos instalados ('+installedAddons.length+')</h3>'+
     '<div class="small">Puedes guardar nombres y URL para reinstalarlos manualmente. Las URL pueden incluir claves privadas.</div>'+
-    '<div class="actions"><button class="secondary" id="downloadInstalled">Descargar lista de addons y URL</button></div>';
-  if(repeated.length)html+='<p class="small" style="color:#ffdc93">⚠ '+repeated.length+' ID de addon repetido'+(repeated.length===1?'':'s')+'. Revisa las variantes antes de conservarlas.</p>';
+    '<div class="actions"><button class="secondary" id="downloadInstalled">Descargar lista de complementos y URL</button></div>';
+  if(repeated.length)html+='<p class="small" style="color:#ffdc93">⚠ '+repeated.length+' ID de complemento repetido'+(repeated.length===1?'':'s')+'. Revisa las variantes antes de conservarlas.</p>';
   html+='<details class="installedDisclosure"><summary>Ver complementos instalados ('+installedAddons.length+')</summary>';
   installedAddons.forEach(function(a){
     var key=addonIdentity(a),dup=key&&counts[key]>1;
@@ -190,7 +190,7 @@ function syncAioInstallMode(){
   var exists=hasInstalledAio();
   document.getElementById('aioExportField').hidden=!exists;
   document.getElementById('backupIntro').textContent=exists
-    ?'Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIO anterior no se modificará; puedes añadir una copia de sus ajustes si ya tienes la exportación.'
+    ?'Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIOStreams anterior no se modificará; puedes añadir una copia de sus ajustes si ya tienes la exportación.'
     :'Guardaremos tus complementos y después instalaremos AIOStreams. No necesitas una exportación JSON.';
 }
 function catalogKey(c){return c.type+':'+c.id;}
@@ -334,6 +334,8 @@ function syncPlatform(){
   document.getElementById('nuvioProfileField').hidden=!nuvio;
   document.getElementById('stremioAuthField').hidden=nuvio;
   document.getElementById('rememberAccountField').hidden=nuvio;
+  var collectionsField=document.getElementById('nuvioCollectionsField');
+  if(collectionsField)collectionsField.hidden=!nuvio;
   syncForgetButton();
   ['stremio','nuvio'].forEach(function(choice){
     var button=document.getElementById('platform'+(choice==='nuvio'?'Nuvio':'Stremio'));
@@ -343,7 +345,7 @@ function syncPlatform(){
   });
   document.getElementById('accountHint').textContent='Este paso no cambia tus complementos.';
   document.getElementById('applyIntro').textContent='Comprueba qué se añadirá, reemplazará o conservará antes de cambiar '+platformName()+'.';
-  document.getElementById('confirmPlanHint').textContent='Se creará un AIO nuevo y se reemplazará su entrada en '+(nuvio?'tu perfil de Nuvio':'Stremio')+'. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo.';
+  document.getElementById('confirmPlanHint').textContent='Se creará un AIOStreams nuevo y se reemplazará su entrada en '+(nuvio?'tu perfil de Nuvio':'Stremio')+'. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo.';
   var applyButton=document.getElementById('configureBtn');
   applyButton.dataset.original='Aplicar en '+platformName();
   if(!applyButton.dataset.busy)applyButton.textContent=applyButton.dataset.original;
@@ -397,6 +399,7 @@ function collect(){
     kids:document.getElementById('kids').checked,
     anime:document.getElementById('anime').checked,
     argentinaTv:false,
+    nuvioCollections:!!(document.getElementById('nuvioCollections')&&document.getElementById('nuvioCollections').checked),
     no4k:document.getElementById('no4k').checked,
     cachedOnly:free?false:document.getElementById('cachedOnly').checked,
     removeWatchHub:document.getElementById('removeWatchHub').checked,
@@ -429,6 +432,7 @@ async function post(url,body){
   var data=await postRaw(url,body);
   if(data&&data.backupId)backupVaultAdd(data.backupId);
   if(data&&data.safetyBackupId)backupVaultAdd(data.safetyBackupId);
+  if(data&&Array.isArray(data.results))data.results.forEach(function(r){if(r&&r.backupId)backupVaultAdd(r.backupId);});
   return data;
 }
 async function postRaw(url,body){
@@ -493,8 +497,8 @@ function disconnectState(message){
   document.getElementById('nextAccount').hidden=true;
   document.getElementById('nextBackup').hidden=true;
   document.getElementById('backupBtn').className='primary';
-  document.getElementById('backupBtn').textContent='Crear backup seguro';
-  document.getElementById('backupBtn').dataset.original='Crear backup seguro';
+  document.getElementById('backupBtn').textContent='Crear respaldo seguro';
+  document.getElementById('backupBtn').dataset.original='Crear respaldo seguro';
   document.querySelector('.backupCallout .section-kicker').textContent='PASO NECESARIO PARA CONTINUAR';
   document.querySelector('.backupCallout p').innerHTML='<b>Crea un respaldo antes de continuar.</b> El wizard verificará la lista actual de complementos. Al terminar, podrás pasar a preferencias.';
   setBackupLocked(true);
@@ -630,6 +634,17 @@ syncMetadataModes();
   input.addEventListener('blur',function(){if(input.value.trim())validateKeyInput(input,service);});
 });
 
+function syncServiceSummary(){
+  var parts=['accessStatus','wizardStatus','aioStatus','tamStatus'].map(function(id){return document.getElementById(id);});
+  var pill=document.getElementById('serviceStatus');
+  if(!pill)return;
+  var bad=parts.some(function(el){return el&&/\bbad\b/.test(el.className);});
+  var pending=parts.some(function(el){return el&&!/\b(good|bad)\b/.test(el.className);});
+  pill.textContent=pending?'Comprobando servicios…':bad?'⚠ Algún servicio no responde':'✓ Servicios funcionando';
+  pill.className='pill '+(pending?'':bad?'bad':'good');
+  pill.title=parts.filter(Boolean).map(function(el){return el.textContent;}).join(' · ');
+}
+
 async function health(){
   try{
     var r=await fetch('/api/health',{cache:'no-store'});
@@ -637,7 +652,7 @@ async function health(){
     document.getElementById('wizardStatus').textContent='Wizard v'+d.wizard;
     document.getElementById('wizardStatus').className='pill good';
     var a=document.getElementById('aioStatus');
-    a.textContent=d.aio&&d.aio.online?'AIO destino '+d.aio.version+' · '+d.aio.channel:'AIO destino offline';
+    a.textContent=d.aio&&d.aio.online?'AIOStreams destino '+d.aio.version+' · '+d.aio.channel:'AIOStreams destino offline';
     a.className=d.aio&&d.aio.online?'pill good':'pill bad';
     latestTamtaro=d.tamtaro||null;
     var t=document.getElementById('tamStatus');
@@ -657,6 +672,7 @@ async function health(){
     document.getElementById('wizardStatus').textContent='Wizard sin conexión';
     document.getElementById('wizardStatus').className='pill bad';
   }
+  syncServiceSummary();
 }
 
 document.getElementById('connectBtn').addEventListener('click',async function(){
@@ -728,9 +744,9 @@ document.getElementById('backupBtn').addEventListener('click',async function(){
     var input=document.getElementById('aioBackupInput');
     var aioConfig=null;
     if(input.files&&input.files[0]){
-      if(input.files[0].size>900000)throw new Error('La exportación AIO supera 900 KB.');
+      if(input.files[0].size>900000)throw new Error('La exportación AIOStreams supera 900 KB.');
       try{aioConfig=JSON.parse(await input.files[0].text());}
-      catch(_){throw new Error('La exportación AIO no es un JSON válido.');}
+      catch(_){throw new Error('La exportación AIOStreams no es un JSON válido.');}
     }
     var mode=document.getElementById('aioInstallMode').value;
     var d=await post('/api/backup',Object.assign({},authPayload(),{aioConfig:aioConfig}));
@@ -752,25 +768,25 @@ document.getElementById('backupBtn').addEventListener('click',async function(){
     document.getElementById('nextBackup').hidden=partial;
     if(!partial){
       document.getElementById('backupBtn').className='secondary';
-      document.getElementById('backupBtn').dataset.original='Rehacer backup';
-      document.getElementById('backupBtn').textContent='Rehacer backup';
+      document.getElementById('backupBtn').dataset.original='Rehacer respaldo';
+      document.getElementById('backupBtn').textContent='Rehacer respaldo';
       document.querySelector('.backupCallout .section-kicker').textContent='RESPALDO VERIFICADO ✓';
       document.querySelector('.backupCallout p').textContent='Ya puedes pulsar «Continuar a preferencias» aquí mismo.';
-      document.getElementById('backupIntro').textContent='Tus complementos y sus URL quedaron guardados y verificados. El AIO anterior no se modificó.';
+      document.getElementById('backupIntro').textContent='Tus complementos y sus URL quedaron guardados y verificados. El AIOStreams anterior no se modificó.';
     }
     var notice=document.getElementById('backupNotice');
     notice.className='note'+(partial?' bad':' good');
-    notice.textContent=partial?'Tu lista de complementos está respaldada. Para actualizar el AIO existente, adjunta su exportación JSON y crea otra copia.':'Respaldo verificado. '+(mode==='new'?'Se instalará un AIO nuevo y el anterior permanecerá intacto.':'Puedes continuar con tus preferencias.');
+    notice.textContent=partial?'Tu lista de complementos está respaldada. Para actualizar el AIOStreams existente, adjunta su exportación JSON y crea otra copia.':'Respaldo verificado. '+(mode==='new'?'Se instalará un AIOStreams nuevo y el anterior permanecerá intacto.':'Puedes continuar con tus preferencias.');
     document.getElementById('configureBtn').disabled=true;
     document.getElementById('restoreBtn').style.display='inline-block';
     var lines=[
       '✓ COPIA CREADA Y VERIFICADA',
-      'Addons protegidos: '+d.count,
-      'AIO anterior: '+(d.aio.needed?(d.aio.protected?'ajustes respaldados ('+(d.aio.source==='imported'?'exportación adjunta':'lectura de la instancia')+')':mode==='new'?'URL respaldada; ajustes internos no disponibles':'ajustes internos pendientes de respaldo'):'no hay AIO instalado'),
+      'Complementos protegidos: '+d.count,
+      'AIOStreams anterior: '+(d.aio.needed?(d.aio.protected?'ajustes respaldados ('+(d.aio.source==='imported'?'exportación adjunta':'lectura de la instancia')+')':mode==='new'?'URL respaldada; ajustes internos no disponibles':'ajustes internos pendientes de respaldo'):'no hay AIOStreams instalado'),
       'Creado: '+new Date(d.createdAt).toLocaleString(),
       'Huella: '+d.fingerprint,
       '',
-      'Se instalará un AIO nuevo; el anterior no se modificará.'
+      'Se instalará un AIOStreams nuevo; el anterior no se modificará.'
     ];
     box.className='result note'+(partial?' bad':' good')+' show';
     box.innerHTML='<pre>'+esc(lines.join('\n'))+'</pre>'+
@@ -784,15 +800,15 @@ document.getElementById('backupBtn').addEventListener('click',async function(){
       a.click();
       URL.revokeObjectURL(a.href);
     });
-    document.getElementById('accountHint').textContent=partial?'El AIO actual requiere la contraseña original o su exportación JSON para actualizarlo.':'Copia verificada ✓. Ya puedes configurar.';
+    document.getElementById('accountHint').textContent=partial?'El AIOStreams actual requiere la contraseña original o su exportación JSON para actualizarlo.':'Copia verificada ✓. Ya puedes configurar.';
   }catch(e){
     backupReady=false;
     preparedBackupId='';
     document.getElementById('nextBackup').hidden=true;
     document.getElementById('backupBtn').className='primary';
-    document.getElementById('backupBtn').dataset.original='Crear backup seguro';
+    document.getElementById('backupBtn').dataset.original='Crear respaldo seguro';
     document.querySelector('.backupCallout .section-kicker').textContent='RESPALDO PENDIENTE';
-    document.querySelector('.backupCallout p').textContent='No se pudo crear el respaldo. Revisa el mensaje de error y vuelve a pulsar «Crear backup seguro».';
+    document.querySelector('.backupCallout p').textContent='No se pudo crear el respaldo. Revisa el mensaje de error y vuelve a pulsar «Crear respaldo seguro».';
     syncAioInstallMode();
     setSetupLocked(true);
     box.className='result note bad show';
@@ -813,8 +829,8 @@ document.getElementById('restoreJsonInput').addEventListener('change',async func
     var addons=parsed&&parsed.result&&Array.isArray(parsed.result.addons)
       ?parsed.result.addons
       :(Array.isArray(parsed)?parsed:null);
-    if(!addons)throw new Error('El archivo no tiene el formato de backup de Stremio/Bootstrapper.');
-    if(!confirm('Esto reemplazará la colección actual por '+addons.length+' addons del JSON. Antes se creará un backup de seguridad. ¿Continuar?'))return;
+    if(!addons)throw new Error('El archivo no tiene el formato de respaldo de Stremio/Bootstrapper.');
+    if(!confirm('Esto reemplazará la colección actual por '+addons.length+' complementos del JSON. Antes se creará un respaldo de seguridad. ¿Continuar?'))return;
     var payload=Object.assign({},authPayload(),{addons:addons});
     var d=await post('/api/restore-json',payload);
     lastBackupId=d.safetyBackupId;
@@ -826,7 +842,7 @@ document.getElementById('restoreJsonInput').addEventListener('change',async func
     resetWizardStep(2);
     document.getElementById('nextBackup').hidden=true;
     box.className='result note good show';
-    box.textContent='✓ JSON restaurado ('+d.restored+' addons). Se guardó un backup de seguridad del estado anterior. Crea ahora un backup seguro del estado restaurado para continuar.';
+    box.textContent='✓ JSON restaurado ('+d.restored+' complementos). Se guardó un respaldo de seguridad del estado anterior. Crea ahora un respaldo seguro del estado restaurado para continuar.';
     try{showInstalledAddons((await post('/api/connect',authPayload())).addons);}catch(_){document.getElementById('installedAddons').className='result note';}
   }catch(e){
     box.className='result note bad show';
@@ -838,7 +854,7 @@ document.getElementById('restoreJsonInput').addEventListener('change',async func
 
 document.getElementById('restoreBtn').addEventListener('click',async function(){
   if(!connected||!lastBackupId)return;
-  if(!confirm('¿Restaurar exactamente el backup anterior?'))return;
+  if(!confirm('¿Restaurar exactamente el respaldo anterior?'))return;
   var btn=this,box=document.getElementById('backupStatus');
   setBusy(btn,true,'Restaurando…');
   try{
@@ -851,9 +867,9 @@ document.getElementById('restoreBtn').addEventListener('click',async function(){
     resetWizardStep(2);
     document.getElementById('nextBackup').hidden=true;
     box.className='result note good show';
-    box.textContent='✓ Colección '+platformName()+' restaurada ('+d.restored+' addons). '+(d.aioConfig?'La configuración interna AIO está en la exportación descargable y debe importarse en AIOStreams. ':'El backup no contiene configuración interna AIO. ')+'Crea un nuevo backup para continuar.';
+    box.textContent='✓ Colección '+platformName()+' restaurada ('+d.restored+' complementos). '+(d.aioConfig?'La configuración interna de AIOStreams está en la exportación descargable y debe importarse en AIOStreams. ':'El respaldo no contiene configuración interna de AIOStreams. ')+(d.collectionsRestored?'También se restauraron las colecciones de inicio de Nuvio. ':'')+'Crea un nuevo respaldo para continuar.';
     if(d.aioConfig){
-      var a=document.createElement('button');a.className='secondary';a.textContent='Descargar configuración AIO anterior';
+      var a=document.createElement('button');a.className='secondary';a.textContent='Descargar configuración AIOStreams anterior';
       a.addEventListener('click',function(){downloadJsonFile('AIOStreams-config-restaurada.json',d.aioConfig);});
       box.appendChild(a);
     }
@@ -921,7 +937,7 @@ document.getElementById('reviewBtn').addEventListener('click',async function(){
   previous.textContent='';
   if(!backupReady||!preparedBackupId){
     box.className='result note bad show';
-    box.textContent='Primero crea y verifica el backup obligatorio.';
+    box.textContent='Primero crea y verifica el respaldo obligatorio.';
     return;
   }
   if(!c.noDebrid&&!c.debrids.length){
@@ -934,13 +950,13 @@ document.getElementById('reviewBtn').addEventListener('click',async function(){
     if(!await checkEnteredKeys(3)||!await checkEnteredKeys(4))throw new Error('Corrige las claves marcadas antes de revisar el plan.');
     c.preparedBackupId=preparedBackupId;
     var d=await post('/api/analyze',c);
-    var summary=['Addons actuales: '+d.count];
+    var summary=['Complementos actuales: '+d.count];
     if(c.noDebrid)summary.push('Modo gratuito: AIOStreams usará fuentes HTTP/P2P compatibles y no configurará ningún servicio Debrid.');
 
     if(d.aio){
       if(d.aio.compatibleInstance){
         summary.push('AIOStreams detectado en '+(d.aio.host||'fortheweak.cloud'));
-        if(d.aio.services&&d.aio.services.length)summary.push('Servicios AIO actuales: '+d.aio.services.join(', '));
+        if(d.aio.services&&d.aio.services.length)summary.push('Servicios AIOStreams actuales: '+d.aio.services.join(', '));
         if(d.aio.appliedTemplates&&d.aio.appliedTemplates.length){
           var tam=d.aio.appliedTemplates.find(function(x){return x.id==='tamtaro.complete';});
           if(tam&&latestTamtaro&&tam.version!==latestTamtaro)summary.push('⚠ Tamtaro '+tam.version+' → '+latestTamtaro);
@@ -948,7 +964,7 @@ document.getElementById('reviewBtn').addEventListener('click',async function(){
         }
       }else{
         summary.push('AIOStreams detectado en otra instancia ('+(d.aio.host||'desconocida')+')');
-        summary.push(c.aioInstallMode==='new'?'→ Se instalará otro AIO en Midnight y la URL anterior quedará en el respaldo.':c.instanceMode==='keep'?'→ No se puede actualizar esta instancia desde el wizard. Elige cambiar.':'→ Se instalará en la instancia recomendada; la URL anterior quedará en el respaldo.');
+        summary.push(c.aioInstallMode==='new'?'→ Se instalará otro AIOStreams en el servidor recomendado y la URL anterior quedará en el respaldo.':c.instanceMode==='keep'?'→ No se puede actualizar esta instancia desde el wizard. Elige cambiar.':'→ Se instalará en la instancia recomendada; la URL anterior quedará en el respaldo.');
       }
     }else{
       summary.push('AIOStreams no detectado → se creará uno nuevo.');
@@ -961,16 +977,16 @@ document.getElementById('reviewBtn').addEventListener('click',async function(){
       aioInstancePlan=d.aioPreview.instance||null;
       if(d.aioPreview.instance){
         var ins=d.aioPreview.instance;
-        summary.push(ins.changing?'Instancia AIO: '+ins.from+' → '+ins.to+' (AIO nuevo; el anterior no se modifica y su URL queda respaldada).':
-          'Instancia AIO: '+(ins.from||'sin AIO instalado')+' → '+ins.to+(ins.from?' (se actualiza la instalación existente).':' (nueva instalación).'));
+        summary.push(ins.changing?'Instancia AIOStreams: '+ins.from+' → '+ins.to+' (AIOStreams nuevo; el anterior no se modifica y su URL queda respaldada).':
+          'Instancia AIOStreams: '+(ins.from||'sin AIOStreams instalado')+' → '+ins.to+(ins.from?' (se actualiza la instalación existente).':' (nueva instalación).'));
       }
       aioPushPlan=null;
       document.getElementById('aioPushBtn').disabled=true;
       summary.push('Perfil a aplicar: '+d.aioPreview.profile+' · Tamtaro '+d.aioPreview.templateVersion);
-      summary.push('AIO anterior: '+(d.aioPreview.previousProtected?'configuración interna respaldada':d.aioPreview.newInstallation?'queda intacto; su URL está respaldada, pero sus ajustes internos no están disponibles':'sin configuración interna respaldada'));
-      if(d.aioPreview.changedFields)summary.push((d.aioPreview.newInstallation?'Diferencias con el AIO anterior':'Campos AIO que cambiarán')+' ('+d.aioPreview.changedFields.length+' mostrados): '+d.aioPreview.changedFields.join(', '));
-      else if(d.aioPreview.newInstallation)summary.push('AIO nuevo: se aplicará el perfil seleccionado desde cero.');
-      else summary.push('Comparación detallada AIO no disponible: adjunta su exportación en el backup.');
+      summary.push('AIOStreams anterior: '+(d.aioPreview.previousProtected?'configuración interna respaldada':d.aioPreview.newInstallation?'queda intacto; su URL está respaldada, pero sus ajustes internos no están disponibles':'sin configuración interna respaldada'));
+      if(d.aioPreview.changedFields)summary.push((d.aioPreview.newInstallation?'Diferencias con el AIOStreams anterior':'Campos AIOStreams que cambiarán')+' ('+d.aioPreview.changedFields.length+' mostrados): '+d.aioPreview.changedFields.join(', '));
+      else if(d.aioPreview.newInstallation)summary.push('AIOStreams nuevo: se aplicará el perfil seleccionado desde cero.');
+      else summary.push('Comparación detallada AIOStreams no disponible: adjunta su exportación en el respaldo.');
     }
     var html='<pre>'+esc(summary.join('\n'))+'</pre>';
     html+='<details class="fold" id="planDetails"><summary>Ver cambios automáticos ('+(additions.length+fixed.length)+')</summary>';
@@ -987,7 +1003,7 @@ document.getElementById('reviewBtn').addEventListener('click',async function(){
 
     html+='</details>';
     if(asks.length){
-      html+='<h3>Addons actuales fuera del perfil: elige cuáles agregar</h3>';
+      html+='<h3>Complementos actuales fuera del perfil: elige cuáles agregar</h3>';
       html+='<div class="small" style="margin-bottom:8px">La instalación parte con una lista limpia. Marca solamente los complementos actuales que quieras volver a agregar; conservarán su URL y configuración. Si hay variantes con el mismo ID, elige sólo una.</div>';
       html+='<div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="existingAddons" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="existingAddons" data-checked="false">Borrar selección</button></div><div id="existingAddons">';
       var seenAsk={};
@@ -1051,17 +1067,17 @@ document.getElementById('aioPushBtn').addEventListener('click',async function(){
   c.preparedBackupId=preparedBackupId;
   c.expectedHash=aioPushPlan.expectedHash;
   c.proposedHash=aioPushPlan.proposedHash;
-  if(!confirm('¿Actualizar la configuración completa de AIOStreams en '+aioPushPlan.host+'? Se guardará una copia antes del cambio. La URL y los demás addons se conservarán.'))return;
+  if(!confirm('¿Actualizar la configuración completa de AIOStreams en '+aioPushPlan.host+'? Se guardará una copia antes del cambio. La URL y los demás complementos se conservarán.'))return;
   setBusy(btn,true,'Enviando configuración…');
   try{
     var d=await post('/api/aio-push',c);
     if(d.backupId)lastBackupId=d.backupId;
     box.className='result note good show';
-    box.textContent=d.unchanged?'AIO ya tiene este perfil; no hubo cambios.':
-      'AIO actualizado y verificado en '+d.host+'. La URL y la colección Stremio siguen iguales. '+
-      (d.manifestChanged?'Cambió el manifiesto: actualiza o reinstala sólo AIO en Stremio para que reconozca los nuevos catálogos o recursos.':'No cambió el manifiesto: no necesitas reinstalar.');
+    box.textContent=d.unchanged?'AIOStreams ya tiene este perfil; no hubo cambios.':
+      'AIOStreams actualizado y verificado en '+d.host+'. La URL y la colección Stremio siguen iguales. '+
+      (d.manifestChanged?'Cambió el manifiesto: actualiza o reinstala sólo AIOStreams en Stremio para que reconozca los nuevos catálogos o recursos.':'No cambió el manifiesto: no necesitas reinstalar.');
     clearReview('Push completado. Revisa nuevamente antes de enviar otros cambios.');
-  }catch(e){box.className='result note bad show';box.textContent='No se pudo actualizar AIO: '+e.message;}
+  }catch(e){box.className='result note bad show';box.textContent='No se pudo actualizar AIOStreams: '+e.message;}
   finally{setBusy(btn,false);}
 });
 
@@ -1180,13 +1196,19 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
         setBusy(button,true,'Instalando⬦');
         try{
           var applied=await post('/api/transfer-apply',{source:sourceAuth,sourceFingerprint:sourceFingerprint,
-            target:targetAuth(),backupId:transferBackup});
+            target:targetAuth(),backupId:transferBackup,includeCollections:true,
+            language:document.getElementById('language').value});
           form.querySelector('.row').hidden=true;
           if(panel.querySelector('#transferProfileField'))panel.querySelector('#transferProfileField').hidden=true;
           form.querySelector('.actions').hidden=true;
           plan.hidden=true;
           status.textContent='Copia completada: '+sourceName+' → '+targetName+'. '+targetName+' tiene '+applied.total+
             ' complementos verificados y utiliza el mismo AIOStreams. '+sourceName+' quedó intacto. Respaldo de '+targetName+': '+(applied.backupLabel||'guardado en este navegador')+'.';
+          if(applied.collections&&applied.collections.applied){
+            var collectionsNote=document.createElement('div');collectionsNote.className='small';
+            collectionsNote.textContent='También se agregaron las colecciones de inicio de Nuvio.';
+            panel.appendChild(collectionsNote);
+          }
           var download=document.createElement('button');
           download.className='secondary';
           download.type='button';
@@ -1205,7 +1227,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
   var btn=this,box=document.getElementById('configureResult'),c=collect();
   if(!backupReady||!preparedBackupId){
     box.className='result note bad show';
-    box.textContent='Backup no válido. Crea uno nuevo antes de configurar.';
+    box.textContent='Respaldo no válido. Crea uno nuevo antes de configurar.';
     return;
   }
   if(!analysisDone||!document.getElementById('confirmPlanCheck').checked){
@@ -1215,8 +1237,8 @@ document.getElementById('configureBtn').addEventListener('click',async function(
   }
   c.preparedBackupId=preparedBackupId;
   if(!confirm(aioInstancePlan&&aioInstancePlan.changing
-    ?'¿Cambiar AIO de '+aioInstancePlan.from+' a '+aioInstancePlan.to+' y aplicar el plan? El backup conservará la instalación anterior.'
-    :'Backup verificado y plan revisado. ¿Aplicar la configuración a '+platformName()+'?'))return;
+    ?'¿Cambiar AIOStreams de '+aioInstancePlan.from+' a '+aioInstancePlan.to+' y aplicar el plan? El respaldo conservará la instalación anterior.'
+    :'Respaldo verificado y plan revisado. ¿Aplicar la configuración a '+platformName()+'?'))return;
   box.className='result note';
   box.textContent='';
   setBusy(btn,true,'Configurando…');
@@ -1230,6 +1252,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
 
     var details=[
       'Copia de seguridad: '+(d.backupLabel||'guardada en este navegador'),
+      d.collections?(d.collections.applied?'Colecciones de inicio de Nuvio: '+d.collections.count+' agregadas':'Colecciones de inicio de Nuvio: no se pudieron agregar'):'Colecciones de inicio de Nuvio: no aplica',
       'AIOStreams: '+(c.profileMode==='tamtaro'?'configuración predeterminada de Tamtaro':'configuración recomendada')+' · Tamtaro '+d.aio.templateVersion,
       'Verificación '+platformName()+': '+(d.verification&&d.verification.collection?'correcta':'no confirmada'),
       'AIOStreams: '+(d.verification&&d.verification.aioOnline?'en línea':'sin respuesta'),
@@ -1253,18 +1276,42 @@ document.getElementById('configureBtn').addEventListener('click',async function(
           '<button class="secondary" id="exportAioCsv" type="button">Descargar para gestor de contraseñas</button>'+
         '</div>'+
         '<p class="small" id="aioSaveHint" hidden></p>'+
-        '<div class="credentialWarning"><b>Importante:</b> el wizard no guarda esta contraseña en el servidor ni en sus backups. Se mantiene sólo durante esta sesión y en el JSON que descargues. <b>Antes de cerrar o recargar esta página, guárdala en un gestor de contraseñas o en otro lugar seguro.</b></div>'+
+        '<div class="credentialWarning"><b>Importante:</b> el wizard no guarda esta contraseña en el servidor ni en sus respaldos. Se mantiene sólo durante esta sesión y en el JSON que descargues. <b>Antes de cerrar o recargar esta página, guárdala en un gestor de contraseñas o en otro lugar seguro.</b></div>'+
       '</div>';
     }
     box.className='result note good show';
     box.innerHTML='<div class="successBanner" role="status"><div class="successIcon" aria-hidden="true">✓</div><div><h2>¡Lo lograste! '+platformName()+' está configurado</h2><p>Se instalaron '+d.total+' complementos: '+d.managed+' configurados por el wizard y '+d.preserved+' conservados. La colección quedó verificada en tu cuenta.</p></div></div>'+
       recoveryHtml+
+      '<div class="note howToCheck"><b>Cómo comprobar que funciona:</b> abre '+platformName()+' (si ya estaba abierto, ciérralo y vuelve a abrirlo), busca una película conocida y entra a su ficha. Deberían aparecer enlaces de AIOStreams en la lista de fuentes. Si no aparece nada, espera un minuto y vuelve a intentar.'+
+        (d.collections&&d.collections.applied?' En Nuvio verás además nuevas filas en el inicio: Ver ahora, Géneros, Décadas y más.':'')+'</div>'+
+      (d.platform==='nuvio'&&Array.isArray(d.profiles)&&d.profiles.length>1?
+        '<div class="note nuvioProfiles"><b>¿Tienes más perfiles en Nuvio?</b><div class="small">Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar cada perfil, el wizard guarda su respaldo.</div>'+
+        '<div class="checks">'+d.profiles.filter(function(p){return p.id!==d.profileId;}).map(function(p){
+          return '<div class="check"><input class="nuvioProfileTarget" type="checkbox" value="'+Number(p.id)+'" id="np'+Number(p.id)+'"><label for="np'+Number(p.id)+'"><b>'+esc(p.name)+'</b></label></div>';
+        }).join('')+'</div>'+
+        '<div class="actions"><button class="primary" id="applyOtherProfiles" type="button">Aplicar a los perfiles marcados</button></div><div class="small" id="otherProfilesStatus"></div></div>':'')+
       '<details class="fold"><summary>Ver detalles de la instalación</summary><pre>'+esc(details.join('\n'))+'</pre></details>'+
-      '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIO</button>':'')+
+      '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIOStreams</button>':'')+
       '<button class="secondary" id="downloadInstalledAfter" type="button">Descargar lista y URL de complementos</button>'+
       '<button class="secondary" id="showInstalledAfter" type="button">Ver complementos instalados</button>'+
        '<button class="primary" id="copyAfterSuccess" type="button">Copiar a la otra cuenta</button></div>'+
       (lastRecovery?'<p class="small">El JSON contiene otra copia del UUID, la clave de edición y la URL de instalación de AIOStreams. Guárdalo también en privado. El respaldo de '+platformName()+' permite restaurar la colección anterior, pero <b>no guarda esta clave de AIOStreams</b>.</p>':'<p class="small">Guarda la lista de URL para reinstalar los complementos más adelante. El respaldo de '+platformName()+' permite restaurar la colección anterior.</p>');
+
+    var otherProfilesButton=document.getElementById('applyOtherProfiles');
+    if(otherProfilesButton)otherProfilesButton.addEventListener('click',async function(){
+      var targets=Array.from(document.querySelectorAll('.nuvioProfileTarget:checked')).map(function(x){return Number(x.value);});
+      var status=document.getElementById('otherProfilesStatus');
+      if(!targets.length){status.textContent='Marca al menos un perfil.';return;}
+      if(!confirm('¿Copiar la configuración de este perfil a '+targets.length+' perfil(es)? Sus complementos actuales se reemplazarán; cada uno queda respaldado antes del cambio.'))return;
+      setBusy(otherProfilesButton,true,'Aplicando…');
+      try{
+        var r=await post('/api/nuvio-apply-profiles',Object.assign({},authPayload(),{targetProfiles:targets,includeCollections:true}));
+        status.innerHTML=r.results.map(function(x){
+          return x.ok?'✓ '+esc(x.name)+': '+x.total+' complementos'+(x.collections?' y colecciones':'')+'.':'✗ '+esc(x.name)+': '+esc(x.error);
+        }).join('<br>');
+      }catch(e){status.textContent='No se pudo aplicar: '+e.message;}
+      finally{setBusy(otherProfilesButton,false);}
+    });
 
     if(lastRecovery){
       var uuidButton=document.getElementById('copyAioUuid');
@@ -1331,13 +1378,13 @@ document.getElementById('configureBtn').addEventListener('click',async function(
     installationComplete=true;
     document.getElementById('applyCard').classList.remove('locked');
     showWizardStep(5);
-    document.getElementById('accountHint').textContent='Configuración aplicada. Tu backup anterior sigue disponible para restaurar.';
+    document.getElementById('accountHint').textContent='Configuración aplicada. Tu respaldo anterior sigue disponible para restaurar.';
     box.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){
     document.getElementById('configureBtn').disabled=true;
     analysisDone=false;
     box.className='result note bad show';
-    box.textContent='No se aplicó completamente: '+e.message+'. El backup verificado sigue disponible.';
+    box.textContent='No se aplicó completamente: '+e.message+'. El respaldo verificado sigue disponible.';
   }finally{
     setBusy(btn,false);
     document.getElementById('workHint').textContent='';
@@ -1370,7 +1417,7 @@ document.getElementById('organizerList').addEventListener('click',function(e){
 });
 document.getElementById('organizeBtn').addEventListener('click',async function(){
   if(!backupReady||!preparedBackupId)return;
-  if(!confirm('¿Guardar el nuevo orden y los catálogos seleccionados en '+platformName()+'? El backup permite deshacerlo.'))return;
+  if(!confirm('¿Guardar el nuevo orden y los catálogos seleccionados en '+platformName()+'? El respaldo permite deshacerlo.'))return;
   var btn=this,box=document.getElementById('organizeResult');
   setBusy(btn,true,'Guardando…');
   try{
@@ -1378,13 +1425,13 @@ document.getElementById('organizeBtn').addEventListener('click',async function()
       preparedBackupId:preparedBackupId,order:organizerOrder,catalogChoices:organizerCatalogs
     }));
     showInstalledAddons(d.addons);
-    backupReady=false;preparedBackupId='';clearReview('El orden cambió. Crea un nuevo backup antes de configurar.');
+    backupReady=false;preparedBackupId='';clearReview('El orden cambió. Crea un nuevo respaldo antes de configurar.');
     setSetupLocked(true);
     resetWizardStep(2);
     document.getElementById('nextBackup').hidden=true;
     document.getElementById('organizer').hidden=true;
     box.className='result note good show';
-    box.textContent='Orden y catálogos verificados. Crea un backup nuevo para seguir.';
+    box.textContent='Orden y catálogos verificados. Crea un respaldo nuevo para seguir.';
     document.getElementById('backupStatus').className='result note';
   }catch(e){box.className='result note bad show';box.textContent=e.message;}
   finally{setBusy(btn,false);}

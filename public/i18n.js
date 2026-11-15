@@ -10,7 +10,7 @@ Guía para principiantes ↗	Beginner’s guide ↗
 Configura Stremio o Nuvio paso a paso, con respaldo y revisión antes de aplicar.	Set up Stremio or Nuvio step by step, with a backup and a review before applying changes.
 Debridio en AIOStreams	Debridio in AIOStreams
 API key de Debridio	Debridio API key
-Activa Debridio y Watchtower dentro de AIOStreams si ingresas una clave. Sirve igual para Stremio y Nuvio.	Enter a key to enable Debridio and Watchtower inside AIOStreams. Works with Stremio and Nuvio.
+Sólo si tienes una cuenta de Debridio, que es un servicio aparte. Si no sabes qué es, déjalo vacío: no hace falta.	Only if you have a Debridio account, which is a separate service. If you don't know what it is, leave it empty: you don't need it.
 Obtener API key de Debridio	Get a Debridio API key
 Creado por	Created by
 Cuenta	Account
@@ -37,19 +37,19 @@ Olvidar cuenta guardada	Forget saved account
 Continuar al respaldo →	Continue to backup →
 2 · Respalda tu cuenta	2 · Back up your account
 PASO NECESARIO PARA CONTINUAR	REQUIRED STEP TO CONTINUE
-Pulsa «Crear backup seguro».	Click “Create secure backup”.
+Pulsa «Crear respaldo seguro».	Click “Create secure backup”.
 El wizard guardará y verificará la lista actual de complementos. Después se activará aquí mismo «Continuar a preferencias».	The wizard will save and verify your current addon list. Then “Continue to preferences” will become available here.
-Crear backup seguro	Create secure backup
+Crear respaldo seguro	Create secure backup
 Continuar a preferencias →	Continue to preferences →
-Agregar copia de los ajustes del AIO anterior (opcional)	Add a copy of your previous AIO settings (optional)
+Agregar copia de los ajustes del AIOStreams anterior (opcional)	Add a copy of your previous AIO settings (optional)
 Exportación JSON de AIOStreams	AIOStreams JSON export
 Puedes adjuntarla si ya la tienes. No hace falta para seguir. Guárdala en privado: puede contener claves.	Attach it if you already have it. It is not required to continue. Keep it private: it may contain keys.
 Opcional: restaurar una copia anterior	Optional: restore a previous backup
 Restaurar reemplaza los complementos actuales. Usa estas opciones sólo si quieres volver a una configuración anterior.	Restoring replaces the current addons. Only use this to return to a previous setup.
 Restaurar desde JSON	Restore from JSON
-Restaurar backup anterior	Restore previous backup
-Ordenar addons y elegir catálogos	Reorder addons and choose catalogs
-Los botones suben o bajan addons. Desmarcar un catálogo lo quita de Inicio y Descubrir; puedes recuperarlo restaurando el backup.	Use the buttons to move addons up or down. Unchecking a catalog removes it from Home and Discover; you can restore it from the backup.
+Restaurar respaldo anterior	Restore previous backup
+Ordenar complementos y elegir catálogos	Reorder addons and choose catalogs
+Los botones suben o bajan complementos. Desmarcar un catálogo lo quita de Inicio y Descubrir; puedes recuperarlo restaurando el respaldo.	Use the buttons to move addons up or down. Unchecking a catalog removes it from Home and Discover; you can restore it from the backup.
 Guardar orden y catálogos	Save order and catalogs
 ← Volver a la cuenta	← Back to account
 3 · Tus preferencias	3 · Your preferences
@@ -57,7 +57,7 @@ El nuevo AIOStreams se instalará en Midnight nightly. La URL anterior queda en 
 Configuración AIOStreams	AIOStreams setup
 Configuración recomendada	Recommended setup
 Configuración predeterminada de Tamtaro	Tamtaro default setup
-La recomendada ya incluye filtros y orden de resultados. La de Tamtaro conserva los ajustes de su plantilla actual. Ambas crean un AIO nuevo sin cambiar el anterior.	The recommended setup includes filters and result sorting. Tamtaro keeps the settings from its current template. Both create a new AIO without changing the old one.
+La recomendada ya incluye filtros y orden de resultados. La de Tamtaro conserva los ajustes de su plantilla actual. Ambas crean un AIOStreams nuevo sin cambiar el anterior.	The recommended setup includes filters and result sorting. Tamtaro keeps the settings from its current template. Both create a new AIO without changing the old one.
 Idioma principal	Content language
 Español Latino	Latin American Spanish
 Español España	Spanish (Spain)
@@ -72,15 +72,15 @@ Películas y series sólo en español latino, del mismo equipo de Cometa. Requie
 RECOMENDADO LATINO	RECOMMENDED LATAM
 Quitar 4K	Remove 4K
 Oculta resultados 2160p/4K para ahorrar ancho de banda o usar equipos más modestos.	Hides 2160p/4K results to save bandwidth or use less powerful devices.
-Sólo cached	Cached only
+Sólo en caché	Cached only
 Muestra sólo archivos ya disponibles en el Debrid; evita esperar descargas nuevas.	Shows only files already cached by your Debrid service; avoids waiting for new downloads.
 Quitar WatchHub	Remove WatchHub
-Elimina el addon oficial de enlaces a servicios comerciales; no afecta tu biblioteca.	Removes the official addon linking to commercial streaming services; your library is unaffected.
+Elimina el complemento oficial de enlaces a servicios comerciales; no afecta tu biblioteca.	Removes the official addon linking to commercial streaming services; your library is unaffected.
 Fuentes de streaming	Streaming sources
 Tengo Debrid	I have Debrid
 No tengo Debrid	I don't have Debrid
 Modo gratuito.	Free mode.
-AIOStreams usará fuentes HTTP y P2P compatibles, sin exigir una cuenta Debrid. Algunas fuentes P2P dependen de seeders y pueden exponer tu IP a otros peers.	AIOStreams will use compatible HTTP and P2P sources without requiring a Debrid account. Some P2P sources depend on seeders and may expose your IP to other peers.
+AIOStreams usará fuentes gratuitas, sin cuenta Debrid. Algunas descargan el video desde otros usuarios (P2P): pueden tardar más en empezar y esos usuarios pueden ver tu dirección IP.	AIOStreams will use free sources, without a Debrid account. Some download the video from other users (P2P): they can take longer to start and those users can see your IP address.
 Puedes usar uno o varios servicios Debrid al mismo tiempo.	You can use one or several Debrid services at once.
 + Agregar servicio	+ Add service
 ← Volver al respaldo	← Back to backup
@@ -100,9 +100,9 @@ Mi API key de RPDB	My RPDB API key
 TMDB y TVDB pueden usar las claves internas de la instancia, sin mostrarlas ni guardarlas en el wizard. RPDB requiere una clave propia para activar sus posters.	TMDB and TVDB can use the instance keys without showing or storing them in the wizard. RPDB requires your own key to enable its posters.
 Complementos para añadir	Addons to add
 Modo gratuito activo.	Free mode active.
-AIOStreams ya se configurará con fuentes HTTP/P2P. Aquí sólo quedan disponibles complementos standalone que también funcionan sin Debrid.	AIOStreams will already be configured with HTTP/P2P sources. Only standalone addons that also work without Debrid remain available here.
+AIOStreams ya usará fuentes gratuitas. Aquí sólo aparecen los complementos que funcionan sin Debrid.	AIOStreams will already use free sources. Only addons that work without Debrid are shown here.
 Trailers y resúmenes de temporada en el idioma elegido.	Trailers and season recaps in your chosen language.
-Busca subtítulos en varias fuentes y los reúne en un solo addon.	Searches several subtitle sources and combines them in one addon.
+Busca subtítulos en varias fuentes y los reúne en un solo complemento.	Searches several subtitle sources and combines them in one addon.
 Segundo proveedor de subtítulos para ampliar cobertura y servir de respaldo.	A second subtitle provider for broader coverage and backup.
 Store por Debrid	Debrid store
 Catálogo para explorar lo que ya tienes guardado en cada servicio Debrid.	A catalog to explore files already saved in each Debrid service.
@@ -122,20 +122,20 @@ Especializado en castellano. Requiere TMDB y TorBox o AllDebrid; el wizard crea 
 Fuentes adicionales y opciones avanzadas	Additional sources and advanced options
 Se instalan por separado. La mayoría ya está incluida en AIOStreams, por eso vienen desactivados. Puedes activarlos si quieres otra fuente directa.	Installed separately. Most are already included in AIOStreams, so they are off by default. Turn them on if you want another direct source.
 GUÍA ES	SPANISH GUIDE
-NO NECESARIO CON AIO	NOT NEEDED WITH AIO
-YA INCLUIDO EN AIO	ALREADY IN AIO
+NO NECESARIO CON AIOStreams	NOT NEEDED WITH AIO
+YA INCLUIDO EN AIOStreams	ALREADY IN AIO
 NO RECOMENDADO CON DEBRID	NOT RECOMMENDED WITH DEBRID
 Fuente directa adicional; AIOStreams ya consulta Torrentio.	An extra direct source; AIOStreams already queries Torrentio.
-Rápido y compatible con Debrid o P2P; AIO ya lo integra.	Fast and compatible with Debrid or P2P; AIO already includes it.
+Rápido y compatible con Debrid o P2P; AIOStreams ya lo integra.	Fast and compatible with Debrid or P2P; AIO already includes it.
 Buena alternativa, pero ya forma parte del AIO.	A good alternative, but already part of AIO.
-Fuentes HTTP útiles para nicho; AIO ya las consulta.	Useful niche HTTP sources; AIO already queries them.
+Fuentes HTTP útiles para nicho; AIOStreams ya las consulta.	Useful niche HTTP sources; AIO already queries them.
 Fuentes HTTP adicionales, pero Sootio ya está dentro del AIO.	Additional HTTP sources, but Sootio is already in AIO.
-HD/4K con TorBox; AIO ya lo consulta.	HD/4K with TorBox; AIO already queries it.
+HD/4K con TorBox; AIOStreams ya lo consulta.	HD/4K with TorBox; AIO already queries it.
 P2P directo. Con Debrid normalmente sólo agrega ruido y exposición innecesaria.	Direct P2P. With Debrid, it usually only adds noise and unnecessary exposure.
-Indexadores adicionales; puede aportar resultados raros que AIO no encuentre.	Extra indexers that may find uncommon results AIO misses.
+Indexadores adicionales; puede aportar resultados raros que AIOStreams no encuentre.	Extra indexers that may find uncommon results AIO misses.
 Otra base de torrents; útil como redundancia.	Another torrent database; useful as a fallback.
 AIOStreams ya usa STorz; con Debrid usa tus servicios y en modo gratuito usa P2P.	AIOStreams already uses STorz; with Debrid it uses your services, and in free mode it uses P2P.
-Muy completo; puede usar Debrid o fuentes P2P, pero AIO ya lo integra.	Comprehensive; it can use Debrid or P2P sources, but AIO already includes it.
+Muy completo; puede usar Debrid o fuentes P2P, pero AIOStreams ya lo integra.	Comprehensive; it can use Debrid or P2P sources, but AIO already includes it.
 Agregar un complemento por URL (opcional)	Add an addon by URL (optional)
 Una URL	One URL
 por línea	per line
@@ -152,9 +152,9 @@ Actualizar el plan	Refresh plan
 Confirmo el respaldo y el plan mostrado	I confirm the backup and the plan shown
 Aplicar en Stremio	Apply to Stremio
 Aplicar en Nuvio	Apply to Nuvio
-Actualizar sólo AIO	Update AIO only
+Actualizar sólo AIOStreams	Update AIO only
 Privacidad y seguridad	Privacy and security
-Tu correo y contraseña pasan por el servidor del wizard sólo para iniciar sesión en Stremio o Nuvio y no se guardan. El servidor no guarda nada: los respaldos quedan cifrados (AES-256-GCM) en este navegador, sirven 30 días y sólo este servicio puede abrirlos. Si eliges «Recordar cuenta», el token de acceso queda cifrado en este navegador: úsalo sólo en un equipo personal. Las credenciales nuevas de AIO no se guardan. Antes de aplicar cambios se verifica el respaldo.	Your email and password pass through the wizard server only to sign in to Stremio or Nuvio and are not stored. The server stores nothing: backups stay encrypted (AES-256-GCM) in this browser, are valid for 30 days and can only be opened by this service. If you choose “Remember account”, the access token is kept encrypted in this browser: use it only on a personal device. New AIO credentials are not stored. The backup is verified before any change is applied.
+Tu correo y contraseña pasan por el servidor del wizard sólo para iniciar sesión en Stremio o Nuvio y no se guardan. El servidor no guarda nada: los respaldos quedan cifrados (AES-256-GCM) en este navegador, sirven 30 días y sólo este servicio puede abrirlos. Si eliges «Recordar cuenta», el token de acceso queda cifrado en este navegador: úsalo sólo en un equipo personal. Las credenciales nuevas de AIOStreams no se guardan. Antes de aplicar cambios se verifica el respaldo.	Your email and password pass through the wizard server only to sign in to Stremio or Nuvio and are not stored. The server stores nothing: backups stay encrypted (AES-256-GCM) in this browser, are valid for 30 days and can only be opened by this service. If you choose “Remember account”, the access token is kept encrypted in this browser: use it only on a personal device. New AIO credentials are not stored. The backup is verified before any change is applied.
 Proyecto independiente y no oficial, sin relación con Stremio ni Nuvio. El wizard no aloja ni enlaza contenido: sólo configura complementos de terceros en tu cuenta.	Independent, unofficial project, not affiliated with Stremio or Nuvio. The wizard does not host or link to any content: it only configures third-party add-ons in your account.
 ¿Te sirvió? Apoya el proyecto:	Found it useful? Support the project:
 Código fuente	Source code
@@ -212,6 +212,33 @@ Confirmar plan para aplicar	Confirm plan to apply
 Aplicación donde instalar	App to configure
 AuthKey de Stremio	Stremio AuthKey
 Stremio & Nuvio Wizard · creado por supermaniac75 · 2026	Stremio & Nuvio Wizard · created by supermaniac75 · 2026
+Comprobando servicios…	Checking services…
+⚠ Algún servicio no responde	⚠ A service is not responding
+✓ Servicios funcionando	✓ Services working
+Opciones avanzadas (la mayoría no las necesita)	Advanced options (most people don't need these)
+Restaurar una configuración anterior (opcional)	Restore a previous setup (optional)
+Qué vas a obtener:	What you will get:
+un AIOStreams nuevo que reúne las mejores fuentes en una sola lista, fichas y pósteres en tu idioma (AIOMetadata), subtítulos y, si lo eliges, complementos en español. Tu configuración anterior queda guardada en el respaldo.	a new AIOStreams that gathers the best sources into one list, titles and posters in your language (AIOMetadata), subtitles and, if you choose, Spanish addons. Your previous setup stays saved in the backup.
+Colecciones de inicio en Nuvio	Nuvio home collections
+Agrega filas a la pantalla de inicio de Nuvio: Ver ahora, Géneros, Décadas, Temáticas e Internacional. Con tu propia clave de TMDB (paso 4) suma también Franquicias. Reemplaza las colecciones actuales del perfil; quedan guardadas en el respaldo.	Adds rows to the Nuvio home screen: Watch now, Genres, Decades, Themed and International. With your own TMDB key (step 4) it also adds Franchises. Replaces the profile's current collections; they stay saved in the backup.
+Opciones avanzadas de AIOStreams	Advanced AIOStreams options
+El AIOStreams nuevo se crea en un servidor público y gratuito de AIOStreams. La dirección del anterior queda guardada en el respaldo.	The new AIOStreams is created on a free public AIOStreams server. The previous address stays saved in the backup.
+4 · Complementos: fichas y pósteres	4 · Addons: titles and posters
+Fuentes adicionales (opcional)	Extra sources (optional)
+AIOStreams ya consulta Torrentio, Comet, MediaFusion y otras fuentes, así que no hace falta instalarlas aparte. Estas dos pueden sumar resultados que AIOStreams no encuentra.	AIOStreams already searches Torrentio, Comet, MediaFusion and other sources, so there is no need to install them separately. These two can add results AIOStreams does not find.
+Cómo comprobar que funciona:	How to check it works:
+¿Tienes más perfiles en Nuvio?	Do you have more Nuvio profiles?
+Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar cada perfil, el wizard guarda su respaldo.	Copy this same setup to other profiles on the account. Before changing each profile, the wizard saves its backup.
+Aplicar a los perfiles marcados	Apply to the selected profiles
+Marca al menos un perfil.	Select at least one profile.
+Aplicando…	Applying…
+Prefs.	Prefs.
+Complem.	Addons
+Crea un respaldo antes de continuar.	Create a backup before continuing.
+El wizard verificará la lista actual de complementos. Al terminar, podrás pasar a preferencias.	The wizard will verify your current addon list. When it finishes, you can move on to preferences.
+Un	A
+es un servicio pagado (por ejemplo TorBox o Real-Debrid) que descarga el video por ti y lo entrega rápido y sin cortes. Es opcional: sin Debrid también funciona, pero con menos resultados y más esperas.	is a paid service (for example TorBox or Real-Debrid) that downloads the video for you and delivers it fast and without buffering. It is optional: it also works without Debrid, but with fewer results and more waiting.
+También se agregaron las colecciones de inicio de Nuvio.	Nuvio home collections were added too.
 `;
   var exact = new Map(entries.trim().split('\n').map(function(line){
     var cut=line.indexOf('\t');return [line.slice(0,cut),line.slice(cut+1)];
@@ -219,13 +246,13 @@ Stremio & Nuvio Wizard · creado por supermaniac75 · 2026	Stremio & Nuvio Wizar
   var dynamic = `
 Acceso directo ✓	Direct access ✓
 Wizard sin conexión	Wizard offline
-AIO destino offline	Target AIO offline
+AIOStreams destino offline	Target AIO offline
 Este paso no cambia tus complementos.	This step does not change your addons.
 Ingresa tu correo y contraseña de Stremio.	Enter your Stremio email and password.
 Usa el correo y la contraseña de tu cuenta Nuvio. Al conectar aún no se modifica nada.	Use your Nuvio email and password. Connecting does not change anything yet.
 No se pudo recuperar la cuenta guardada. Conéctala de nuevo.	Could not restore the saved account. Connect again.
-Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIO anterior no se modificará.	We will save your addons and URLs before installing a new AIOStreams. The previous AIO will not be changed.
-Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIO anterior no se modificará; puedes añadir una copia de sus ajustes si ya tienes la exportación.	We will save your addons and URLs before installing a new AIOStreams. The previous AIO will not be changed; you may attach its settings if you already have an export.
+Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIOStreams anterior no se modificará.	We will save your addons and URLs before installing a new AIOStreams. The previous AIO will not be changed.
+Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIOStreams anterior no se modificará; puedes añadir una copia de sus ajustes si ya tienes la exportación.	We will save your addons and URLs before installing a new AIOStreams. The previous AIO will not be changed; you may attach its settings if you already have an export.
 Guardaremos tus complementos y después instalaremos AIOStreams. No necesitas una exportación JSON.	We will save your addons and then install AIOStreams. You do not need a JSON export.
 Comprobando clave…	Checking key…
 ⓘ No se pudo comprobar la clave ahora. Puedes continuar y revisar después.	ⓘ Could not check this key right now. You can continue and review it later.
@@ -233,25 +260,25 @@ Procesando…	Processing…
 Conectando…	Connecting…
 No se pudo guardar la cuenta en este navegador.	Could not save this account in this browser.
 email + contraseña	email + password
-Siguiente paso obligatorio: crear o restaurar un backup.	Required next step: create or restore a backup.
+Siguiente paso obligatorio: crear o restaurar un respaldo.	Required next step: create or restore a backup.
 Cuenta conectada. Revisa tus complementos y continúa al respaldo.	Account connected. Review your addons and continue to the backup.
 Cuenta conectada.	Account connected.
 Si la sesión guardada venció, vuelve a conectar la cuenta.	If your saved session expired, connect again.
 Creando y verificando…	Creating and verifying…
-Rehacer backup	Create backup again
+Rehacer respaldo	Create backup again
 RESPALDO VERIFICADO ✓	BACKUP VERIFIED ✓
 Ya puedes pulsar «Continuar a preferencias» aquí mismo.	You can now click “Continue to preferences” here.
-Tus complementos y sus URL quedaron guardados y verificados. El AIO anterior no se modificó.	Your addons and URLs were saved and verified. The previous AIO was not changed.
+Tus complementos y sus URL quedaron guardados y verificados. El AIOStreams anterior no se modificó.	Your addons and URLs were saved and verified. The previous AIO was not changed.
 ✓ COPIA CREADA Y VERIFICADA	✓ BACKUP CREATED AND VERIFIED
 RESPALDO PENDIENTE	BACKUP PENDING
-Se instalará un AIO nuevo y el anterior permanecerá intacto.	A new AIO will be installed; the previous one stays unchanged.
-Se instalará un AIO nuevo; el anterior no se modificará.	A new AIO will be installed; the previous one will not be changed.
+Se instalará un AIOStreams nuevo y el anterior permanecerá intacto.	A new AIO will be installed; the previous one stays unchanged.
+Se instalará un AIOStreams nuevo; el anterior no se modificará.	A new AIO will be installed; the previous one will not be changed.
 Puedes continuar con tus preferencias.	You can continue to preferences.
 Copia verificada ✓. Ya puedes configurar.	Backup verified ✓. You can continue.
 No se habilitó la configuración: 	Setup was not enabled: 
 Instalación nueva	New installation
 No disponible	Unavailable
-No se pudo crear el respaldo. Revisa el mensaje de error y vuelve a pulsar «Crear backup seguro».	Could not create the backup. Check the error and click “Create secure backup” again.
+No se pudo crear el respaldo. Revisa el mensaje de error y vuelve a pulsar «Crear respaldo seguro».	Could not create the backup. Check the error and click “Create secure backup” again.
 No hay URLs para validar.	There are no URLs to validate.
 Validando…	Validating…
 No se pudo copiar	Could not copy
@@ -268,7 +295,7 @@ Cambiaste la autenticación. Conecta nuevamente la cuenta.	Authentication change
 Ingresa tu correo y contraseña de Nuvio.	Enter your Nuvio email and password.
 Ingresa email + contraseña o pega una AuthKey.	Enter email + password or paste an AuthKey.
 La instancia no ofrece todas las claves compartidas ahora. Para los servicios no disponibles, usa una clave propia.	The instance does not offer all shared keys right now. Use your own key for unavailable services.
-Primero crea y verifica el backup obligatorio.	First create and verify the required backup.
+Primero crea y verifica el respaldo obligatorio.	First create and verify the required backup.
 Agrega al menos un Debrid con su API key.	Add at least one Debrid service and its API key.
 Agrega al menos un Debrid con su API key o elige «No tengo Debrid».	Add at least one Debrid service and its API key, or choose “I don't have Debrid”.
 Modo gratuito: AIOStreams usará fuentes HTTP/P2P compatibles y no configurará ningún servicio Debrid.	Free mode: AIOStreams will use compatible HTTP/P2P sources and will not configure any Debrid service.
@@ -285,18 +312,18 @@ ID REPETIDO	DUPLICATE ID
 ID REPETIDO · ELIGE UNO	DUPLICATE ID · CHOOSE ONE
 AGREGAR AL PERFIL	ADD TO PROFILE
 Plan revisado. Puedes configurar cuando estés conforme.	Plan reviewed. You can apply it when ready.
-Backup no válido. Crea uno nuevo antes de configurar.	Invalid backup. Create a new one before applying changes.
+Respaldo no válido. Crea uno nuevo antes de configurar.	Invalid backup. Create a new one before applying changes.
 Primero revisa el plan final.	Review the final plan first.
 Configurando…	Configuring…
 Aplicando cambios. No cierres esta pestaña.	Applying changes. Do not close this tab.
 Ver detalles de la instalación	View installation details
-Descargar UUID y contraseña AIO	Download AIO UUID and password
+Descargar UUID y contraseña AIOStreams	Download AIO UUID and password
 Descargar lista y URL de complementos	Download addon list and URLs
 Ver complementos instalados	View installed addons
-Configuración aplicada. Tu backup anterior sigue disponible para restaurar.	Configuration applied. Your previous backup is still available for restoration.
+Configuración aplicada. Tu respaldo anterior sigue disponible para restaurar.	Configuration applied. Your previous backup is still available for restoration.
 Cuenta olvidada en este navegador. Puedes conectarte con otra cuenta.	Saved account removed from this browser. You can connect a different account.
 Guardando…	Saving…
-Orden y catálogos verificados. Crea un backup nuevo para seguir.	Order and catalogs verified. Create a new backup to continue.
+Orden y catálogos verificados. Crea un respaldo nuevo para seguir.	Order and catalogs verified. Create a new backup to continue.
 Perfil importado. Revisa nuevamente el plan.	Profile imported. Review the plan again.
 Perfil importado. Ingresa tus claves Debrid y URLs personales antes de revisar.	Profile imported. Enter your Debrid keys and personal URLs before reviewing.
 El archivo de perfil es demasiado grande.	The profile file is too large.
@@ -306,8 +333,8 @@ Completa o elimina las filas Debrid sin API key.	Complete or remove Debrid rows 
 Hay servicios Debrid repetidos. Conserva una sola fila por servicio.	Duplicate Debrid services. Keep just one row per service.
 Comprobando las claves Debrid…	Checking Debrid keys…
 Corrige la clave indicada antes de continuar.	Correct the indicated key before continuing.
-No hay AIO instalado	No AIO installed
-no hay AIO instalado	no AIO installed
+No hay AIOStreams instalado	No AIO installed
+no hay AIOStreams instalado	no AIO installed
 configuración interna respaldada	internal settings backed up
 sin configuración interna respaldada	internal settings not backed up
 queda intacto; su URL está respaldada, pero sus ajustes internos no están disponibles	left untouched; its URL is backed up, but its internal settings are unavailable
@@ -315,40 +342,40 @@ URL respaldada; ajustes internos no disponibles	URL backed up; internal settings
 no confirmada	not confirmed
 sin respuesta	no response
 Puedes guardar nombres y URL para reinstalarlos manualmente. Las URL pueden incluir claves privadas.	You can save names and URLs to reinstall addons manually. URLs may contain private keys.
-Descargar lista de addons y URL	Download addon list and URLs
-ID de addon repetido	Duplicate addon ID
+Descargar lista de complementos y URL	Download addon list and URLs
+ID de complemento repetido	Duplicate addon ID
 . Revisa las variantes antes de conservarlas.	. Review the variants before keeping them.
 No disponible	Unavailable
 Descargar copia JSON	Download JSON backup
 Guárdala en privado: puede contener URLs configuradas con tokens.	Keep it private: it may contain configured URLs with tokens.
-Tu lista de complementos está respaldada. Para actualizar el AIO existente, adjunta su exportación JSON y crea otra copia.	Your addon list is backed up. To update the existing AIO, attach its JSON export and make another backup.
+Tu lista de complementos está respaldada. Para actualizar el AIOStreams existente, adjunta su exportación JSON y crea otra copia.	Your addon list is backed up. To update the existing AIO, attach its JSON export and make another backup.
 ajustes respaldados	settings backed up
 exportación adjunta	export attached
 lectura de la instancia	read from instance
 ajustes internos pendientes de respaldo	internal settings still need a backup
-El AIO actual requiere la contraseña original o su exportación JSON para actualizarlo.	The current AIO requires its original password or JSON export for an update.
-La exportación AIO supera 900 KB.	The AIO export is over 900 KB.
-La exportación AIO no es un JSON válido.	The AIO export is not valid JSON.
+El AIOStreams actual requiere la contraseña original o su exportación JSON para actualizarlo.	The current AIO requires its original password or JSON export for an update.
+La exportación AIOStreams supera 900 KB.	The AIO export is over 900 KB.
+La exportación AIOStreams no es un JSON válido.	The AIO export is not valid JSON.
 El servidor no confirmó la verificación	The server did not confirm verification
-El archivo no tiene el formato de backup de Stremio/Bootstrapper.	This file is not a Stremio/Bootstrapper backup.
-¿Restaurar exactamente el backup anterior?	Restore the exact previous backup?
+El archivo no tiene el formato de respaldo de Stremio/Bootstrapper.	This file is not a Stremio/Bootstrapper backup.
+¿Restaurar exactamente el respaldo anterior?	Restore the exact previous backup?
 Restaurando…	Restoring…
-Crea un nuevo backup para continuar.	Create a new backup to continue.
-La configuración interna AIO está en la exportación descargable y debe importarse en AIOStreams.	The internal AIO settings are in the downloadable export and must be imported into AIOStreams.
-El backup no contiene configuración interna AIO.	The backup does not contain internal AIO settings.
-Descargar configuración AIO anterior	Download previous AIO configuration
-→ Se instalará otro AIO en Midnight y la URL anterior quedará en el respaldo.	→ Another AIO will be installed on Midnight; the old URL stays in the backup.
+Crea un nuevo respaldo para continuar.	Create a new backup to continue.
+La configuración interna de AIOStreams está en la exportación descargable y debe importarse en AIOStreams.	The internal AIO settings are in the downloadable export and must be imported into AIOStreams.
+El respaldo no contiene configuración interna de AIOStreams.	The backup does not contain internal AIO settings.
+Descargar configuración AIOStreams anterior	Download previous AIO configuration
+→ Se instalará otro AIOStreams en el servidor recomendado y la URL anterior quedará en el respaldo.	→ Another AIOStreams will be installed on the recommended server; the old URL stays in the backup.
 → No se puede actualizar esta instancia desde el wizard. Elige cambiar.	→ This instance cannot be updated from the wizard. Choose a different instance.
 → Se instalará en la instancia recomendada; la URL anterior quedará en el respaldo.	→ The recommended instance will be used; the old URL stays in the backup.
- (AIO nuevo; el anterior no se modifica y su URL queda respaldada).	 (new AIO; the previous one is unchanged and its URL is backed up).
+ (AIOStreams nuevo; el anterior no se modifica y su URL queda respaldada).	 (new AIO; the previous one is unchanged and its URL is backed up).
  (se actualiza la instalación existente).	 (the existing installation is updated).
  (nueva instalación).	 (new installation).
-AIO nuevo: se aplicará el perfil seleccionado desde cero.	New AIO: the selected setup will be applied from scratch.
-Comparación detallada AIO no disponible: adjunta su exportación en el backup.	Detailed AIO comparison is unavailable: attach its export to the backup.
-Addons actuales fuera del perfil: elige cuáles agregar	Current addons outside this setup: choose which ones to add
+AIOStreams nuevo: se aplicará el perfil seleccionado desde cero.	New AIO: the selected setup will be applied from scratch.
+Comparación detallada AIOStreams no disponible: adjunta su exportación en el respaldo.	Detailed AIO comparison is unavailable: attach its export to the backup.
+Complementos actuales fuera del perfil: elige cuáles agregar	Current addons outside this setup: choose which ones to add
 La instalación parte con una lista limpia. Marca solamente los complementos actuales que quieras volver a agregar; conservarán su URL y configuración. Si hay variantes con el mismo ID, elige sólo una.	The installation starts with a clean list. Select only existing addons you want to add again; their URLs and settings will be kept. Choose one variant per addon ID.
-AIO ya tiene este perfil; no hubo cambios.	AIO already has this setup; no changes were made.
-Cambió el manifiesto: actualiza o reinstala sólo AIO en Stremio para que reconozca los nuevos catálogos o recursos.	The manifest changed: update or reinstall only AIO in Stremio so it recognizes the new catalogs or resources.
+AIOStreams ya tiene este perfil; no hubo cambios.	AIO already has this setup; no changes were made.
+Cambió el manifiesto: actualiza o reinstala sólo AIOStreams en Stremio para que reconozca los nuevos catálogos o recursos.	The manifest changed: update or reinstall only AIO in Stremio so it recognizes the new catalogs or resources.
 No cambió el manifiesto: no necesitas reinstalar.	The manifest did not change: no reinstall is needed.
 Push completado. Revisa nuevamente antes de enviar otros cambios.	Push complete. Review the plan again before sending other changes.
 correcta	correct
@@ -369,17 +396,17 @@ Descargar para gestor de contraseñas	Download for password manager
 Queda guardado para este sitio. Búscalo como «AIOStreams» en el gestor de contraseñas del navegador.	Saved for this site. Look for "AIOStreams" in your browser's password manager.
 El navegador no permitió guardarlo. Usa «Descargar para gestor de contraseñas» o cópialo a mano.	The browser did not allow saving it. Use "Download for password manager" or copy it manually.
 Importante:	Important:
-el wizard no guarda esta contraseña en el servidor ni en sus backups. Se mantiene sólo durante esta sesión y en el JSON que descargues.	the wizard does not store this password on the server or in its backups. It is only kept during this session and in the JSON file you download.
+el wizard no guarda esta contraseña en el servidor ni en sus respaldos. Se mantiene sólo durante esta sesión y en el JSON que descargues.	the wizard does not store this password on the server or in its backups. It is only kept during this session and in the JSON file you download.
 Antes de cerrar o recargar esta página, guárdala en un gestor de contraseñas o en otro lugar seguro.	Before closing or reloading this page, save it in a password manager or another secure location.
-Descargar JSON con credenciales AIO	Download AIO credentials JSON
+Descargar JSON con credenciales AIOStreams	Download AIO credentials JSON
 El JSON contiene otra copia del UUID, la clave de edición y la URL de instalación de AIOStreams. Guárdalo también en privado.	The JSON contains another copy of the UUID, editing key, and AIOStreams installation URL. Keep it private as well.
 no guarda esta clave de AIOStreams	does not store this AIOStreams key
 UUID copiado ✓	UUID copied ✓
 Clave copiada ✓	Key copied ✓
 Credenciales copiadas ✓	Credentials copied ✓
-El orden cambió. Crea un nuevo backup antes de configurar.	The order changed. Create a new backup before applying the setup.
-Se instalará otro AIO en Midnight; el anterior no se modificará y su URL está en el respaldo.	Another AIO will be installed on Midnight; the previous one will not be changed, and its URL is in the backup.
-Se actualiza el AIO en su instancia actual.	AIO is updated on its current instance.
+El orden cambió. Crea un nuevo respaldo antes de configurar.	The order changed. Create a new backup before applying the setup.
+Se instalará otro AIOStreams en el servidor recomendado; el anterior no se modificará y su URL está en el respaldo.	Another AIOStreams will be installed on the recommended server; the previous one will not be changed, and its URL is in the backup.
+Se actualiza el AIOStreams en su instancia actual.	AIO is updated on its current instance.
 Se cambiará a Midnight nightly si está en otra instancia.	It will switch to Midnight nightly if it is on another instance.
 Se configurará AIOMetadata; si su clave TMDB compartida falla, se conservará la instalación actual.	AIOMetadata will be configured; if its shared TMDB key fails, the current installation will be kept.
 Se conserva Cinemeta en la versión base del wizard.	Cinemeta is kept in the wizard's base setup.
@@ -395,13 +422,13 @@ TV en vivo está desactivada.	Live TV is turned off.
 Se recrea según los Debrid seleccionados.	Recreated for the selected Debrid services.
 Stores están desactivados.	Stores are turned off.
 WatchHub está marcado para eliminar.	WatchHub is marked for removal.
-Addon ajeno al wizard: tú decides si conservarlo.	Addon outside the wizard: you decide whether to keep it.
+Complemento ajeno al wizard: tú decides si conservarlo.	Addon outside the wizard: you decide whether to keep it.
 Ver cambios automáticos	View automatic changes
-El AIO anterior no se modificó.	The previous AIO was not changed.
-El AIO anterior no se modificará.	The previous AIO will not be changed.
-El AIO anterior queda intacto.	The previous AIO stays unchanged.
+El AIOStreams anterior no se modificó.	The previous AIO was not changed.
+El AIOStreams anterior no se modificará.	The previous AIO will not be changed.
+El AIOStreams anterior queda intacto.	The previous AIO stays unchanged.
 El servidor no confirmó la verificación	The server did not confirm verification
-No se pudo actualizar AIO	Could not update AIO
+No se pudo actualizar AIOStreams	Could not update AIO
 Ingresa una clave válida.	Enter a valid key.
 No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.	No reliable automatic check is available for this service. Make sure the key is complete.
 El servicio no pudo responder ahora. Prueba de nuevo más tarde.	The service could not respond right now. Try again later.
@@ -422,25 +449,25 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
   ];
   var patterns = [
     [/^1 · Conecta tu cuenta (.*)$/,'1 · Connect your $1 account'],
-    [/^Addons actuales: (.*)$/,'Current addons: $1'],
+    [/^Complementos actuales: (.*)$/,'Current addons: $1'],
     [/^Clave verificada con (.*?)\.$/,'Key verified with $1.'],
     [/^La clave fue rechazada por (.*?)\.$/,'The key was rejected by $1.'],
     [/^Complementos instalados \((.*)\)$/,'Installed addons ($1)'],
     [/^Ver complementos instalados \((.*)\)$/,'View installed addons ($1)'],
-    [/^Backups cifrados anteriores: (.*)$/,'Previous encrypted backups: $1'],
+    [/^Respaldos cifrados anteriores: (.*)$/,'Previous encrypted backups: $1'],
     [/^Perfil a aplicar: (.*)$/,'Setup to apply: $1'],
-    [/^AIO anterior: (.*)$/,'Previous AIO: $1'],
+    [/^AIOStreams anterior: (.*)$/,'Previous AIO: $1'],
     [/^AIOStreams detectado en otra instancia \((.*)\)$/,'AIOStreams found on another instance ($1)'],
     [/^AIOStreams detectado en (.*)$/,'AIOStreams found on $1'],
-    [/^Servicios AIO actuales: (.*)$/,'Current AIO services: $1'],
+    [/^Servicios AIOStreams actuales: (.*)$/,'Current AIO services: $1'],
     [/^AIOStreams no detectado → se creará uno nuevo\.$/,'No AIOStreams found → a new one will be created.'],
-    [/^Instancia AIO: (.*)$/,'AIO instance: $1'],
+    [/^Instancia AIOStreams: (.*)$/,'AIO instance: $1'],
     [/^Ver cambios automáticos \((.*)\)$/,'View automatic changes ($1)'],
     [/^Verificación (.*)$/,'$1 verification'],
-    [/^Addons protegidos: (.*)$/,'Addons protected: $1'],
+    [/^Complementos protegidos: (.*)$/,'Addons protected: $1'],
     [/^Respaldo verificado\. (.*)$/,'Backup verified. $1'],
     [/^← Volver (.*)$/,'← Back $1'],
-    [/^No se aplicó completamente: (.*)\. El backup verificado sigue disponible\.$/,'Could not fully apply the setup: $1. The verified backup is still available.'],
+    [/^No se aplicó completamente: (.*)\. El respaldo verificado sigue disponible\.$/,'Could not fully apply the setup: $1. The verified backup is still available.'],
     [/^No se aplicó completamente: (.*)$/,'Could not fully apply the setup: $1'],
     [/^Elige la cuenta de (.*?) y vuelve a conectar\.$/,'Choose your $1 account and connect again.'],
     [/^Comprueba qué se añadirá, reemplazará o conservará antes de cambiar (.*)\.$/,'Review what will be added, replaced, or kept before changing $1.'],
@@ -457,10 +484,10 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^ del archivo privado: los necesitarás para entrar a este AIOStreams y cambiar su configuración más adelante\. Para reinstalar los demás complementos, conserva también la lista de URL\. El respaldo de (.*?) permite restaurar la colección anterior\.$/,' in the private file: you will need them to access this AIOStreams and change its setup later. Keep the URL list to reinstall the other addons. The $1 backup can restore the previous collection.'],
     [/^Guarda la lista de URL para reinstalar los complementos más adelante\. El respaldo de (.*?) permite restaurar la colección anterior\.$/,'Save the URL list to reinstall addons later. The $1 backup can restore the previous collection.'],
     [/^La colección instalada no coincide con el plan; se restaurará la anterior$/,'The installed addon list does not match the plan; the previous list will be restored'],
-    [/^AIO destino (.*)$/,'Target AIO $1'],
+    [/^AIOStreams destino (.*)$/,'Target AIO $1'],
     [/^Creado: (.*)$/,'Created: $1'],
-    [/^Se creará un AIO nuevo y se reemplazará su entrada en Stremio\. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo\.$/,'A new AIO will be created and replace its Stremio entry. Open “View automatic changes” to review each addon; the old URL remains in the backup.'],
-    [/^Se creará un AIO nuevo y se reemplazará su entrada en tu perfil de Nuvio\. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo\.$/,'A new AIO will be created and replace its entry in your Nuvio profile. Open “View automatic changes” to review each addon; the old URL remains in the backup.']
+    [/^Se creará un AIOStreams nuevo y se reemplazará su entrada en Stremio\. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo\.$/,'A new AIO will be created and replace its Stremio entry. Open “View automatic changes” to review each addon; the old URL remains in the backup.'],
+    [/^Se creará un AIOStreams nuevo y se reemplazará su entrada en tu perfil de Nuvio\. Puedes abrir «Ver cambios automáticos» para revisar cada complemento; la URL anterior queda en el respaldo\.$/,'A new AIO will be created and replace its entry in your Nuvio profile. Open “View automatic changes” to review each addon; the old URL remains in the backup.']
   ];
   patterns.unshift(...checkPatterns);
   patterns.push(
@@ -484,13 +511,17 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Revisa el cambio antes de aplicarlo\. Sólo se modificará (Stremio|Nuvio); (Stremio|Nuvio) permanecerá intacto\.$/,'Review the change before applying it. Only $1 will be modified; $2 will remain unchanged.'],
     [/^¿Copiar la configuración de (Stremio|Nuvio) a (Stremio|Nuvio)\? Se reemplazará la lista de (Stremio|Nuvio); su respaldo ya está guardado y (Stremio|Nuvio) no se modificará\.$/,'Copy the setup from $1 to $2? The $3 list will be replaced; its backup is already saved and $4 will not be modified.'],
     [/^Copia completada: (Stremio|Nuvio) → (Stremio|Nuvio)\. (Stremio|Nuvio) tiene (\d+) complementos verificados y utiliza el mismo AIOStreams\. (Stremio|Nuvio) quedó intacto\. Respaldo de (Stremio|Nuvio): (.*)\.$/,'Copy complete: $1 → $2. $3 has $4 verified addons and uses the same AIOStreams. $5 remained unchanged. $6 backup: $7.'],
-    [/^No se pudo preparar (Stremio|Nuvio) para recibir la copia: (.*)$/,'Could not prepare $1 to receive the copy: $2']
+    [/^No se pudo preparar (Stremio|Nuvio) para recibir la copia: (.*)$/,'Could not prepare $1 to receive the copy: $2'],
+    [/^abre (Stremio|Nuvio) \(si ya estaba abierto, ciérralo y vuelve a abrirlo\), busca una película conocida y entra a su ficha\. Deberían aparecer enlaces de AIOStreams en la lista de fuentes\. Si no aparece nada, espera un minuto y vuelve a intentar\.$/,'open $1 (if it was already open, close and reopen it), search for a well-known movie and open its page. AIOStreams links should appear in the sources list. If nothing shows up, wait a minute and try again.'],
+    [/^abre (Stremio|Nuvio) \(si ya estaba abierto, ciérralo y vuelve a abrirlo\), busca una película conocida y entra a su ficha\. Deberían aparecer enlaces de AIOStreams en la lista de fuentes\. Si no aparece nada, espera un minuto y vuelve a intentar\. En Nuvio verás además nuevas filas en el inicio: Ver ahora, Géneros, Décadas y más\.$/,'open $1 (if it was already open, close and reopen it), search for a well-known movie and open its page. AIOStreams links should appear in the sources list. If nothing shows up, wait a minute and try again. In Nuvio you will also see new rows on the home screen: Watch now, Genres, Decades and more.'],
+    [/^¿Copiar la configuración de este perfil a (\d+) perfil\(es\)\? Sus complementos actuales se reemplazarán; cada uno queda respaldado antes del cambio\.$/,'Copy this profile\'s setup to $1 profile(s)? Their current addons will be replaced; each one is backed up before the change.'],
+    [/^No se pudo aplicar: (.*)$/,'Could not apply: $1']
   );  patterns.push(
-    [/^Backup verificado y plan revisado\. ¿Aplicar la configuración a (.*?)\?$/,'Backup verified and plan reviewed. Apply the setup to $1?'],
-    [/^¿Cambiar AIO de (.*?) a (.*?) y aplicar el plan\? El backup conservará la instalación anterior\.$/,'Switch AIO from $1 to $2 and apply the plan? The backup will keep the previous installation.'],
-    [/^Esto reemplazará la colección actual por (\d+) addons del JSON\. Antes se creará un backup de seguridad\. ¿Continuar\?$/,'This will replace the current addon list with $1 addons from the JSON file. A safety backup will be created first. Continue?'],
-    [/^¿Guardar el nuevo orden y los catálogos seleccionados en (.*?)\? El backup permite deshacerlo\.$/,'Save the new order and selected catalogs in $1? You can undo this using the backup.'],
-    [/^¿Actualizar la configuración completa de AIOStreams en (.*?)\? Se guardará una copia antes del cambio\. La URL y los demás addons se conservarán\.$/,'Update the full AIOStreams setup on $1? A backup will be saved before the change. The URL and other addons will be kept.']
+    [/^Respaldo verificado y plan revisado\. ¿Aplicar la configuración a (.*?)\?$/,'Backup verified and plan reviewed. Apply the setup to $1?'],
+    [/^¿Cambiar AIOStreams de (.*?) a (.*?) y aplicar el plan\? El respaldo conservará la instalación anterior\.$/,'Switch AIO from $1 to $2 and apply the plan? The backup will keep the previous installation.'],
+    [/^Esto reemplazará la colección actual por (\d+) complementos del JSON\. Antes se creará un respaldo de seguridad\. ¿Continuar\?$/,'This will replace the current addon list with $1 addons from the JSON file. A safety backup will be created first. Continue?'],
+    [/^¿Guardar el nuevo orden y los catálogos seleccionados en (.*?)\? El respaldo permite deshacerlo\.$/,'Save the new order and selected catalogs in $1? You can undo this using the backup.'],
+    [/^¿Actualizar la configuración completa de AIOStreams en (.*?)\? Se guardará una copia antes del cambio\. La URL y los demás complementos se conservarán\.$/,'Update the full AIOStreams setup on $1? A backup will be saved before the change. The URL and other addons will be kept.']
   );
   function translate(input){
     var match=String(input).match(/^(\s*)([\s\S]*?)(\s*)$/);
@@ -516,7 +547,7 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
   }
   function attributes(el){
     if(el.matches('SCRIPT,STYLE,CODE,NOSCRIPT'))return;
-    ['placeholder','title','aria-label'].forEach(function(name){
+    ['placeholder','title','aria-label','data-short'].forEach(function(name){
       if(!el.hasAttribute(name))return;
       var data=attrState.get(el)||{};
       var state=data[name];
