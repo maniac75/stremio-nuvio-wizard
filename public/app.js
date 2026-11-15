@@ -250,7 +250,7 @@ var serviceApiLinks = {
   easydebrid:'https://paradise-cloud.com/dashboard/'
 };
 
-var freeStandaloneAddons = new Set(['comet','webstreamr','sootiohttp','tpbplus','torrentsdb','stremthru','mediafusion','cometa','stremify','animes']);
+var freeStandaloneAddons = new Set(['comet','webstreamr','sootiohttp','tpbplus','torrentsdb','stremthru','mediafusion','cometa','animes']);
 function isFreeMode(){return document.getElementById('debridMode').value==='free';}
 function rememberCheckboxState(input,free){
   var card=input.closest('.check');
@@ -1232,8 +1232,9 @@ document.getElementById('configureBtn').addEventListener('click',async function(
       'AIOStreams: '+(c.profileMode==='tamtaro'?'configuración predeterminada de Tamtaro':'configuración recomendada')+' · Tamtaro '+d.aio.templateVersion,
       'Verificación '+platformName()+': '+(d.verification&&d.verification.collection?'correcta':'no confirmada'),
       'AIOStreams: '+(d.verification&&d.verification.aioOnline?'en línea':'sin respuesta'),
-      'AIOMetadata: '+(d.verification&&d.verification.metadataOnline?'en línea':'sin respuesta')
-    ];
+      'AIOMetadata: '+(d.verification&&d.verification.metadataOnline?'en línea':'sin respuesta')].concat(
+      d.skippedAddons&&d.skippedAddons.length?['Omitidos porque no respondieron: '+d.skippedAddons.join(', ')]:[]
+    );
     var recoveryHtml='';
     if(lastRecovery){
       recoveryHtml='<div class="aioCredentialsCard" aria-label="Credenciales de AIOStreams">'+

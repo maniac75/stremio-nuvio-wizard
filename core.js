@@ -1101,6 +1101,18 @@ function renderItTemplate(template, vars) {
 async function buildStandaloneAddons(preset, options) {
   const selected = new Set(options.standaloneAddons || []);
   const out = [];
+  const skipped = [];
+  // Un complemento opcional caído o retirado no debe impedir toda la configuración.
+  const optional = async (addon, url) => {
+    try { return await manifestAddon(addon, url); }
+    catch (error) {
+      let host = 'complemento';
+      try { host = new URL(url || addon.transportUrl).hostname; } catch {}
+      skipped.push(host);
+      logError('Complemento opcional omitido:', host, error);
+      return null;
+    }
+  };
   const primary = options.debrids[0];
 
   if (selected.has('torrentio')) {
@@ -1134,7 +1146,7 @@ async function buildStandaloneAddons(preset, options) {
         r2160p: options.no4k ? false : (decoded.data.resolutions?.r2160p ?? true)
       }
     };
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('meteor')) {
@@ -1156,15 +1168,15 @@ async function buildStandaloneAddons(preset, options) {
         ? (decoded.data.resolutions || []).filter(r => r !== '4k')
         : (decoded.data.resolutions || [])
     };
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('webstreamr')) {
-    out.push(await manifestAddon(presetAddon(preset, 'webstreamrmbg', options.language)));
+    out.push(await optional(presetAddon(preset, 'webstreamrmbg', options.language)));
   }
 
   if (selected.has('sootiohttp')) {
-    out.push(await manifestAddon(presetAddon(preset, 'sootiohttp', options.language)));
+    out.push(await optional(presetAddon(preset, 'sootiohttp', options.language)));
   }
 
   if (selected.has('hdhub')) {
@@ -1178,11 +1190,11 @@ async function buildStandaloneAddons(preset, options) {
       content: options.language === 'es-MX' ? 'latin' : (decoded.data.content || ''),
       mq: 10
     };
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('tpbplus')) {
-    out.push(await manifestAddon(presetAddon(preset, 'tpbplus', options.language)));
+    out.push(await optional(presetAddon(preset, 'tpbplus', options.language)));
   }
 
   if (selected.has('jackettio')) {
@@ -1199,7 +1211,7 @@ async function buildStandaloneAddons(preset, options) {
         ? (decoded.data.qualities || []).filter(q => Number(q) !== 2160)
         : (decoded.data.qualities || [])
     };
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('torrentsdb')) {
@@ -1216,7 +1228,7 @@ async function buildStandaloneAddons(preset, options) {
         '4k','brremux','hdrall','dolbyvisionwithhdr','dolbyvision'
       ];
     }
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('stremthru')) {
@@ -1237,7 +1249,7 @@ async function buildStandaloneAddons(preset, options) {
         : [{ c:'p2p', t:'' }],
       cached: options.cachedOnly
     };
-    out.push(await manifestAddon(base, encodeTransportData(decoded, data)));
+    out.push(await optional(base, encodeTransportData(decoded, data)));
   }
 
   if (selected.has('mediafusion')) {
@@ -1291,7 +1303,7 @@ async function buildStandaloneAddons(preset, options) {
     );
     if (!encrypted?.encrypted_str) throw new Error('MediaFusion no devolvió una configuración válida');
     const url = 'https://mediafusionfortheweebs.midnightignite.me/' + encrypted.encrypted_str + '/manifest.json';
-    out.push(await manifestAddon(base, url));
+    out.push(await optional(base, url));
   }
 
   if (selected.has('cometa')) {
@@ -1313,7 +1325,7 @@ async function buildStandaloneAddons(preset, options) {
       'https://cometa.stremx.net/' +
       Buffer.from(JSON.stringify(data)).toString('base64') +
       '/manifest.json';
-    out.push(await manifestAddon(base, url));
+    out.push(await optional(base, url));
   }
 
   if (selected.has('peerflix')) {
@@ -1331,18 +1343,18 @@ async function buildStandaloneAddons(preset, options) {
       peerDebrid.service + '=' + peerDebrid.key
     ];
     const url = 'https://addon.peerflix.mov/' + parts.join('%7C') + '/manifest.json';
-    out.push(await manifestAddon({ transportUrl: url }, url));
+    out.push(await optional({ transportUrl: url }, url));
   }
 
   if (selected.has('stremify')) {
     const providers = Buffer.from('cinehdplus,verhdlink').toString('base64');
     const url = 'https://stremify.hayd.uk/' + providers + '/manifest.json';
-    out.push(await manifestAddon({ transportUrl: url }, url));
+    out.push(await optional({ transportUrl: url }, url));
   }
 
   if (selected.has('animes')) {
     const url = 'https://pigamer37.alwaysdata.net/onAirCatalogs=animeav1/manifest.json';
-    out.push(await manifestAddon({ transportUrl: url }, url));
+    out.push(await optional({ transportUrl: url }, url));
   }
 
   if (selected.has('linkanol')) {
@@ -1367,7 +1379,7 @@ async function buildStandaloneAddons(preset, options) {
     );
     if (!built?.url) throw new Error('Linkañol no devolvió una URL de instalación');
     const url = String(built.url).replace(/^stremio:\/\//i, 'https://');
-    out.push(await manifestAddon({ transportUrl: url }, url));
+    out.push(await optional({ transportUrl: url }, url));
   }
 
   if (selected.has('pelis')) {
@@ -1411,10 +1423,12 @@ async function buildStandaloneAddons(preset, options) {
     const match = location.match(/^\/([^/]+)\/configure/);
     if (!match) throw new Error('PeLis devolvió una respuesta inesperada');
     const url = 'https://enspanish.vercel.app/' + match[1] + '/manifest.json';
-    out.push(await manifestAddon({ transportUrl: url }, url));
+    out.push(await optional({ transportUrl: url }, url));
   }
 
-  return out;
+  const result = out.filter(Boolean);
+  result.skipped = skipped;
+  return result;
 }
 
 function serviceNamesForMediaFusion(service) {
@@ -1584,12 +1598,12 @@ async function buildDesiredAddons(options, currentAddons) {
   const platformAddons = options.platform === 'nuvio'
     ? unique.filter(addon => !['com.linvo.cinemeta', 'org.streailer.trailer'].includes(addon?.manifest?.id))
     : unique;
-  return { desired: platformAddons, aio, metadataReused };
+  return { desired: platformAddons, aio, metadataReused, skippedAddons: standalone.skipped || [] };
 }
 
 const FREE_STANDALONE_ADDONS = new Set([
   'comet','webstreamr','sootiohttp','tpbplus','torrentsdb','stremthru',
-  'mediafusion','cometa','stremify','animes'
+  'mediafusion','cometa','animes'
 ]);
 
 function normalizeOptions(body) {
@@ -2029,6 +2043,7 @@ async function handleConfigure(body) {
         recovery: built.aio.recovery
       },
       metadataReused: built.metadataReused,
+      skippedAddons: built.skippedAddons,
       sourceFingerprint: collectionFingerprint(installed)
     };
   } catch (error) {
