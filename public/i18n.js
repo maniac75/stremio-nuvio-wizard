@@ -207,7 +207,7 @@ Cinemeta y Streailer no se copian porque Nuvio no los utiliza. El resto, incluid
 Adaptación para Stremio:	Stremio adaptation:
 se copian los complementos de Nuvio y se conservan Cinemeta y Streailer si ya estaban instalados en Stremio.	Nuvio addons are copied and Cinemeta and Streailer are kept if they were already installed in Stremio.
 Cómo funciona	How it works
-Revisa cuántos complementos se reemplazarán y confirma el plan.	Review how many addons will be replaced and confirm the plan.
+Revisa el plan: elige si conservas complementos que sólo tiene el destino y, en Nuvio, si agregas sus extras.	Review the plan: choose whether to keep addons only the target has and, in Nuvio, whether to add its extras.
 Confirmar plan para aplicar	Confirm plan to apply
 Aplicación donde instalar	App to configure
 AuthKey de Stremio	Stremio AuthKey
@@ -232,6 +232,11 @@ Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar 
 Aplicar a los perfiles marcados	Apply to the selected profiles
 Marca al menos un perfil.	Select at least one profile.
 Aplicando…	Applying…
+Extras de Nuvio (opcional)	Nuvio extras (optional)
+Colecciones de inicio	Home collections
+Filas Ver ahora, Géneros, Décadas, Temáticas e Internacional. Reemplaza las colecciones actuales del perfil; quedan en el respaldo.	Watch now, Genres, Decades, Themed and International rows. Replaces the profile's current collections; they stay in the backup.
+Franquicias	Franchises
+Fila con sagas como Star Wars o Marvel, usando tu clave de TMDB.	A row with sagas like Star Wars or Marvel, using your TMDB key.
 Una cuenta gratuita de MDBList guarda el historial de lo que ves y tus listas de pendientes. Si pegas tu clave, AIOMetadata registrará ahí lo que ves y podrás buscar en MDBList. En Nuvio, la misma clave muestra notas de IMDb y Rotten Tomatoes (Ajustes → Integraciones → MDBList). Si no te interesa, déjalo vacío.	A free MDBList account keeps your watch history and watchlists. If you paste your key, AIOMetadata will record what you watch there and you can search MDBList. In Nuvio, the same key shows IMDb and Rotten Tomatoes ratings (Settings → Integrations → MDBList). If you're not interested, leave it empty.
 Clave API de MDBList (opcional)	MDBList API key (optional)
 Obtener clave gratis ↗	Get a free key ↗
@@ -518,7 +523,9 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^abre (Stremio|Nuvio) \(si ya estaba abierto, ciérralo y vuelve a abrirlo\), busca una película conocida y entra a su ficha\. Deberían aparecer enlaces de AIOStreams en la lista de fuentes\. Si no aparece nada, espera un minuto y vuelve a intentar\.$/,'open $1 (if it was already open, close and reopen it), search for a well-known movie and open its page. AIOStreams links should appear in the sources list. If nothing shows up, wait a minute and try again.'],
     [/^abre (Stremio|Nuvio) \(si ya estaba abierto, ciérralo y vuelve a abrirlo\), busca una película conocida y entra a su ficha\. Deberían aparecer enlaces de AIOStreams en la lista de fuentes\. Si no aparece nada, espera un minuto y vuelve a intentar\. En Nuvio verás además nuevas filas en el inicio: Ver ahora, Géneros, Décadas y más\.$/,'open $1 (if it was already open, close and reopen it), search for a well-known movie and open its page. AIOStreams links should appear in the sources list. If nothing shows up, wait a minute and try again. In Nuvio you will also see new rows on the home screen: Watch now, Genres, Decades and more.'],
     [/^¿Copiar la configuración de este perfil a (\d+) perfil\(es\)\? Sus complementos actuales se reemplazarán; cada uno queda respaldado antes del cambio\.$/,'Copy this profile\'s setup to $1 profile(s)? Their current addons will be replaced; each one is backed up before the change.'],
-    [/^No se pudo aplicar: (.*)$/,'Could not apply: $1']
+    [/^No se pudo aplicar: (.*)$/,'Could not apply: $1'],
+    [/^Complementos que sólo tiene (Stremio|Nuvio)$/,'Addons only $1 has'],
+    [/^Por defecto se quitan para que (Stremio|Nuvio) quede igual a (Stremio|Nuvio)\. Marca los que quieras conservar\.$/,'By default they are removed so $1 matches $2. Check the ones you want to keep.']
   );  patterns.push(
     [/^Respaldo verificado y plan revisado\. ¿Aplicar la configuración a (.*?)\?$/,'Backup verified and plan reviewed. Apply the setup to $1?'],
     [/^¿Cambiar AIOStreams de (.*?) a (.*?) y aplicar el plan\? El respaldo conservará la instalación anterior\.$/,'Switch AIO from $1 to $2 and apply the plan? The backup will keep the previous installation.'],

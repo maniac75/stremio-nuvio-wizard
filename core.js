@@ -27,7 +27,7 @@ const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-accou
 const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.16.0';
+const WIZARD_VERSION = '0.17.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -2268,20 +2268,34 @@ function recordTransferActivity(activity) {
   }
 }
 
-function transferDesired(source, targetCurrent, targetPlatform) {
+// Complementos que sólo existen en el destino (no vienen del origen ni son los integrados que se omiten).
+function transferTargetOnly(source, targetCurrent) {
+  const sourceKeys = new Set(source.map(nuvioUrlKey));
+  const sourceIds = new Set(source.map(a => String(a?.manifest?.id || '').toLowerCase()).filter(Boolean));
+  const skip = new Set(['com.linvo.cinemeta', 'org.streailer.trailer']);
+  return targetCurrent.filter(addon => {
+    const id = String(addon?.manifest?.id || '').toLowerCase();
+    return !skip.has(id) && !sourceKeys.has(nuvioUrlKey(addon)) && !(id && sourceIds.has(id));
+  });
+}
+
+function transferDesired(source, targetCurrent, targetPlatform, keepTargetUrls) {
   const sourceAddons = source.map(addon => {
     const { _nuvio, sort_order, ...clean } = addon;
     return clean;
   });
+  const keep = new Set((Array.isArray(keepTargetUrls) ? keepTargetUrls : []).map(u => nuvioUrlKey({ transportUrl: String(u) })));
+  const kept = transferTargetOnly(source, targetCurrent).filter(addon => keep.has(nuvioUrlKey(addon)))
+    .map(addon => { const { _nuvio, sort_order, ...clean } = addon; return clean; });
   if (targetPlatform === 'nuvio') {
-    return uniqueNuvioAddons(sourceAddons.filter(addon =>
-      !['com.linvo.cinemeta', 'org.streailer.trailer'].includes(addon?.manifest?.id)));
+    return uniqueNuvioAddons([...sourceAddons.filter(addon =>
+      !['com.linvo.cinemeta', 'org.streailer.trailer'].includes(addon?.manifest?.id)), ...kept]);
   }
   // Stremio retains its own built-in metadata and trailer addons when Nuvio is the source.
   const builtins = targetCurrent.filter(addon =>
     ['com.linvo.cinemeta', 'org.streailer.trailer'].includes(addon?.manifest?.id));
   const seen = new Set();
-  return [...builtins, ...sourceAddons].filter(addon => {
+  return [...builtins, ...sourceAddons, ...kept].filter(addon => {
     const id = String(addon?.manifest?.id || '').toLowerCase();
     const key = id || nuvioUrlKey(addon);
     if (!key || seen.has(key)) return false;
@@ -2305,9 +2319,10 @@ async function transferContext(body) {
   }
   const targetAuth = await resolveStremioAuth(body.target);
   const targetCurrent = await getAddonCollection(targetAuth);
-  const desired = transferDesired(source, targetCurrent, targetPlatform);
+  const desired = transferDesired(source, targetCurrent, targetPlatform, body.keepTargetUrls);
   if (!findAioAddon(desired)) throw new Error('El origen no contiene AIOStreams; no se copiará una lista incompleta.');
-  return { source, targetAuth, targetCurrent, desired, targetPlatform };
+  return { source, targetAuth, targetCurrent, desired, targetPlatform,
+    targetOnly: transferTargetOnly(source, targetCurrent) };
 }
 
 async function handleTransferCheck(body) {
@@ -2338,6 +2353,7 @@ async function handleTransferPreview(body) {
     ok: true, backupId, backupLabel: backupLabel(backup), platform: targetPlatform,
     previous: addonSummary(targetCurrent),
     desired: addonSummary(desired),
+    targetOnly: addonSummary(context.targetOnly),
     count: desired.length,
     aioUrlReused: findAioAddon(desired).transportUrl
   };
@@ -2370,9 +2386,11 @@ async function handleTransferApply(body) {
     recordTransferActivity({event: 'transfer_verified', target: targetPlatform, account: backup.accountHash.slice(0, 12),
       total: installed.length, aioHash: crypto.createHash('sha256').update(findAioAddon(installed)?.transportUrl || '').digest('hex').slice(0, 12)});
     let collections = null;
-    if (targetPlatform === 'nuvio' && body.includeCollections !== false) {
+    if (targetPlatform === 'nuvio' && body.includeCollections === true) {
       try {
-        const list = await buildNuvioCollections({ language: body.language || 'es-MX', kids: false });
+        const tmdbKey = String(body.tmdbKey || '').trim().slice(0, 512);
+        const list = await buildNuvioCollections({ language: body.language || 'es-MX', kids: false,
+          tmdbMode: tmdbKey && body.includeFranchises !== false ? 'personal' : 'instance', tmdbKey });
         if (list.length) { await pushNuvioCollections(targetAuth, list); collections = { applied: true, count: list.length }; }
       } catch (error) {
         logError('Colecciones Nuvio en copia:', error);

@@ -1113,7 +1113,7 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
     '<div class="copySteps"><b>Cómo funciona</b><ol>'+
       '<li>Conecta tu cuenta de '+targetName+'.</li>'+
       '<li>El wizard crea y verifica un respaldo de '+targetName+' antes de modificarla.</li>'+
-      '<li>Revisa cuántos complementos se reemplazarán y confirma el plan.</li>'+
+      '<li>Revisa el plan: elige si conservas complementos que sólo tiene el destino y, en Nuvio, si agregas sus extras.</li>'+
       '<li>Aplica la copia. '+sourceName+' permanece intacto y ambas apps usarán el mismo AIOStreams.</li>'+
     '</ol></div>'+
     '<button class="secondary" type="button" id="transferOpen">Preparar copia a '+targetName+'</button>'+
@@ -1141,8 +1141,8 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
       authKey:'',
       profileId:targetPlatform==='nuvio'?Number(panel.querySelector('#transferProfile')?.value||0):0};
   }
-  form.addEventListener('input',function(){connectedTarget=null;transferBackup='';preview.disabled=true;check.disabled=true;plan.hidden=true;});
-  form.addEventListener('change',function(){transferBackup='';plan.hidden=true;});
+  form.addEventListener('input',function(e){if(plan.contains(e.target))return;connectedTarget=null;transferBackup='';preview.disabled=true;check.disabled=true;plan.hidden=true;});
+  form.addEventListener('change',function(e){if(plan.contains(e.target))return;transferBackup='';plan.hidden=true;});
   connect.addEventListener('click',async function(){
     var auth=targetAuth();
     if(!hasAuth(auth)){status.textContent='Ingresa el acceso de '+targetName+'.';return;}
@@ -1186,10 +1186,18 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
       var result=await post('/api/transfer-preview',{source:sourceAuth,sourceFingerprint:sourceFingerprint,target:target});
       transferBackup=result.backupId;
       plan.hidden=false;
+      var tmdbForm=document.getElementById('tmdbMode').value==='personal'?document.getElementById('tmdbKey').value.trim():'';
+      var extras=(result.targetOnly||[]);
       plan.innerHTML='<div class="note"><b>Respaldo de '+targetName+' creado y verificado.</b><p>Al aplicar, '+targetName+' reemplazará su lista actual ('+
         result.previous.length+' complementos) por '+result.count+
         ' complementos copiados desde '+sourceName+'. Se reutilizará exactamente la misma instancia de AIOStreams.</p>'+
         '<p class="small">'+sourceName+' no se modificará.</p>'+
+        (extras.length?'<div class="transferExtras"><b>Complementos que sólo tiene '+targetName+'</b><div class="small">Por defecto se quitan para que '+targetName+' quede igual a '+sourceName+'. Marca los que quieras conservar.</div><div class="checks">'+
+          extras.map(function(a,i){return '<div class="check"><input class="keepTarget" type="checkbox" id="keepT'+i+'" value="'+esc(a.url)+'"><label for="keepT'+i+'"><b>'+esc(a.name)+'</b></label></div>';}).join('')+'</div></div>':'')+
+        (targetPlatform==='nuvio'?'<div class="transferExtras"><b>Extras de Nuvio (opcional)</b><div class="checks">'+
+          '<div class="check"><input id="transferCollections" type="checkbox" checked><label for="transferCollections"><b>Colecciones de inicio</b><div class="small">Filas Ver ahora, Géneros, Décadas, Temáticas e Internacional. Reemplaza las colecciones actuales del perfil; quedan en el respaldo.</div></label></div>'+
+          (tmdbForm?'<div class="check"><input id="transferFranchises" type="checkbox" checked><label for="transferFranchises"><b>Franquicias</b><div class="small">Fila con sagas como Star Wars o Marvel, usando tu clave de TMDB.</div></label></div>':'')+
+          '</div></div>':'')+
         '<button class="primary" type="button" id="transferApply">Copiar '+sourceName+' → '+targetName+'</button></div>';
       status.textContent='Revisa el cambio antes de aplicarlo. Sólo se modificará '+targetName+'; '+sourceName+' permanecerá intacto.';
       plan.querySelector('#transferApply').addEventListener('click',async function(){
@@ -1198,7 +1206,11 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
         setBusy(button,true,'Instalando⬦');
         try{
           var applied=await post('/api/transfer-apply',{source:sourceAuth,sourceFingerprint:sourceFingerprint,
-            target:targetAuth(),backupId:transferBackup,includeCollections:true,
+            target:targetAuth(),backupId:transferBackup,
+            keepTargetUrls:Array.from(plan.querySelectorAll('.keepTarget:checked')).map(function(x){return x.value;}),
+            includeCollections:!!(plan.querySelector('#transferCollections')&&plan.querySelector('#transferCollections').checked),
+            includeFranchises:!!(plan.querySelector('#transferFranchises')&&plan.querySelector('#transferFranchises').checked),
+            tmdbKey:tmdbForm,
             language:document.getElementById('language').value});
           form.querySelector('.row').hidden=true;
           if(panel.querySelector('#transferProfileField'))panel.querySelector('#transferProfileField').hidden=true;
