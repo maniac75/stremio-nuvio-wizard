@@ -232,6 +232,8 @@ Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar 
 Aplicar a los perfiles marcados	Apply to the selected profiles
 Marca al menos un perfil.	Select at least one profile.
 Aplicando…	Applying…
+☕ ¿Te ahorró tiempo?	☕ Did it save you time?
+El wizard es gratis y lo mantengo: arreglo los complementos que se caen y pruebo nuevos. Si quieres apoyarlo:	The wizard is free and I keep it maintained: I fix addons that go down and test new ones. If you'd like to support it:
 Extras de Nuvio (opcional)	Nuvio extras (optional)
 Colecciones de inicio	Home collections
 Filas Ver ahora, Géneros, Décadas, Temáticas e Internacional. Reemplaza las colecciones actuales del perfil; quedan en el respaldo.	Watch now, Genres, Decades, Themed and International rows. Replaces the profile's current collections; they stay in the backup.

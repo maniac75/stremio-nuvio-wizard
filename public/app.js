@@ -1303,6 +1303,9 @@ document.getElementById('configureBtn').addEventListener('click',async function(
       recoveryHtml+
       '<div class="note howToCheck"><b>Cómo comprobar que funciona:</b> abre '+platformName()+' (si ya estaba abierto, ciérralo y vuelve a abrirlo), busca una película conocida y entra a su ficha. Deberían aparecer enlaces de AIOStreams en la lista de fuentes. Si no aparece nada, espera un minuto y vuelve a intentar.'+
         (d.collections&&d.collections.applied?' En Nuvio verás además nuevas filas en el inicio: Ver ahora, Géneros, Décadas y más.':'')+'</div>'+
+      '<div class="note supportNote"><b>☕ ¿Te ahorró tiempo?</b> El wizard es gratis y lo mantengo: arreglo los complementos que se caen y pruebo nuevos. Si quieres apoyarlo: '+
+        '<a class="link" href="https://ko-fi.com/supermaniac" target="_blank" rel="noopener noreferrer">Ko-fi</a> · '+
+        '<a class="link" href="https://github.com/sponsors/maniac75" target="_blank" rel="noopener noreferrer">GitHub Sponsors</a></div>'+
       (d.platform==='nuvio'&&Array.isArray(d.profiles)&&d.profiles.length>1?
         '<div class="note nuvioProfiles"><b>¿Tienes más perfiles en Nuvio?</b><div class="small">Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar cada perfil, el wizard guarda su respaldo.</div>'+
         '<div class="checks">'+d.profiles.filter(function(p){return p.id!==d.profileId;}).map(function(p){

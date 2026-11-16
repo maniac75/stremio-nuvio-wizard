@@ -27,7 +27,7 @@ const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-accou
 const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.17.1';
+const WIZARD_VERSION = '0.17.2';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
