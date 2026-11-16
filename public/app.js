@@ -336,6 +336,11 @@ function syncPlatform(){
   document.getElementById('rememberAccountField').hidden=nuvio;
   var collectionsField=document.getElementById('nuvioCollectionsField');
   if(collectionsField)collectionsField.hidden=!nuvio;
+  // Streailer y WatchHub son propios de Stremio: en Nuvio no se instalan, así que no se muestran.
+  ['trailers','removeWatchHub'].forEach(function(id){
+    var input=document.getElementById(id);
+    if(input&&input.closest('.check'))input.closest('.check').hidden=nuvio;
+  });
   syncForgetButton();
   ['stremio','nuvio'].forEach(function(choice){
     var button=document.getElementById('platform'+(choice==='nuvio'?'Nuvio':'Stremio'));
