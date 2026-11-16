@@ -501,6 +501,9 @@ function disconnectState(message){
   document.getElementById('installedAddons').className='result note';
   document.getElementById('installedAddons').textContent='';
   document.getElementById('nextAccount').hidden=true;
+  document.getElementById('checkSetupBtn').hidden=true;
+  document.getElementById('checkSetupResult').className='result note';
+  document.getElementById('checkSetupResult').textContent='';
   document.getElementById('nextBackup').hidden=true;
   document.getElementById('backupBtn').className='primary';
   document.getElementById('backupBtn').textContent='Crear respaldo seguro';
@@ -727,6 +730,7 @@ document.getElementById('connectBtn').addEventListener('click',async function(){
     showInstalledAddons(d.addons);
     latestSourceFingerprint=d.sourceFingerprint||'';
     document.getElementById('nextAccount').hidden=false;
+    document.getElementById('checkSetupBtn').hidden=!(d.addons&&d.addons.length);
     document.getElementById('accountHint').textContent=rememberNotice||'';
     restoringRemembered=false;
     maxWizardStep=2;
@@ -1486,6 +1490,48 @@ document.getElementById('profileInput').addEventListener('change',async function
   finally{this.value='';}
 });
 document.getElementById('nextAccount').addEventListener('click',function(){if(connected)advanceWizardStep(2);});
+
+// Revisar mi configuración: detecta complementos caídos o retirados y permite quitarlos con respaldo.
+document.getElementById('checkSetupBtn').addEventListener('click',async function(){
+  var btn=this, box=document.getElementById('checkSetupResult');
+  setBusy(btn,true,'Revisando…');
+  box.className='result note show';box.textContent='Revisando cada complemento instalado…';
+  try{
+    var d=await post('/api/check-setup',authPayload());
+    var problems=d.results.filter(function(r){return r.status==='down'||r.status==='retired';});
+    var okCount=d.counts.ok||0;
+    var html='<b>Revisión de '+d.total+' complementos:</b> '+okCount+' responden bien'+
+      (problems.length?', '+problems.length+' con problemas.':'.')+
+      (d.checked<d.total?'<div class="small">Se revisaron los primeros '+d.checked+'.</div>':'');
+    if(problems.length){
+      html+='<div class="checks" style="margin-top:10px">'+problems.map(function(r,i){
+        var why=r.status==='retired'?'Retirado: ya no se mantiene.':'No responde'+(r.detail?' ('+esc(r.detail)+')':'')+'.';
+        return '<div class="check"><input class="removeAddon" type="checkbox" checked id="rmA'+i+'" value="'+esc(r.url)+'"><label for="rmA'+i+'"><b>'+esc(r.name)+'</b><div class="small">'+why+'</div></label></div>';
+      }).join('')+'</div>'+
+      '<div class="actions"><button class="primary" id="removeAddonsBtn" type="button">Quitar los marcados (con respaldo)</button></div>'+
+      '<div class="small">Si un complemento no responde, puede ser una caída temporal. Si es uno que instaló el wizard, al terminar el wizard se vuelve a instalar con la configuración actual.</div>';
+    }else{
+      html+='<div class="small">✓ No hay complementos caídos ni retirados. Si quieres la configuración más reciente del wizard, continúa al respaldo y vuelve a aplicar.</div>';
+    }
+    if(!d.hasAio)html+='<div class="small">Esta cuenta no tiene AIOStreams: el wizard te lo puede instalar.</div>';
+    box.className='result note show '+(problems.length?'warn':'good');
+    box.innerHTML=html;
+    var rm=document.getElementById('removeAddonsBtn');
+    if(rm)rm.addEventListener('click',async function(){
+      var urls=Array.from(box.querySelectorAll('.removeAddon:checked')).map(function(x){return x.value;});
+      if(!urls.length){alert('Marca al menos un complemento.');return;}
+      if(!confirm('¿Quitar '+urls.length+' complemento(s) de tu cuenta? Antes se guarda un respaldo para poder volver atrás.'))return;
+      setBusy(rm,true,'Quitando…');
+      try{
+        var r=await post('/api/remove-addons',Object.assign({},authPayload(),{removeUrls:urls,sourceFingerprint:d.sourceFingerprint}));
+        box.className='result note show good';
+        box.innerHTML='✓ Se quitaron: '+r.removed.map(esc).join(', ')+'. Tu cuenta queda con '+r.total+' complementos. Respaldo: '+esc(r.backupLabel||'guardado en este navegador')+'.';
+      }catch(e){box.className='result note show bad';box.textContent='No se pudieron quitar: '+e.message;}
+      finally{setBusy(rm,false);}
+    });
+  }catch(e){box.className='result note show bad';box.textContent='No se pudo revisar: '+e.message;}
+  finally{setBusy(btn,false);}
+});
 document.getElementById('nextBackup').addEventListener('click',function(){if(backupReady)advanceWizardStep(3);});
 document.getElementById('confirmPlanCheck').addEventListener('change',function(){
   document.getElementById('configureBtn').disabled=!(analysisDone&&this.checked);

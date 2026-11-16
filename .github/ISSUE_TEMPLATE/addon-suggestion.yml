@@ -1,0 +1,28 @@
+name: "Suggest an addon / Sugerir un complemento"
+description: "An addon you think the wizard should offer. / Un complemento que el wizard debería ofrecer."
+title: "[Suggestion] "
+labels: ["addon-suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: "Each suggestion is tested before it's added. / Cada sugerencia se prueba antes de agregarla."
+  - type: input
+    id: name
+    attributes:
+      label: "Addon name / Nombre"
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: "Official page or repository / Página oficial o repositorio"
+      description: "The configure page or GitHub repo, not your personal manifest URL. / La página de configuración o el repositorio, no tu URL personal."
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: "Why is it worth it? / ¿Por qué vale la pena?"
+      description: "What it adds that AIOStreams or the current addons don't. / Qué aporta que AIOStreams o los complementos actuales no."
+    validations:
+      required: true

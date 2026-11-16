@@ -1,0 +1,32 @@
+name: "Bug or confusing text / Error o texto confuso"
+description: "Something in the wizard or the guide doesn't work or isn't clear. / Algo del wizard o la guía no funciona o no se entiende."
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ Never paste emails, passwords, API keys or backup tokens. / Nunca pegues correos, contraseñas, claves API ni tokens de respaldo.
+  - type: dropdown
+    id: where
+    attributes:
+      label: "Where? / ¿Dónde?"
+      options: ["Step 1 · Account", "Step 2 · Backup", "Step 3 · Preferences", "Step 4 · Addons", "Step 5 · Review & apply", "Copy Stremio ↔ Nuvio", "Check my setup", "Guide / Guía", "Other / Otro"]
+    validations:
+      required: true
+  - type: dropdown
+    id: app
+    attributes:
+      label: "App"
+      options: ["Stremio", "Nuvio", "Not relevant / No aplica"]
+  - type: textarea
+    id: what
+    attributes:
+      label: "What happened? / ¿Qué pasó?"
+      description: "Include the exact error message if there is one. A screenshot helps (hide personal data). / Incluye el mensaje de error exacto. Una captura ayuda (oculta tus datos)."
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: "Device & browser / Dispositivo y navegador"
+      placeholder: "e.g. iPhone Safari, Windows Chrome"

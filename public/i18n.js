@@ -232,6 +232,16 @@ Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar 
 Aplicar a los perfiles marcados	Apply to the selected profiles
 Marca al menos un perfil.	Select at least one profile.
 Aplicando…	Applying…
+Revisar mi configuración actual	Check my current setup
+Revisando…	Checking…
+Revisando cada complemento instalado…	Checking each installed addon…
+Quitar los marcados (con respaldo)	Remove the checked ones (with backup)
+Quitando…	Removing…
+Retirado: ya no se mantiene.	Retired: no longer maintained.
+Si un complemento no responde, puede ser una caída temporal. Si es uno que instaló el wizard, al terminar el wizard se vuelve a instalar con la configuración actual.	If an addon doesn't respond, it may be a temporary outage. If the wizard installed it, finishing the wizard reinstalls it with the current setup.
+✓ No hay complementos caídos ni retirados. Si quieres la configuración más reciente del wizard, continúa al respaldo y vuelve a aplicar.	✓ No broken or retired addons. For the wizard's latest setup, continue to the backup and apply again.
+Esta cuenta no tiene AIOStreams: el wizard te lo puede instalar.	This account doesn't have AIOStreams: the wizard can install it for you.
+Marca al menos un complemento.	Check at least one addon.
 ☕ ¿Te ahorró tiempo?	☕ Did it save you time?
 El wizard es gratis y lo mantengo: arreglo los complementos que se caen y pruebo nuevos. Si quieres apoyarlo:	The wizard is free and I keep it maintained: I fix addons that go down and test new ones. If you'd like to support it:
 Extras de Nuvio (opcional)	Nuvio extras (optional)
@@ -526,6 +536,15 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^abre (Stremio|Nuvio) \(si ya estaba abierto, ciérralo y vuelve a abrirlo\), busca una película conocida y entra a su ficha\. Deberían aparecer enlaces de AIOStreams en la lista de fuentes\. Si no aparece nada, espera un minuto y vuelve a intentar\. En Nuvio verás además nuevas filas en el inicio: Ver ahora, Géneros, Décadas y más\.$/,'open $1 (if it was already open, close and reopen it), search for a well-known movie and open its page. AIOStreams links should appear in the sources list. If nothing shows up, wait a minute and try again. In Nuvio you will also see new rows on the home screen: Watch now, Genres, Decades and more.'],
     [/^¿Copiar la configuración de este perfil a (\d+) perfil\(es\)\? Sus complementos actuales se reemplazarán; cada uno queda respaldado antes del cambio\.$/,'Copy this profile\'s setup to $1 profile(s)? Their current addons will be replaced; each one is backed up before the change.'],
     [/^No se pudo aplicar: (.*)$/,'Could not apply: $1'],
+    [/^Revisión de (\d+) complementos:$/,'Check of $1 addons:'],
+    [/^(\d+) responden bien(, (\d+) con problemas)?\.$/,function(m,a,b,c){return a+' working fine'+(c?', '+c+' with problems':'')+'.';}],
+    [/^Se revisaron los primeros (\d+)\.$/,'Only the first $1 were checked.'],
+    [/^No responde \((.*)\)\.$/,"Not responding ($1)."],
+    [/^No responde\.$/,"Not responding."],
+    [/^¿Quitar (\d+) complemento\(s\) de tu cuenta\? Antes se guarda un respaldo para poder volver atrás\.$/,'Remove $1 addon(s) from your account? A backup is saved first so you can go back.'],
+    [/^✓ Se quitaron: (.*)\. Tu cuenta queda con (\d+) complementos\. Respaldo: (.*)\.$/,'✓ Removed: $1. Your account now has $2 addons. Backup: $3.'],
+    [/^No se pudieron quitar: (.*)$/,'Could not remove: $1'],
+    [/^No se pudo revisar: (.*)$/,'Could not check: $1'],
     [/^Complementos que sólo tiene (Stremio|Nuvio)$/,'Addons only $1 has'],
     [/^Por defecto se quitan para que (Stremio|Nuvio) quede igual a (Stremio|Nuvio)\. Marca los que quieras conservar\.$/,'By default they are removed so $1 matches $2. Check the ones you want to keep.']
   );  patterns.push(

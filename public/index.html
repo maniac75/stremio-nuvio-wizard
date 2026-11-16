@@ -7,17 +7,20 @@
 <meta name="application-name" content="Stremio &amp; Nuvio Wizard">
 <meta name="apple-mobile-web-app-title" content="Stremio &amp; Nuvio Wizard">
 <meta property="og:title" content="Stremio &amp; Nuvio Wizard">
-<meta name="description" content="Configura Stremio o Nuvio paso a paso: conecta tu cuenta, guarda un respaldo y elige tus complementos.">
+<meta name="description" content="Set up Stremio or Nuvio step by step: connect your account, back it up and pick your addons. / Configura Stremio o Nuvio paso a paso, con respaldo y complementos recomendados.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wizard.stremio-nuvio.workers.dev/">
-<meta property="og:description" content="Un wizard para configurar Stremio y Nuvio paso a paso, con respaldo y complementos recomendados.">
-<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
-<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-whatsapp-v6.png">
+<meta property="og:description" content="Free, open-source wizard to set up Stremio and Nuvio step by step, with automatic backup and recommended addons. English &amp; Español.">
+<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-en.png">
+<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-en.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Stremio y Nuvio Wizard: configura todo paso a paso">
+<meta property="og:image:alt" content="Stremio &amp; Nuvio Wizard: set everything up step by step">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Stremio &amp; Nuvio Wizard</title>
 <script>document.title='Stremio & Nuvio Wizard';</script>
 <style>
@@ -82,7 +85,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 pre{white-space:pre-wrap;word-break:break-word;background:rgba(3,12,21,.82);border:1px solid rgba(129,211,255,.13);border-radius:14px;padding:13px;max-height:340px;overflow:auto;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbf2ff}
 .result{display:none;margin-top:15px}.result.show{display:block}
 .installedDisclosure{margin-top:14px}.installedDisclosure summary{cursor:pointer;color:#a6f3df;font-weight:700;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:rgba(23,48,67,.5)}.installedDisclosure[open] summary{margin-bottom:10px}
-.result.good{border-left:4px solid var(--good)}.result.bad{border-left:4px solid var(--bad)}
+.result.good{border-left:4px solid var(--good)}.result.bad{border-left:4px solid var(--bad)}.result.warn{border-color:rgba(255,196,87,.45);background:rgba(255,196,87,.08)}
 .successBanner{display:flex;align-items:flex-start;gap:16px;padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(51,155,111,.21),rgba(56,132,151,.13));border:1px solid rgba(103,230,167,.35)}
 .successBanner h2{margin:0 0 7px;font-size:23px;color:#cbffe4}.successBanner p{margin:0;line-height:1.5;color:#e1f4ed}
 .successIcon{flex:0 0 40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#67e6a7;color:#092018;font-size:26px;font-weight:900}
@@ -258,7 +261,8 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
   </div>
   <div class="small accountHint" id="accountHint">Este paso no cambia tus complementos.</div>
   <div id="accountResult" class="result note"></div>
-  <div class="actions"><button class="primary" id="nextAccount" type="button" hidden>Continuar al respaldo →</button></div>
+  <div class="actions"><button class="primary" id="nextAccount" type="button" hidden>Continuar al respaldo →</button><button class="secondary" id="checkSetupBtn" type="button" hidden>Revisar mi configuración actual</button></div>
+  <div id="checkSetupResult" class="result note"></div>
   <div class="crossAppCard">
     <div>
       <b>¿También usas la otra app?</b>

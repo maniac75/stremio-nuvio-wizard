@@ -27,7 +27,7 @@ const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-accou
 const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.17.2';
+const WIZARD_VERSION = '0.18.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -2656,6 +2656,139 @@ async function computeHealth() {
   };
 }
 
+// ---- Revisar mi configuración: detecta complementos caídos o retirados en la cuenta del usuario ----
+const RETIRED_ADDONS = [
+  { match: (id, host) => id === 'com.stremio.thepiratebay.plus', name: 'ThePirateBay+', reason: 'retired' },
+  { match: (id, host) => id === 'com.stremify' || host === 'stremify.hayd.uk', name: 'Stremify', reason: 'retired' },
+  { match: (id, host) => host === 'enspanish.vercel.app', name: 'PeLis', reason: 'retired' },
+  { match: (id, host) => id === 'community.argentinatv', name: 'Argentina TV', reason: 'retired' }
+];
+
+function addonHost(addon) {
+  try { return new URL(normalizeManifestUrl(addon?.transportUrl)).host.toLowerCase(); } catch { return ''; }
+}
+
+function isSystemAddon(addon) {
+  const url = normalizeManifestUrl(addon?.transportUrl);
+  if (!/^https:\/\//i.test(url)) return true;                 // http local, protocolos internos
+  if (addon?.flags?.protected) return true;                    // complementos protegidos de Stremio
+  const host = addonHost(addon);
+  return !host || /^(127\.|localhost|0\.0\.0\.0)/.test(host);
+}
+
+async function checkInstalledAddon(addon) {
+  const id = String(addon?.manifest?.id || '').toLowerCase();
+  const host = addonHost(addon);
+  const name = addon?.manifest?.name || id || host || 'Complemento';
+  const url = normalizeManifestUrl(addon?.transportUrl);
+  const retired = RETIRED_ADDONS.find(r => r.match(id, host));
+  if (retired) return { url, name, host, status: 'retired', detail: 'Ya no se mantiene; el wizard dejó de ofrecerlo.' };
+  if (isSystemAddon(addon)) return { url, name, host, status: 'system' };
+  try {
+    const data = await fetchJson(url, {}, 9000);
+    if (data && (data.id || data.manifest?.id)) return { url, name, host, status: 'ok' };
+    return { url, name, host, status: 'down', detail: 'Respuesta inesperada' };
+  } catch (error) {
+    return { url, name, host, status: 'down', detail: String(error?.message || error).replace(/https?:\/\/\S+/g, '[url]').slice(0, 140) };
+  }
+}
+
+async function handleCheckSetup(body) {
+  const auth = await resolveStremioAuth(body);
+  const addons = await getAddonCollection(auth);
+  const list = auth.platform === 'nuvio' ? uniqueNuvioAddons(addons) : addons;
+  // Límite de subsolicitudes del plan gratuito: revisa como máximo 40 complementos.
+  const toCheck = list.slice(0, 40);
+  const results = await Promise.all(toCheck.map(checkInstalledAddon));
+  const counts = results.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc; }, {});
+  const aio = findAioAddon(addons);
+  console.log(JSON.stringify({ event: 'check_setup_result', platform: auth.platform || 'stremio', ok: true, down: counts.down || 0, retired: counts.retired || 0 }));
+  return { ok: true, platform: auth.platform || 'stremio', total: list.length, checked: toCheck.length, counts,
+    hasAio: !!aio, results, sourceFingerprint: collectionFingerprint(addons) };
+}
+
+// Quita complementos elegidos (caídos o retirados), con respaldo previo verificado.
+async function handleRemoveAddons(body) {
+  const auth = await resolveStremioAuth(body);
+  const current = await getAddonCollection(auth);
+  if (body.sourceFingerprint && body.sourceFingerprint !== collectionFingerprint(current)) {
+    throw new Error('Los complementos cambiaron desde la revisión. Vuelve a revisar antes de quitar.');
+  }
+  const remove = new Set((Array.isArray(body.removeUrls) ? body.removeUrls : []).map(u => nuvioUrlKey({ transportUrl: String(u) })));
+  if (!remove.size) throw new Error('Elige al menos un complemento para quitar');
+  const removable = current.filter(a => remove.has(nuvioUrlKey(a)) && !isSystemAddon(a));
+  if (!removable.length) throw new Error('Ninguno de los complementos elegidos se puede quitar');
+  const keep = current.filter(a => !removable.includes(a));
+  const nuvioCollections = auth.platform === 'nuvio' ? await pullNuvioCollections(auth) : null;
+  const backupId = await backupCollection(auth.identity, current, null, auth.platform === 'nuvio' ? { nuvioCollections } : null);
+  await setAddonCollection(auth, keep);
+  const after = await getAddonCollection(auth);
+  const stillThere = after.filter(a => remove.has(nuvioUrlKey(a)));
+  if (stillThere.length) throw new Error('No se pudieron quitar todos; tu respaldo quedó guardado.');
+  const backup = await readBackup(backupId);
+  console.log(JSON.stringify({ event: 'remove_addons_result', platform: auth.platform || 'stremio', ok: true, removed: removable.length }));
+  return { ok: true, removed: removable.map(a => a?.manifest?.name || addonHost(a)), total: after.length,
+    backupId, backupLabel: backupLabel(backup) };
+}
+
+// ---- Vigilante de complementos: revisa que cada servicio que el wizard instala responda ----
+let ADDON_HEALTH_CACHE = null;
+const ADDON_HEALTH_STATIC = [
+  { key: 'aiostreams', name: 'AIOStreams (instance)', url: AIO_BASE + '/api/v1/status', expect: d => d?.success === true },
+  { key: 'aiometadata', name: 'AIOMetadata', url: AIOMETA_BASE + '/api/config', expect: d => !!d && typeof d === 'object' },
+  { key: 'tamtaro', name: 'Tamtaro template', url: TAMTARO_URL, expect: d => Array.isArray(d) && d.some(x => x?.metadata?.id === 'tamtaro.complete') },
+  { key: 'peerflix', name: 'Peerflix', url: 'https://addon.peerflix.mov/manifest.json' },
+  { key: 'cometa', name: 'Cometa', url: 'https://cometa.stremx.net/manifest.json' },
+  { key: 'latinobrid', name: 'Latinobrid', url: 'https://latinobrid.stremx.net/manifest.json' },
+  { key: 'animes', name: 'AnimES', url: 'https://pigamer37.alwaysdata.net/onAirCatalogs=animeav1/manifest.json' },
+  { key: 'linkanol', name: 'Linkañol', url: 'https://8bcec99c5d97-spanish-links-addon.baby-beamup.club/manifest.json' }
+];
+const ADDON_HEALTH_PRESET = [
+  ['cinemeta', 'Cinemeta'], ['streailer', 'Streailer'], ['subsense', 'SubSense'],
+  ['opensubtitlespro', 'OpenSubtitles PRO'], ['jackettio', 'Jackettio'], ['torrentsdb', 'TorrentsDB']
+];
+
+async function checkAddonTarget(target) {
+  const started = Date.now();
+  try {
+    const data = await fetchJson(target.url, {}, 12000);
+    const ok = target.expect ? !!target.expect(data) : !!(data && (data.id || data.manifest?.id));
+    return { key: target.key, name: target.name, host: new URL(target.url).host, ok, ms: Date.now() - started,
+      error: ok ? null : 'Unexpected response' };
+  } catch (error) {
+    return { key: target.key, name: target.name, host: new URL(target.url).host, ok: false, ms: Date.now() - started,
+      error: String(error?.message || error).replace(/https?:\/\/\S+/g, '[url]').slice(0, 160) };
+  }
+}
+
+async function computeAddonHealth() {
+  const targets = [...ADDON_HEALTH_STATIC];
+  let presetOk = true, presetError = null;
+  try {
+    const preset = await fetchJson(PRESET_URL, {}, 15000);
+    for (const [key, name] of ADDON_HEALTH_PRESET) {
+      const addon = preset?.languages?.en?.[key];
+      if (addon?.transportUrl) targets.push({ key, name, url: normalizeManifestUrl(addon.transportUrl) });
+      else targets.push({ key, name, url: 'https://invalid.invalid/', expect: () => false });
+    }
+    if (preset?.extras?.kitsu?.transportUrl) targets.push({ key: 'kitsu', name: 'Anime Kitsu', url: normalizeManifestUrl(preset.extras.kitsu.transportUrl) });
+  } catch (error) {
+    presetOk = false; presetError = String(error?.message || error).slice(0, 160);
+  }
+  const results = await Promise.all(targets.map(checkAddonTarget));
+  results.unshift({ key: 'bootstrapper-preset', name: 'Bootstrapper preset', host: 'raw.githubusercontent.com', ok: presetOk, ms: null, error: presetError });
+  const failing = results.filter(r => !r.ok).map(r => r.key);
+  console.log(JSON.stringify({ event: 'addon_health', failing, total: results.length }));
+  return { wizard: WIZARD_VERSION, checkedAt: new Date().toISOString(), ok: failing.length === 0, failing, results };
+}
+
+async function handleAddonHealth() {
+  if (ADDON_HEALTH_CACHE && Date.now() - ADDON_HEALTH_CACHE.at < 10 * 60 * 1000) return ADDON_HEALTH_CACHE.value;
+  const value = await computeAddonHealth();
+  ADDON_HEALTH_CACHE = { at: Date.now(), value };
+  return value;
+}
+
 const ROUTES = {
   'POST /api/validate-key': handleValidateKey,
   'POST /api/connect': handleConnect,
@@ -2669,6 +2802,8 @@ const ROUTES = {
   'POST /api/organize': handleOrganize,
   'POST /api/restore': handleRestore,
   'POST /api/nuvio-apply-profiles': handleNuvioApplyProfiles,
+  'POST /api/check-setup': handleCheckSetup,
+  'POST /api/remove-addons': handleRemoveAddons,
   'POST /api/restore-json': handleRestoreJson,
   'POST /api/validate-addon': async body => {
     const addon = await customAddonFromUrl(body.url);
@@ -2679,16 +2814,45 @@ const ROUTES = {
 // Devuelve { status, body } o null si la ruta no es de la API.
 async function handleApi(method, pathname, body) {
   if (method === 'GET' && pathname === '/api/health') return { status: 200, body: await handleHealth() };
+  if (method === 'GET' && pathname === '/api/addon-health') return { status: 200, body: await handleAddonHealth() };
   const handler = ROUTES[method + ' ' + pathname];
   if (!handler) return pathname.startsWith('/api/') ? { status: 404, body: { error: 'No encontrado' } } : null;
+  const started = Date.now();
   try {
-    return { status: 200, body: await handler(body || {}) };
+    const result = { status: 200, body: await handler(body || {}) };
+    recordStep(pathname, body, true, started, null);
+    return result;
   } catch (error) {
     // No registrar URLs completas: pueden llevar claves Debrid o tokens.
     const safe = String(error?.message || error).replace(/https?:\/\/([^\/\s'"]+)[^\s'"]*/g, 'https://$1/…');
     logError(new Date().toISOString(), method, pathname, safe);
+    recordStep(pathname, body, false, started, error);
     return { status: 400, body: { error: error?.message || 'Error inesperado' } };
   }
+}
+
+// Contadores anónimos por paso: sólo el paso, la app, si funcionó y un tipo de error genérico.
+// Nunca se registran correos, contraseñas, claves, URLs ni el texto del error.
+function errorType(error) {
+  const m = String(error?.message || error || '').toLowerCase();
+  if (/abort|timeout|timed out|tiempo de espera/.test(m)) return 'timeout';
+  if (/contraseña|password|credencial|credential|login|sesión|session|unauthorized|401|invalid_grant/.test(m)) return 'auth';
+  if (/clave|api key|apikey|token/.test(m)) return 'key';
+  if (/respaldo|backup/.test(m)) return 'backup';
+  if (/aiostreams|aio\b/.test(m)) return 'aiostreams';
+  if (/nuvio/.test(m)) return 'nuvio';
+  if (/stremio/.test(m)) return 'stremio';
+  if (/429|too many|demasiad/.test(m)) return 'rate_limit';
+  return 'other';
+}
+
+function recordStep(pathname, body, ok, started, error) {
+  try {
+    const platform = body?.platform || body?.target?.platform || null;
+    console.log(JSON.stringify({ event: 'step', step: String(pathname).replace(/^\/api\//, ''),
+      platform: platform === 'nuvio' || platform === 'stremio' ? platform : null,
+      ok, ms: Date.now() - started, ...(ok ? {} : { error: errorType(error) }) }));
+  } catch {}
 }
 
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,

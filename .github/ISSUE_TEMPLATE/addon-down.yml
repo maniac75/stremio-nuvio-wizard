@@ -1,0 +1,31 @@
+name: "Addon not working / Complemento caído"
+description: "An addon installed by the wizard stopped working. / Un complemento que instala el wizard dejó de funcionar."
+title: "[Addon down] "
+labels: ["addon-down"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Never paste API keys, passwords, tokens or full addon URLs** (they often contain your keys).
+        ⚠️ **Nunca pegues claves API, contraseñas, tokens ni URLs completas de complementos** (suelen incluir tus claves).
+  - type: input
+    id: addon
+    attributes:
+      label: "Addon / Complemento"
+      placeholder: "e.g. SubSense, Peerflix, AIOMetadata"
+    validations:
+      required: true
+  - type: dropdown
+    id: app
+    attributes:
+      label: "App"
+      options: ["Stremio", "Nuvio", "Both / Ambas"]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: "What happens? / ¿Qué pasa?"
+      description: "Error message, missing results, when it started… / Mensaje de error, resultados que faltan, desde cuándo…"
+    validations:
+      required: true

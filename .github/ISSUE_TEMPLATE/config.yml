@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Beginner's guide (EN)
+    url: https://wizard.stremio-nuvio.workers.dev/guide.html
+    about: Step-by-step help for setting up Stremio or Nuvio.
+  - name: Guía para principiantes (ES)
+    url: https://wizard.stremio-nuvio.workers.dev/guia.html
+    about: Ayuda paso a paso para configurar Stremio o Nuvio.

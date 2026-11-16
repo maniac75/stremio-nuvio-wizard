@@ -11,7 +11,7 @@ const SECURITY_HEADERS = {
 };
 
 const MAX_BODY = 3_000_000;
-const LOGIN_PATHS = new Set(['/api/connect', '/api/validate-key']);
+const LOGIN_PATHS = new Set(['/api/connect', '/api/validate-key', '/api/check-setup']);
 let configured = false;
 
 function reply(status, body, extra) {

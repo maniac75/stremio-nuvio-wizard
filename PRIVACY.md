@@ -9,7 +9,8 @@ This describes the public instance at <https://wizard.stremio-nuvio.workers.dev>
 - **Backups.** Before any change, the wizard creates a backup of your add-on list, encrypts it with AES-256-GCM using a key only the server holds, and gives it to your browser (`localStorage`, up to 8). The server keeps no copy. Backups can only be opened by this service and expire after 30 days. Add-on URLs can embed API keys (for example Debrid keys), so backups may contain them in encrypted form.
 - **New AIOStreams credentials** created by the wizard are shown to you once and not stored.
 - **Logs.** The server writes no files. Error messages and, for Stremio↔Nuvio copies, a short record with a hashed account ID go to the platform's request logs. Passwords, tokens and keys are never logged.
-- **No analytics, ads or third-party trackers.**
+- **Anonymous step counters.** For each wizard step the logs record only the step name, the app (Stremio or Nuvio), whether it worked, how long it took and a generic error type (for example "auth" or "timeout"). No email, account, IP, key or error text. They are used to find where setups fail and are kept only as long as the platform's logs (a few days).
+- **No analytics cookies, ads or third-party trackers.**
 - **Third parties.** Your requests reach Stremio, Nuvio, AIOStreams, AIOMetadata and the add-ons you choose, under their own policies.
 
 There is nothing to delete on the server. To remove your backups, clear this site's data in your browser.
@@ -23,4 +24,5 @@ There is nothing to delete on the server. To remove your backups, clear this sit
 - **Respaldos:** se cifran (AES-256-GCM) con una clave que sólo tiene el servidor y se guardan en tu navegador, no en el servidor. Sólo este servicio puede abrirlos y vencen a los 30 días.
 - **Credenciales nuevas de AIOStreams:** se muestran una vez y no se guardan.
 - **Registros:** el servidor no escribe archivos. Errores y copias entre apps quedan en los registros de la plataforma con un identificador de cuenta en hash. Nunca contraseñas, tokens ni claves.
-- **Sin analítica, publicidad ni rastreadores.**
+- **Contadores anónimos por paso:** de cada paso se registra sólo su nombre, la app (Stremio o Nuvio), si funcionó, cuánto tardó y un tipo de error genérico (por ejemplo «auth» o «timeout»). Sin correo, cuenta, IP, claves ni el texto del error. Sirven para encontrar dónde fallan las configuraciones y duran lo que duran los registros de la plataforma (unos días).
+- **Sin cookies de analítica, publicidad ni rastreadores.**
