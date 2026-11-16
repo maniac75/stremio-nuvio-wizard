@@ -581,10 +581,23 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
   var originalConfirm=window.confirm.bind(window), originalAlert=window.alert.bind(window);
   window.confirm=function(message){return originalConfirm(locale==='en'?translate(message):message);};
   window.alert=function(message){return originalAlert(locale==='en'?translate(message):message);};
-  try{locale=localStorage.getItem('stremio-wizard-ui-language')==='en'?'en':'es';}catch(_){}
+  // Idioma inicial: el elegido antes; si no hay, el del navegador (español → ES, cualquier otro → EN).
+  var browserLangs=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']).map(function(x){return String(x||'').toLowerCase();});
+  var stored=null;
+  try{stored=localStorage.getItem('stremio-wizard-ui-language');}catch(_){}
+  locale=stored==='en'||stored==='es'?stored:(browserLangs.some(function(x){return x.indexOf('es')===0;})?'es':'en');
   selector.value=locale;
+  // Idioma del contenido (paso 3): sigue al de la página mientras el usuario no lo cambie a mano.
+  var contentLanguage=document.getElementById('language'), contentLanguageTouched=false;
+  if(contentLanguage)contentLanguage.addEventListener('change',function(e){if(e.isTrusted)contentLanguageTouched=true;});
+  function syncContentLanguage(){
+    if(!contentLanguage||contentLanguageTouched)return;
+    var spain=browserLangs.some(function(x){return x==='es-es'||x==='ca'||x.indexOf('ca-')===0;});
+    contentLanguage.value=locale==='en'?'en':(spain?'es-ES':'es-MX');
+  }
   function setLanguage(next){
     locale=next==='en'?'en':'es';document.documentElement.lang=locale;
+    syncContentLanguage();
     try{localStorage.setItem('stremio-wizard-ui-language',locale);}catch(_){}
     scan(document.body);
     document.querySelectorAll('.guideTopLink').forEach(function(a){a.href=locale==='en'?'/guide.html':'/guia.html';});
