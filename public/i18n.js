@@ -232,6 +232,12 @@ Copia esta misma configuración a otros perfiles de la cuenta. Antes de cambiar 
 Aplicar a los perfiles marcados	Apply to the selected profiles
 Marca al menos un perfil.	Select at least one profile.
 Aplicando…	Applying…
+Correo o contraseña de Nuvio incorrectos. Revisa que sean los de tu cuenta Nuvio (no los de Stremio ni TorBox).	Wrong Nuvio email or password. Make sure they're your Nuvio account details (not Stremio or TorBox).
+Correo o contraseña de Stremio incorrectos. Revisa que sean los de tu cuenta Stremio (no los de Nuvio ni TorBox).	Wrong Stremio email or password. Make sure they're your Stremio account details (not Nuvio or TorBox).
+Tu correo de Nuvio aún no está confirmado. Revisa tu bandeja de entrada y confirma la cuenta.	Your Nuvio email isn't confirmed yet. Check your inbox and confirm the account.
+Nuvio está limitando los intentos de inicio de sesión. Espera unos minutos y vuelve a intentar.	Nuvio is limiting sign-in attempts. Wait a few minutes and try again.
+Stremio está limitando los intentos de inicio de sesión. Espera unos minutos y vuelve a intentar.	Stremio is limiting sign-in attempts. Wait a few minutes and try again.
+No se pudo iniciar sesión en Stremio	Could not sign in to Stremio
 Revisar mi configuración actual	Check my current setup
 Revisando…	Checking…
 Revisando cada complemento instalado…	Checking each installed addon…
@@ -553,6 +559,11 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Esto reemplazará la colección actual por (\d+) complementos del JSON\. Antes se creará un respaldo de seguridad\. ¿Continuar\?$/,'This will replace the current addon list with $1 addons from the JSON file. A safety backup will be created first. Continue?'],
     [/^¿Guardar el nuevo orden y los catálogos seleccionados en (.*?)\? El respaldo permite deshacerlo\.$/,'Save the new order and selected catalogs in $1? You can undo this using the backup.'],
     [/^¿Actualizar la configuración completa de AIOStreams en (.*?)\? Se guardará una copia antes del cambio\. La URL y los demás complementos se conservarán\.$/,'Update the full AIOStreams setup on $1? A backup will be saved before the change. The URL and other addons will be kept.']
+  );
+  // Mensajes compuestos: traduce la parte variable con el mismo diccionario.
+  patterns.unshift(
+    [/^([\s\S]+) Si la sesión guardada venció, vuelve a conectar la cuenta\.$/,function(m,a){return translate(a)+' If the saved session expired, connect the account again.';}],
+    [/^No se pudo conectar: ([\s\S]+)$/,function(m,a){return 'Could not connect: '+translate(a);}]
   );
   function translate(input){
     var match=String(input).match(/^(\s*)([\s\S]*?)(\s*)$/);

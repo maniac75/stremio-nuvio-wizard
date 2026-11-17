@@ -27,7 +27,7 @@ const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-accou
 const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.18.0';
+const WIZARD_VERSION = '0.18.1';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -80,7 +80,7 @@ async function fetchJson(url, options, timeoutMs) {
     try { body = raw ? JSON.parse(raw) : {}; }
     catch { throw new Error('Respuesta no JSON desde ' + new URL(url).host); }
     if (!response.ok) {
-      const detail = body?.detail || body?.error?.message || body?.message || body?.error || ('HTTP ' + response.status);
+      const detail = body?.detail || body?.error?.message || body?.message || body?.msg || body?.error_description || body?.error || ('HTTP ' + response.status);
       throw new Error(String(detail));
     }
     return body;
@@ -126,9 +126,24 @@ async function stremioPost(endpoint, payload) {
 }
 
 async function stremioLogin(email, password) {
-  const data = await stremioPost('login', { authKey: null, email, password });
+  let data;
+  try {
+    data = await stremioPost('login', { authKey: null, email, password });
+  } catch (error) {
+    if (/rate limit|HTTP 429|too many/i.test(String(error?.message || error))) {
+      throw new Error('Stremio está limitando los intentos de inicio de sesión. Espera unos minutos y vuelve a intentar.');
+    }
+    throw error;
+  }
   const authKey = data?.result?.authKey || data?.authKey;
-  if (!authKey) throw new Error('No se pudo iniciar sesión en Stremio');
+  if (!authKey) {
+    const detail = String(data?.error?.message || data?.error || '');
+    if (/password|user not found|invalid|wrong|credential/i.test(detail)) {
+      throw new Error('Correo o contraseña de Stremio incorrectos. Revisa que sean los de tu cuenta Stremio (no los de Nuvio ni TorBox).');
+    }
+    if (/rate limit/i.test(detail)) throw new Error('Stremio está limitando los intentos de inicio de sesión. Espera unos minutos y vuelve a intentar.');
+    throw new Error('No se pudo iniciar sesión en Stremio');
+  }
   return authKey;
 }
 
@@ -151,15 +166,28 @@ async function resolveStremioAuth(body) {
   if (body?.platform === 'nuvio') {
     const email = String(body.email || '').trim(), password = String(body.password || '');
     if (!email || !password) throw new Error('Ingresa el correo y la contraseña de tu cuenta Nuvio');
-    const login = await nuvioRequest('/auth/v1/token?grant_type=password', {
-      method: 'POST', body: JSON.stringify({ email, password })
-    });
+    let login;
+    try {
+      login = await nuvioRequest('/auth/v1/token?grant_type=password', {
+        method: 'POST', body: JSON.stringify({ email, password })
+      });
+    } catch (error) {
+      const m = String(error?.message || error);
+      if (/HTTP 400|invalid.*(credential|grant)|invalid login/i.test(m)) {
+        throw new Error('Correo o contraseña de Nuvio incorrectos. Revisa que sean los de tu cuenta Nuvio (no los de Stremio ni TorBox).');
+      }
+      if (/email not confirmed/i.test(m)) throw new Error('Tu correo de Nuvio aún no está confirmado. Revisa tu bandeja de entrada y confirma la cuenta.');
+      if (/HTTP 429|rate limit/i.test(m)) throw new Error('Nuvio está limitando los intentos de inicio de sesión. Espera unos minutos y vuelve a intentar.');
+      throw error;
+    }
     const authKey = String(login?.access_token || '');
     if (!authKey) throw new Error('Nuvio no devolvió una sesión válida');
-    const profiles = await nuvioRequest('/rest/v1/rpc/sync_pull_profiles', {
+    let profiles = await nuvioRequest('/rest/v1/rpc/sync_pull_profiles', {
       method: 'POST', headers: { Authorization: 'Bearer ' + authKey }, body: '{}'
     });
-    if (!Array.isArray(profiles) || !profiles.length) throw new Error('Tu cuenta Nuvio no tiene perfiles disponibles');
+    profiles = Array.isArray(profiles) ? profiles.filter(p => Number.isFinite(Number(p?.profile_index))) : [];
+    // Cuentas nuevas aún no sincronizan perfiles: Nuvio usa el perfil 1 por defecto (igual que el Bootstrapper).
+    if (!profiles.length) profiles = [{ profile_index: 1, name: 'Principal' }];
     const requested = Number(body.profileId || profiles[0].profile_index);
     const profile = profiles.find(item => Number(item.profile_index) === requested);
     if (!profile) throw new Error('Selecciona un perfil existente de Nuvio');
@@ -212,13 +240,19 @@ async function getAddonCollection(auth) {
       headers: { Authorization: 'Bearer ' + authKey }
     });
     if (!Array.isArray(rows)) throw new Error('Nuvio no devolvió los complementos del perfil');
+    // Cada manifiesto es una subsolicitud; el plan gratuito permite 50 por invocación.
+    // Se leen como máximo 24; el resto usa el nombre guardado en Nuvio.
+    const MAX_MANIFESTS = 24;
     return Promise.all(rows.map(async (row, index) => {
       const url = String(row.transportUrl || row.url || '');
-      let manifest;
-      try { manifest = await fetchJson(url, {}, 9000); }
-      catch { manifest = { id: 'nuvio.existing.' + hashText(url || index), name: row.name || 'Complemento Nuvio', catalogs: [] }; }
-      return { transportUrl: url, transportName: 'http', manifest, _nuvio: true,
-        enabled: row.enabled !== false, sort_order: row.sort_order ?? index };
+      let manifest, manifestFailed = false, manifestSkipped = false;
+      if (index < MAX_MANIFESTS) {
+        try { manifest = await fetchJson(url, {}, 9000); }
+        catch { manifestFailed = true; }
+      } else manifestSkipped = true;
+      if (!manifest) manifest = { id: 'nuvio.existing.' + hashText(url || index), name: row.name || 'Complemento Nuvio', catalogs: [] };
+      return { transportUrl: url, transportName: 'http', manifest, _nuvio: true, _manifestFailed: manifestFailed,
+        _manifestSkipped: manifestSkipped, enabled: row.enabled !== false, sort_order: row.sort_order ?? index };
     }));
   }
   const data = await stremioPost('addonCollectionGet', {
@@ -399,12 +433,30 @@ async function decryptBackup(token) {
   return JSON.parse((await gunzipBytes(plain)).toString('utf8'));
 }
 
+// Huella de la colección: sólo URLs, estado y orden. No incluye el contenido de los manifiestos,
+// que Stremio puede refrescar entre dos lecturas y provocaba falsos «la colección cambió».
 function collectionFingerprint(addons) {
+  const list = Array.isArray(addons) ? addons : [];
+  const content = list.map((addon, index) => ({
+    url: normalizeManifestUrl(addon?.transportUrl),
+    enabled: addon?._nuvio ? addon.enabled !== false : !(addon?.flags?.disabled),
+    order: addon?._nuvio ? (addon.sort_order ?? index) : index
+  }));
+  return 'v2:' + crypto.createHash('sha256').update(JSON.stringify(content)).digest('hex');
+}
+
+function legacyFingerprint(addons) {
   const list = Array.isArray(addons) ? addons : [];
   const content = list.length && list.every(addon => addon._nuvio)
     ? list.map(addon => ({ url: addon.transportUrl, enabled: addon.enabled, order: addon.sort_order }))
     : list;
   return crypto.createHash('sha256').update(JSON.stringify(content)).digest('hex');
+}
+
+// Acepta huellas nuevas y las de respaldos creados antes del cambio.
+function fingerprintMatches(stored, addons) {
+  if (!stored) return false;
+  return stored === collectionFingerprint(addons) || stored === legacyFingerprint(addons);
 }
 
 async function backupCollection(identity, addons, aioSnapshot, extra) {
@@ -771,6 +823,9 @@ async function buildAioConfig(options) {
   }
   const generated = config;
   config = deepMerge(generated, baseline);
+  // El perfil base se armó para cuentas con Debrid (SeaDex, biblioteca, Torznab…). Sin Debrid, AIOStreams
+  // rechaza esos presets, así que se usan los que la plantilla genera para fuentes gratuitas.
+  if (!hasDebrid && Array.isArray(generated.presets)) config.presets = deepClone(generated.presets);
   if (options.debridioKey) {
     const additions = (generated.presets || []).filter(p => ['debridio', 'debridio-watchtower'].includes(p.type));
     config.presets = config.presets || [];
@@ -868,6 +923,25 @@ async function buildAioConfig(options) {
   };
 }
 
+// Traduce los rechazos de AIOStreams más comunes a un mensaje que el usuario pueda resolver.
+function friendlyAioError(error) {
+  const m = String(error?.message || error || '');
+  if (/TMDB/i.test(m) && /(401|unauthori[sz]ed|invalid|validate)/i.test(m)) {
+    return 'AIOStreams rechazó tu clave de TMDB. Revísala en el paso 4 o elige la clave integrada.';
+  }
+  if (/TVDB/i.test(m) && /(401|unauthori[sz]ed|invalid|validate)/i.test(m)) {
+    return 'AIOStreams rechazó tu clave de TVDB. Revísala en el paso 4 o elige la clave integrada.';
+  }
+  if (/debridio/i.test(m)) return 'Falta la clave de Debridio o no es válida. Revisa el campo Debridio en el paso 3, o déjalo vacío.';
+  if (/requires at least one usable service/i.test(m)) {
+    return 'AIOStreams pidió un servicio Debrid para una de las fuentes. Vuelve a intentarlo; si se repite, avísanos en GitHub.';
+  }
+  if (/(torbox|real.?debrid|alldebrid|premiumize|debrid.?link|offcloud|easydebrid).*(invalid|unauthori|401|403)/i.test(m)) {
+    return 'AIOStreams no aceptó tu clave de Debrid. Revísala en el paso 3.';
+  }
+  return 'El servidor de AIOStreams rechazó la configuración: ' + m;
+}
+
 const AIO_HOSTS = new Set([
   'aiostreams.fortheweak.cloud', 'aiostreams-nightly.fortheweak.cloud',
   'aiostreamsfortheweebsstable.midnightignite.me', 'aiostreamsfortheweebs.midnightignite.me',
@@ -960,7 +1034,7 @@ async function createOrUpdateAio(options, currentAddons) {
           body: JSON.stringify({ config: built.config, password })
         }, 30000);
       } catch (error) {
-        throw new Error('La instancia Midnight rechazó la creación de AIOStreams: ' + error.message);
+        throw new Error(friendlyAioError(error));
       }
       const uuid = created?.data?.uuid;
       const encrypted = created?.data?.encryptedPassword;
@@ -1865,7 +1939,7 @@ async function handleAnalyze(body) {
   if (body.preparedBackupId) {
     const prepared = await readBackup(String(body.preparedBackupId));
     if (!accountOwnsBackup(auth, prepared) ||
-        prepared.fingerprint !== collectionFingerprint(addons)) {
+        !fingerprintMatches(prepared.fingerprint, addons)) {
       throw new Error('El respaldo ya no corresponde a esta cuenta o su colección cambió');
     }
     const proposed = await buildAioConfig(options);
@@ -2145,7 +2219,7 @@ async function handleConfigure(body) {
   if (!preparedBackup.fingerprint) {
     throw new Error('Ese respaldo es antiguo. Crea un respaldo seguro nuevo antes de configurar');
   }
-  if (preparedBackup.fingerprint !== collectionFingerprint(current)) {
+  if (!fingerprintMatches(preparedBackup.fingerprint, current)) {
     throw new Error('La cuenta cambió después del respaldo. Vuelve a crear el respaldo antes de configurar');
   }
 
@@ -2310,7 +2384,7 @@ async function transferContext(body) {
   if (sourcePlatform === targetPlatform) throw new Error('Selecciona la otra plataforma');
   const sourceAuth = await resolveStremioAuth(body.source);
   const source = await getAddonCollection(sourceAuth);
-  if (!body.sourceFingerprint || collectionFingerprint(source) !== body.sourceFingerprint) {
+  if (!body.sourceFingerprint || !fingerprintMatches(body.sourceFingerprint, source)) {
     throw new Error('La lista de origen cambió desde la instalación. Revísala antes de copiar.');
   }
   if (sourcePlatform === 'nuvio' && targetPlatform === 'stremio' &&
@@ -2343,7 +2417,7 @@ async function handleTransferPreview(body) {
     targetPlatform === 'nuvio' ? { nuvioCollections: targetCollections } : null);
   const backup = await readBackup(backupId);
   if (!accountOwnsBackup(targetAuth, backup) ||
-      backup.fingerprint !== collectionFingerprint(targetCurrent) ||
+      !fingerprintMatches(backup.fingerprint, targetCurrent) ||
       backup.addons.length !== targetCurrent.length) {
     throw new Error('No se pudo verificar el respaldo de la segunda cuenta');
   }
@@ -2365,7 +2439,7 @@ async function handleTransferApply(body) {
   const backupId = String(body.backupId || '');
   const backup = await readBackup(backupId);
   if (!accountOwnsBackup(targetAuth, backup) ||
-      backup.fingerprint !== collectionFingerprint(targetCurrent)) {
+      !fingerprintMatches(backup.fingerprint, targetCurrent)) {
     throw new Error('La segunda cuenta cambió después del respaldo. Revisa el plan de nuevo.');
   }
   let attempted = false;
@@ -2419,7 +2493,7 @@ async function handleAioPush(body) {
   const current = await getAddonCollection(auth);
   const prepared = await readBackup(String(body.preparedBackupId || ''));
   if (!accountOwnsBackup(auth, prepared) ||
-      prepared.fingerprint !== collectionFingerprint(current)) {
+      !fingerprintMatches(prepared.fingerprint, current)) {
     throw new Error('Crea un respaldo de la colección actual antes de actualizar AIOStreams');
   }
   const addon = findAioAddon(current);
@@ -2495,7 +2569,7 @@ async function handleOrganize(body) {
   const current = await getAddonCollection(auth);
   const backup = await readBackup(String(body.preparedBackupId || ''));
   if (!accountOwnsBackup(auth, backup) ||
-      backup.fingerprint !== collectionFingerprint(current)) {
+      !fingerprintMatches(backup.fingerprint, current)) {
     throw new Error('Crea un respaldo nuevo de la colección actual antes de organizar');
   }
   const order = body.order;
@@ -2684,6 +2758,9 @@ async function checkInstalledAddon(addon) {
   const retired = RETIRED_ADDONS.find(r => r.match(id, host));
   if (retired) return { url, name, host, status: 'retired', detail: 'Ya no se mantiene; el wizard dejó de ofrecerlo.' };
   if (isSystemAddon(addon)) return { url, name, host, status: 'system' };
+  if (addon?._nuvio && !addon._manifestSkipped) {
+    return addon._manifestFailed ? { url, name, host, status: 'down', detail: 'No responde' } : { url, name, host, status: 'ok' };
+  }
   try {
     const data = await fetchJson(url, {}, 9000);
     if (data && (data.id || data.manifest?.id)) return { url, name, host, status: 'ok' };
@@ -2697,8 +2774,9 @@ async function handleCheckSetup(body) {
   const auth = await resolveStremioAuth(body);
   const addons = await getAddonCollection(auth);
   const list = auth.platform === 'nuvio' ? uniqueNuvioAddons(addons) : addons;
-  // Límite de subsolicitudes del plan gratuito: revisa como máximo 40 complementos.
-  const toCheck = list.slice(0, 40);
+  // Límite de subsolicitudes del plan gratuito: en Stremio revisa como máximo 40 complementos;
+  // en Nuvio los manifiestos ya se leyeron (hasta 24) y sólo se revisan unos pocos más.
+  const toCheck = auth.platform === 'nuvio' ? list.slice(0, 34) : list.slice(0, 40);
   const results = await Promise.all(toCheck.map(checkInstalledAddon));
   const counts = results.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc; }, {});
   const aio = findAioAddon(addons);
@@ -2711,7 +2789,7 @@ async function handleCheckSetup(body) {
 async function handleRemoveAddons(body) {
   const auth = await resolveStremioAuth(body);
   const current = await getAddonCollection(auth);
-  if (body.sourceFingerprint && body.sourceFingerprint !== collectionFingerprint(current)) {
+  if (body.sourceFingerprint && !fingerprintMatches(body.sourceFingerprint, current)) {
     throw new Error('Los complementos cambiaron desde la revisión. Vuelve a revisar antes de quitar.');
   }
   const remove = new Set((Array.isArray(body.removeUrls) ? body.removeUrls : []).map(u => nuvioUrlKey({ transportUrl: String(u) })));
@@ -2836,7 +2914,10 @@ async function handleApi(method, pathname, body) {
 function errorType(error) {
   const m = String(error?.message || error || '').toLowerCase();
   if (/abort|timeout|timed out|tiempo de espera/.test(m)) return 'timeout';
-  if (/contraseña|password|credencial|credential|login|sesión|session|unauthorized|401|invalid_grant/.test(m)) return 'auth';
+  if (/429|too many|demasiad|rate limit|limitando/.test(m)) return 'rate_limit';
+  if (/no tiene perfiles/.test(m)) return 'nuvio_no_profile';
+  if (/http 400/.test(m)) return 'http_400';
+  if (/contraseña|incorrect|password|credencial|credential|login|sesión|session|unauthorized|401|invalid_grant/.test(m)) return 'auth';
   if (/clave|api key|apikey|token/.test(m)) return 'key';
   if (/respaldo|backup/.test(m)) return 'backup';
   if (/aiostreams|aio\b/.test(m)) return 'aiostreams';
