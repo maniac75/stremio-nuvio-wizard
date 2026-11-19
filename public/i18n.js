@@ -2,6 +2,8 @@
 (function(){
   'use strict';
   var entries = `
+Debridio rechazó la clave o la suscripción no está activa.	Debridio rejected the key or the subscription is not active.
+Clave y suscripción de Debridio activas.	Debridio key and subscription are active.
 Pósteres con notas	Posters with ratings
 Pósteres normales	Regular posters
 PostersPlus (gratis, sin clave)	PostersPlus (free, no key)

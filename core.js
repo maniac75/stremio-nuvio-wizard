@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.20.0';
+const WIZARD_VERSION = '0.20.1';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1147,7 +1147,7 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
+  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
@@ -1167,6 +1167,11 @@ async function handleValidateKey(body) {
         body: JSON.stringify({ apikey: key }) };
     } else if (service === 'mdblist') {
       url = 'https://api.mdblist.com/user?apikey=' + encodeURIComponent(key);
+    } else if (service === 'debridio') {
+      // Debridio no publica un endpoint de verificación: su manifiesto responde 403
+      // («Subscription is inactive») si la clave no existe o la suscripción venció.
+      const config = Buffer.from(JSON.stringify({ api_key: key, provider: 'torbox', providerKey: '' })).toString('base64');
+      url = 'https://addon.debridio.com/' + config + '/manifest.json';
     } else if (service === 'torbox') {
       url = 'https://api.torbox.app/v1/api/user/me';
       options.headers = { Authorization: 'Bearer ' + key };
@@ -1175,6 +1180,9 @@ async function handleValidateKey(body) {
       options.headers = { Authorization: 'Bearer ' + key };
     }
     const response = await fetch(url, options);
+    if (service === 'debridio' && response.status === 403) {
+      return { status: 'invalid', message: 'Debridio rechazó la clave o la suscripción no está activa.' };
+    }
     if (response.status === 401 || response.status === 403) {
       return { status: 'invalid', message: 'La clave fue rechazada por ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
     }
@@ -1183,6 +1191,9 @@ async function handleValidateKey(body) {
     const result = await response.json();
     if (service === 'tvdb' && !result?.data?.token) return { status: 'invalid', message: 'TVDB no aceptó esta API key.' };
     if (service === 'torbox' && result?.success === false) return { status: 'invalid', message: 'TorBox no aceptó esta API key.' };
+    if (service === 'debridio') {
+      return result?.id ? { status: 'valid', message: 'Clave y suscripción de Debridio activas.' } : unknown;
+    }
     return { status: 'valid', message: 'Clave verificada con ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
   } catch {
     return { status: 'unknown', message: 'No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.' };
