@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.19.0';
+const WIZARD_VERSION = '0.20.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -53,6 +53,10 @@ const SUBTITLE_CODES = {
 };
 // Watchly: recomendaciones según lo que ves (instancia pública de ElfHosted, código abierto).
 const WATCHLY_BASE = 'https://watchly.elfhosted.com';
+// PostersPlus: pósteres con notas y premios, instancia pública y gratuita de ElfHosted (sólo estilos predefinidos).
+const POSTERSPLUS_BASE = 'https://postersplus.elfhosted.com';
+const POSTERSPLUS_STYLES = new Set(['bar_sash', 'bar_notch', 'ratingbar_sash', 'ratingbar_notch', 'clean_sash',
+  'clean_notch', 'tinted_mini_sash', 'tinted_mini_notch', 'mini_sash_oa', 'bar_notch_oa']);
 const WATCHLY_LOCALES = {
   'es-MX': 'es-MX', 'es-ES': 'es-ES', en: 'en-US', 'pt-BR': 'pt-BR', 'pt-PT': 'pt-PT',
   fr: 'fr-FR', it: 'it-IT', de: 'de-DE', nl: 'nl-NL'
@@ -1227,9 +1231,20 @@ async function configureAioMetadata(preset, options) {
   config.apiKeys.rpdb = options.rpdbMode === 'personal' ? options.rpdbKey : '';
   // MDBList (opcional): búsqueda MDBList y registro de lo visto en la cuenta del usuario.
   config.apiKeys.mdblist = options.mdblistKey || '';
-  if (options.rpdbMode === 'personal') config.posterRatingProvider = 'rpdb';
-  config.enableRatingPostersForLibrary = options.rpdbMode === 'personal';
-  if (Array.isArray(config.catalogs) && options.rpdbMode !== 'personal') {
+  const ratingPosters = options.rpdbMode === 'personal' || options.rpdbMode === 'postersplus';
+  if (options.rpdbMode === 'personal') {
+    config.posterRatingProvider = 'rpdb';
+    delete config.customPosterUrlPattern;
+  } else if (options.rpdbMode === 'postersplus') {
+    // Por ID de IMDb; un título sin IMDb conserva su póster normal.
+    config.posterRatingProvider = 'custom';
+    config.customPosterUrlPattern = POSTERSPLUS_BASE + '/p/' + options.postersPlusStyle + '/{type}/{imdb_id}.jpg';
+  } else {
+    config.posterRatingProvider = 'none';
+    delete config.customPosterUrlPattern;
+  }
+  config.enableRatingPostersForLibrary = ratingPosters;
+  if (Array.isArray(config.catalogs) && !ratingPosters) {
     config.catalogs = config.catalogs.map(c => ({ ...c, enableRatingPosters: false }));
   }
 
@@ -2020,10 +2035,12 @@ function normalizeOptions(body) {
     debridioKey: noDebrid ? '' : String(body.debridioKey || '').trim(),
     tmdbMode: body.tmdbMode === 'personal' ? 'personal' : (body.tmdbMode === 'instance' ? 'instance' : (body.tmdbKey ? 'personal' : 'instance')),
     tvdbMode: body.tvdbMode === 'personal' ? 'personal' : (body.tvdbMode === 'instance' ? 'instance' : (body.tvdbKey ? 'personal' : 'instance')),
-    rpdbMode: body.rpdbMode === 'personal' ? 'personal' : (body.rpdbMode === 'none' ? 'none' : (body.rpdbKey ? 'personal' : 'none')),
+    rpdbMode: body.rpdbMode === 'personal' ? 'personal' : (body.rpdbMode === 'postersplus' ? 'postersplus' :
+      (body.rpdbMode === 'none' ? 'none' : (body.rpdbKey ? 'personal' : 'none'))),
+    postersPlusStyle: POSTERSPLUS_STYLES.has(String(body.postersPlusStyle)) ? String(body.postersPlusStyle) : 'bar_sash',
     tmdbKey: body.tmdbMode === 'instance' ? '' : String(body.tmdbKey || '').trim(),
     tvdbKey: body.tvdbMode === 'instance' ? '' : String(body.tvdbKey || '').trim(),
-    rpdbKey: body.rpdbMode === 'none' ? '' : String(body.rpdbKey || '').trim(),
+    rpdbKey: body.rpdbMode === 'personal' || (!body.rpdbMode && body.rpdbKey) ? String(body.rpdbKey || '').trim() : '',
     mdblistKey: String(body.mdblistKey || '').trim().slice(0, 128),
     anime: body.anime === true,
     argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
@@ -2975,6 +2992,7 @@ const ADDON_HEALTH_STATIC = [
   { key: 'aiometadata', name: 'AIOMetadata', url: AIOMETA_BASE + '/api/config', expect: d => !!d && typeof d === 'object' },
   { key: 'tamtaro', name: 'Tamtaro template', url: TAMTARO_URL, expect: d => Array.isArray(d) && d.some(x => x?.metadata?.id === 'tamtaro.complete') },
   { key: 'watchly', name: 'Watchly', url: WATCHLY_BASE + '/health', expect: d => d?.status === 'healthy' },
+  { key: 'postersplus', name: 'PostersPlus', url: POSTERSPLUS_BASE + '/server-caps', expect: d => Array.isArray(d?.presets) && d.presets.length > 0 },
   { key: 'peerflix', name: 'Peerflix', url: 'https://addon.peerflix.mov/manifest.json' },
   { key: 'cometa', name: 'Cometa', url: 'https://cometa.stremx.net/manifest.json' },
   { key: 'latinobrid', name: 'Latinobrid', url: 'https://latinobrid.stremx.net/manifest.json' },
@@ -3098,4 +3116,5 @@ function recordStep(pathname, body, ok, started, error) {
 
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,
   languageProfile, backupCollection, readBackup, parseAioManifest, handleAioPush, createOrUpdateAio,
-  handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan };
+  handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan,
+  _configureAioMetadata: configureAioMetadata };

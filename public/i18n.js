@@ -2,6 +2,32 @@
 (function(){
   'use strict';
   var entries = `
+Pósteres con notas	Posters with ratings
+Pósteres normales	Regular posters
+PostersPlus (gratis, sin clave)	PostersPlus (free, no key)
+RPDB (con mi propia clave)	RPDB (with my own key)
+Pósteres con nota, género y premios, de la instancia pública y gratuita de PostersPlus (ElfHosted). Sólo recibe el ID de cada título.	Posters with rating, genre and awards from the free public PostersPlus instance (ElfHosted). It only receives each title's ID.
+Estilo	Style
+Barra con franja	Bar with sash
+Barra con muesca	Bar with notch
+Barra de color según nota, con franja	Rating-colored bar with sash
+Barra de color según nota, con muesca	Rating-colored bar with notch
+Limpio con franja	Clean with sash
+Limpio con muesca	Clean with notch
+Minimalista teñido con franja	Tinted minimalist with sash
+Minimalista teñido con muesca	Tinted minimalist with notch
+Arte original, mínimo con franja	Original art, minimal with sash
+Arte original, barra con muesca	Original art, bar with notch
+Vista previa del estilo	Style preview
+Ver estilos en PostersPlus ↗	See styles on PostersPlus ↗
+TMDB y TVDB pueden usar las claves internas de la instancia, sin mostrarlas ni guardarlas en el wizard. PostersPlus es gratis; RPDB requiere una clave propia.	TMDB and TVDB can use the instance's built-in keys, without showing or storing them in the wizard. PostersPlus is free; RPDB needs your own key.
+Cambiaste el estilo de pósteres: revisa nuevamente el plan.	You changed the poster style: review the plan again.
+Sellos de calidad en la lista de fuentes (opcional)	Quality badges in the sources list (optional)
+Nuvio puede mostrar sellos de imagen, como 4K, Dolby Vision, Atmos o el idioma, en cada fuente. Se activan dentro de la app con un paquete de sellos de la comunidad.	Nuvio can show image badges, like 4K, Dolby Vision, Atmos or the language, on each source. You turn them on inside the app with a community badge pack.
+Arma tu paquete en	Build your pack on
+y copia el enlace.	and copy the link.
+En Nuvio, abre Perfil › Diseño › Fuentes.	In Nuvio, open Profile › Layout › Streams.
+Pega el enlace en «Fusion badge URLs» y borra la caché.	Paste the link into “Fusion badge URLs” and clear the cache.
 Idiomas de audio y subtítulos (avanzado)	Audio and subtitle languages (advanced)
 Por defecto se usan los del idioma principal. Aquí puedes sumar otros idiomas y ordenarlos: el primero es el preferido. Los resultados en versión original, multi o dual se siguen mostrando.	By default, the main language's settings are used. Here you can add other languages and order them: the first one is preferred. Original, multi and dual-audio results are still shown.
 Audio, en orden de preferencia	Audio, in order of preference

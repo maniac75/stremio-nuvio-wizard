@@ -225,7 +225,7 @@ function exportWizardProfile(){
   var profile={format:'stremio-wizard-profile-v1',language:c.language,profileMode:c.profileMode,instanceMode:c.instanceMode,
     noDebrid:c.noDebrid,
     debridServices:c.noDebrid?[]:Array.from(document.querySelectorAll('.debrid .service')).map(function(x){return x.value;}),
-    tmdbMode:c.tmdbMode,tvdbMode:c.tvdbMode,rpdbMode:c.rpdbMode,
+    tmdbMode:c.tmdbMode,tvdbMode:c.tvdbMode,rpdbMode:c.rpdbMode,postersPlusStyle:c.postersPlusStyle,
     kids:c.kids,anime:c.anime,argentinaTv:c.argentinaTv,no4k:c.no4k,
     cachedOnly:c.cachedOnly,removeWatchHub:c.removeWatchHub,
     trailers:c.trailers,subtitles:c.subtitles,openSubtitles:c.openSubtitles,
@@ -402,6 +402,7 @@ function collect(){
     tmdbMode:document.getElementById('tmdbMode').value,
     tvdbMode:document.getElementById('tvdbMode').value,
     rpdbMode:document.getElementById('rpdbMode').value,
+    postersPlusStyle:document.getElementById('postersPlusStyle').value,
     tmdbKey:document.getElementById('tmdbMode').value==='personal'?document.getElementById('tmdbKey').value.trim():'',
     tvdbKey:document.getElementById('tvdbMode').value==='personal'?document.getElementById('tvdbKey').value.trim():'',
     rpdbKey:document.getElementById('rpdbMode').value==='personal'?document.getElementById('rpdbKey').value.trim():'',
@@ -631,8 +632,20 @@ function syncMetadataModes(){
     var mode=document.getElementById(service+'Mode').value;
     document.getElementById(service+'Own').hidden=mode!=='personal';
   });
+  var postersPlus=document.getElementById('rpdbMode').value==='postersplus';
+  document.getElementById('postersPlusOwn').hidden=!postersPlus;
+  if(postersPlus)syncPostersPlusPreview();
   syncPelisAvailability();
 }
+function syncPostersPlusPreview(){
+  var style=document.getElementById('postersPlusStyle').value;
+  // The Shawshank Redemption: mismo título para comparar estilos.
+  document.getElementById('postersPlusPreview').src='https://postersplus.elfhosted.com/p/'+encodeURIComponent(style)+'/movie/tt0111161.jpg';
+}
+document.getElementById('postersPlusStyle').addEventListener('change',function(){
+  syncPostersPlusPreview();
+  if(backupReady)clearReview('Cambiaste el estilo de pósteres: revisa nuevamente el plan.');
+});
 document.querySelectorAll('.metadataMode').forEach(function(select){
   select.addEventListener('change',syncMetadataModes);
 });
@@ -1330,6 +1343,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
         '<div class="actions"><button class="primary" id="customizeSave" type="button">Guardar orden y catálogos</button></div>'+
         '<div class="small" id="customizeResult"></div></details>'+
       traktGuideHtml(d.platform,!!(d.watchly&&(d.watchly.installed||d.watchly.reused)))+
+      (d.platform==='nuvio'?fusionBadgesHtml():'')+
       '<details class="fold"><summary>Ver detalles de la instalación</summary><pre>'+esc(details.join('\n'))+'</pre></details>'+
       '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIOStreams</button>':'')+
       '<button class="secondary" id="downloadInstalledAfter" type="button">Descargar lista y URL de complementos</button>'+
@@ -1485,7 +1499,7 @@ document.getElementById('profileInput').addEventListener('change',async function
     if(file.size>100000)throw new Error('El archivo de perfil es demasiado grande.');
     var p=JSON.parse(await file.text());
     if(p.format!=='stremio-wizard-profile-v1')throw new Error('Formato de perfil no reconocido.');
-    ['language','profileMode','instanceMode','tmdbMode','tvdbMode','rpdbMode'].forEach(function(id){
+    ['language','profileMode','instanceMode','tmdbMode','tvdbMode','rpdbMode','postersPlusStyle'].forEach(function(id){
       if(p[id]&&Array.from(document.getElementById(id).options).some(function(x){return x.value===p[id];}))
         document.getElementById(id).value=p[id];
     });
@@ -1722,6 +1736,13 @@ function traktGuideHtml(platform,watchly){
     '<ol class="small">'+app+
       (watchly?'<li>Para que Watchly también use tu historial de Trakt, entra a <a class="link" href="https://watchly.elfhosted.com/configure" target="_blank" rel="noopener noreferrer">Watchly ↗</a>, inicia sesión con la misma cuenta y conecta Trakt.</li>':'')+
     '</ol></details>';
+}
+function fusionBadgesHtml(){
+  return '<details class="fold"><summary>Sellos de calidad en la lista de fuentes (opcional)</summary>'+
+    '<div class="small" style="margin:8px 0">Nuvio puede mostrar sellos de imagen, como 4K, Dolby Vision, Atmos o el idioma, en cada fuente. Se activan dentro de la app con un paquete de sellos de la comunidad.</div>'+
+    '<ol class="small"><li>Arma tu paquete en <a class="link" href="https://farizmohd70.github.io/FR-Badges/" target="_blank" rel="noopener noreferrer">FR-Badges ↗</a> y copia el enlace.</li>'+
+    '<li>En Nuvio, abre Perfil › Diseño › Fuentes.</li>'+
+    '<li>Pega el enlace en «Fusion badge URLs» y borra la caché.</li></ol></details>';
 }
 var customize={addons:[],order:[],catalogs:{},names:{},platform:'stremio'};
 function startCustomizer(addons,platform){

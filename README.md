@@ -23,6 +23,8 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Restore** any previous backup or an exported JSON.
 - **Check my setup:** finds broken or retired add-ons in your account and removes them, with a backup first.
 - **Daily add-on monitor:** a GitHub Action checks every add-on the wizard installs and opens an issue if one goes down.
+- **Posters with ratings:** free PostersPlus styles (no key, with live preview) or RPDB with your own key.
+- **Nuvio quality badges:** a short guide to add a community Fusion badge pack.
 - **Optional MDBList key** for watch tracking and MDBList search in AIOMetadata.
 - **Beginner's guide** in [English](https://wizard.stremio-nuvio.workers.dev/guide.html) and [Spanish](https://wizard.stremio-nuvio.workers.dev/guia.html).
 
