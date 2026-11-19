@@ -2,6 +2,49 @@
 (function(){
   'use strict';
   var entries = `
+Idiomas de audio y subtítulos (avanzado)	Audio and subtitle languages (advanced)
+Por defecto se usan los del idioma principal. Aquí puedes sumar otros idiomas y ordenarlos: el primero es el preferido. Los resultados en versión original, multi o dual se siguen mostrando.	By default, the main language's settings are used. Here you can add other languages and order them: the first one is preferred. Original, multi and dual-audio results are still shown.
+Audio, en orden de preferencia	Audio, in order of preference
+Subtítulos, en orden de preferencia	Subtitles, in order of preference
+Agregar idioma de audio	Add audio language
+Agregar idioma de subtítulos	Add subtitle language
++ Agregar	+ Add
+Volver a los del idioma principal	Reset to the main language
+Subir	Move up
+Bajar	Move down
+Quitar	Remove
+↑ Subir	↑ Move up
+↓ Bajar	↓ Move down
+Recomendaciones personalizadas (opcional)	Personalized recommendations (optional)
+Agrega filas al inicio con recomendaciones según lo que ves, como «Porque viste…», en el idioma elegido. Al marcarlo, Watchly (servidor de ElfHosted, código abierto) recibe un acceso de sólo lectura a tu historial: la sesión de tu cuenta, nunca tu contraseña. Si tu cuenta es nueva, las filas aparecen cuando tengas historial.	Adds home rows with recommendations based on what you watch, like “Because you watched…”, in your chosen language. When checked, Watchly (open source, hosted by ElfHosted) gets read access to your history: your account session, never your password. If your account is new, the rows appear once you have some history.
+¿Usas Trakt? Al terminar te mostramos cómo conectarlo para sincronizar lo que ves entre apps y mejorar las recomendaciones.	Use Trakt? When you finish, we show you how to connect it to sync what you watch across apps and improve recommendations.
+Cambiaste los idiomas: revisa nuevamente el plan.	You changed the languages: review the plan again.
+Cambiaste las recomendaciones: revisa nuevamente el plan.	You changed the recommendations: review the plan again.
+Watchly instalado.	Watchly installed.
+Watchly no respondió	Watchly did not respond
+, así que se conservó el Watchly que ya tenías. Puedes volver a intentarlo más tarde.	, so the Watchly you already had was kept. You can try again later.
+Watchly no respondió y no se instaló.	Watchly did not respond and was not installed.
+El resto quedó configurado. Puedes intentarlo más tarde repitiendo el wizard con Watchly marcado.	Everything else was set up. You can try again later by running the wizard with Watchly checked.
+Personaliza tu inicio: orden y catálogos	Customize your home: order and catalogs
+Sube o baja complementos: el orden define qué filas y fuentes aparecen primero. En Nuvio, los catálogos de cada complemento se eligen dentro de la app. Antes de guardar se crea un respaldo de seguridad.	Move addons up or down: the order decides which rows and sources come first. In Nuvio, each addon's catalogs are chosen inside the app. A safety backup is created before saving.
+Sube o baja complementos para cambiar el orden de las filas del inicio. Desmarca los catálogos que no quieras ver o cámbiales el nombre. Antes de guardar se crea un respaldo de seguridad.	Move addons up or down to change the order of your home rows. Uncheck catalogs you don't want or rename them. A safety backup is created before saving.
+Guardar orden y catálogos	Save order and catalogs
+Mostrar catálogo	Show catalog
+Nombre del catálogo	Catalog name
+Películas	Movies
+Series	Series
+Vuelve a conectar la cuenta para personalizar.	Connect the account again to customize.
+Deja al menos un catálogo marcado en cada complemento.	Keep at least one catalog checked in each addon.
+Conectar Trakt (opcional)	Connect Trakt (optional)
+Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.	Trakt keeps track of what you watch and syncs it across apps and devices. You authorize it directly on Trakt; the wizard never sees that account.
+En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.	In Nuvio, open Settings › Integrations, choose Trakt and sign in.
+En Stremio, abre Ajustes, busca Trakt y pulsa Autenticar. También puedes hacerlo en	In Stremio, open Settings, find Trakt and tap Authenticate. You can also do it at
+Para que Watchly también use tu historial de Trakt, entra a	For Watchly to also use your Trakt history, go to
+, inicia sesión con la misma cuenta y conecta Trakt.	, sign in with the same account and connect Trakt.
+Watchly se vuelve a conectar con tu cuenta y el idioma elegido.	Watchly is reconnected to your account and chosen language.
+Recomendaciones personalizadas según lo que ves.	Personalized recommendations based on what you watch.
+Tus complementos cambiaron desde la instalación. Vuelve a conectar la cuenta antes de personalizar	Your addons changed since the installation. Connect the account again before customizing
+La app no confirmó el orden y los catálogos	The app did not confirm the order and catalogs
 Pelis necesita tu propia API de TMDB para instalarse. Selecciona «Usar mi propia clave» en TMDB e ingrésala para habilitarlo.	Pelis needs your own TMDB API key to install. Select "Use my own key" under TMDB and enter it to enable Pelis.
 Especializado en castellano. Requiere TorBox o AllDebrid; el wizard crea su configuración.	Specialized in Spanish from Spain. Requires TorBox or AllDebrid; the wizard creates its configuration.
 Idioma de la página	Page language
@@ -559,6 +602,13 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Esto reemplazará la colección actual por (\d+) complementos del JSON\. Antes se creará un respaldo de seguridad\. ¿Continuar\?$/,'This will replace the current addon list with $1 addons from the JSON file. A safety backup will be created first. Continue?'],
     [/^¿Guardar el nuevo orden y los catálogos seleccionados en (.*?)\? El respaldo permite deshacerlo\.$/,'Save the new order and selected catalogs in $1? You can undo this using the backup.'],
     [/^¿Actualizar la configuración completa de AIOStreams en (.*?)\? Se guardará una copia antes del cambio\. La URL y los demás complementos se conservarán\.$/,'Update the full AIOStreams setup on $1? A backup will be saved before the change. The URL and other addons will be kept.']
+  );
+  patterns.push(
+    [/^Catálogos \((\d+)\)$/,'Catalogs ($1)'],
+    [/^Tus filas de recomendaciones aparecerán en el inicio a medida que (Stremio|Nuvio) tenga historial\. La primera carga puede tardar un par de minutos\.$/,'Your recommendation rows will appear on the home screen as $1 builds up history. The first load can take a couple of minutes.'],
+    [/^¿Guardar el nuevo orden y los catálogos en (Stremio|Nuvio)\? Antes se guarda un respaldo para poder volver atrás\.$/,'Save the new order and catalogs in $1? A backup is saved first so you can go back.'],
+    [/^✓ Guardado\. Cierra y vuelve a abrir (Stremio|Nuvio) para ver el nuevo orden\. El respaldo previo quedó guardado en este navegador\.$/,'✓ Saved. Close and reopen $1 to see the new order. The previous backup was saved in this browser.'],
+    [/^No se pudo guardar: ([\s\S]*)$/,function(m,a){return 'Could not save: '+translate(a);}]
   );
   // Mensajes compuestos: traduce la parte variable con el mismo diccionario.
   patterns.unshift(

@@ -24,13 +24,39 @@ function configure(options) {
 const AIO_BASE = 'https://aiostreamsfortheweebs.midnightignite.me';
 const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
-const LOCALE_ES_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/es.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.18.1';
+const WIZARD_VERSION = '0.19.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
+
+// Idiomas del contenido. Coinciden con los del preset del Bootstrapper (complementos y traducciones).
+const CONTENT_LANGUAGES = ['es-MX', 'es-ES', 'en', 'pt-BR', 'pt-PT', 'fr', 'it', 'de', 'nl'];
+// Idiomas de audio y subtítulos que acepta AIOStreams (nombres exactos de su lista).
+const AIO_AUDIO_LANGUAGES = new Set([
+  'English', 'Japanese', 'Chinese', 'Russian', 'Arabic', 'Portuguese', 'Portuguese (Brazil)', 'Spanish', 'Latino',
+  'French', 'German', 'Italian', 'Korean', 'Hindi', 'Bengali', 'Punjabi', 'Marathi', 'Gujarati', 'Tamil', 'Telugu',
+  'Kannada', 'Malayalam', 'Thai', 'Vietnamese', 'Indonesian', 'Turkish', 'Hebrew', 'Persian', 'Ukrainian', 'Greek',
+  'Lithuanian', 'Latvian', 'Estonian', 'Polish', 'Czech', 'Slovak', 'Hungarian', 'Romanian', 'Bulgarian', 'Serbian',
+  'Croatian', 'Slovenian', 'Dutch', 'Danish', 'Finnish', 'Swedish', 'Norwegian', 'Malay'
+]);
+// Códigos de OpenSubtitles que usa la plantilla Tamtaro para cada idioma.
+const SUBTITLE_CODES = {
+  English: 'en', Spanish: 'es', Latino: 'ea', Portuguese: 'pt-pt', 'Portuguese (Brazil)': 'pt-br', French: 'fr',
+  German: 'de', Italian: 'it', Dutch: 'nl', Japanese: 'ja', Korean: 'ko', Chinese: 'zh-cn', Russian: 'ru',
+  Arabic: 'ar', Hindi: 'hi', Turkish: 'tr', Polish: 'pl', Swedish: 'sv', Norwegian: 'no', Danish: 'da',
+  Finnish: 'fi', Greek: 'el', Hebrew: 'he', Czech: 'cs', Hungarian: 'hu', Romanian: 'ro', Ukrainian: 'uk',
+  Vietnamese: 'vi', Thai: 'th', Indonesian: 'id', Malay: 'ms', Persian: 'fa', Bulgarian: 'bg', Croatian: 'hr',
+  Serbian: 'sr', Slovak: 'sk', Slovenian: 'sl', Bengali: 'bn', Tamil: 'ta', Telugu: 'te', Malayalam: 'ml',
+  Kannada: 'kn', Marathi: 'mr', Lithuanian: 'lt', Latvian: 'lv', Estonian: 'et'
+};
+// Watchly: recomendaciones según lo que ves (instancia pública de ElfHosted, código abierto).
+const WATCHLY_BASE = 'https://watchly.elfhosted.com';
+const WATCHLY_LOCALES = {
+  'es-MX': 'es-MX', 'es-ES': 'es-ES', en: 'en-US', 'pt-BR': 'pt-BR', 'pt-PT': 'pt-PT',
+  fr: 'fr-FR', it: 'it-IT', de: 'de-DE', nl: 'nl-NL'
+};
 
 const MANAGED_IDS = new Set([
   'com.linvo.cinemeta',
@@ -193,8 +219,11 @@ async function resolveStremioAuth(body) {
     if (!profile) throw new Error('Selecciona un perfil existente de Nuvio');
     const payload = JSON.parse(Buffer.from(authKey.split('.')[1], 'base64url').toString('utf8'));
     if (!payload.sub) throw new Error('Nuvio no devolvió una cuenta válida');
+    const profileName = String(profile.name || profile.profile_name || '');
     return { platform: 'nuvio', authKey, profileId: requested, profiles,
       identity: 'nuvio:user:' + payload.sub + ':profile:' + requested,
+      // Sólo para Watchly (opcional); nunca se devuelve al navegador.
+      nuvioSession: { refreshToken: String(login.refresh_token || ''), expiresAt: Number(login.expires_at || 0), profileName },
       legacyIdentities: [], mode: 'login' };
   }
   const pasted = String(body?.authKey || '').replaceAll('"', '').trim();
@@ -299,6 +328,11 @@ function uniqueNuvioAddons(addons) {
 
 // ---- Colecciones de inicio de Nuvio (filas y carpetas de la pantalla principal) ----
 const BOOTSTRAPPER_LOCALE_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/src/locales/';
+// Traducciones disponibles en el Bootstrapper (src/locales): es, pt, fr, it, de, nl y en.
+function bootstrapperLocale(language) {
+  const base = String(language || 'en').split('-')[0];
+  return ['es', 'pt', 'fr', 'it', 'de', 'nl'].includes(base) ? base : 'en';
+}
 
 async function nuvioRpc(auth, fn, body) {
   return nuvioRequest('/rest/v1/rpc/' + fn, {
@@ -361,9 +395,8 @@ async function buildNuvioCollections(options, preset) {
   if (options.tmdbMode === 'personal' && options.tmdbKey && data.nuvioFranchisesCollectionConfig) {
     list.push(deepClone(data.nuvioFranchisesCollectionConfig));
   }
-  const lang = String(options.language || 'es').split('-')[0];
   let messages = {};
-  try { messages = await fetchJson(BOOTSTRAPPER_LOCALE_URL + (lang === 'es' ? 'es' : 'en') + '.json', {}, 12000) || {}; } catch {}
+  try { messages = await fetchJson(BOOTSTRAPPER_LOCALE_URL + bootstrapperLocale(options.language) + '.json', {}, 12000) || {}; } catch {}
   return translateNuvioCollections(list, messages);
 }
 
@@ -718,33 +751,46 @@ function dedupeConfig(config) {
   return config;
 }
 
-function languageProfile(language) {
+function subtitleCodesFor(names) {
+  const codes = [];
+  for (const name of names) {
+    const code = SUBTITLE_CODES[name];
+    if (code && !codes.includes(code)) codes.push(code);
+    if (name === 'Spanish' && !codes.includes('sp')) codes.push('sp');
+  }
+  return codes.length ? codes : ['en'];
+}
+
+// Perfil de idioma para AIOStreams. options.audioLanguages / subtitleLanguages (avanzado) reemplazan
+// el orden por defecto del idioma principal.
+function languageProfile(language, options) {
   const map = {
-    'es-MX': {
-      required: ['Latino', 'Spanish'],
-      subtitles: ['Latino', 'Spanish', 'English'],
-      primary: 'Latino',
-      subtitleCodes: ['ea', 'es', 'sp', 'en']
-    },
-    'es-ES': {
-      required: ['Spanish'],
-      subtitles: ['Spanish', 'English'],
-      primary: 'Spanish',
-      subtitleCodes: ['es', 'sp', 'en']
-    },
-    'en': {
-      required: ['English'],
-      subtitles: ['English'],
-      primary: 'English',
-      subtitleCodes: ['en']
-    }
+    'es-MX': { required: ['Latino', 'Spanish'], subtitles: ['Latino', 'Spanish', 'English'] },
+    'es-ES': { required: ['Spanish'], subtitles: ['Spanish', 'English'] },
+    'en': { required: ['English'], subtitles: ['English'] },
+    'pt-BR': { required: ['Portuguese (Brazil)', 'Portuguese'], subtitles: ['Portuguese (Brazil)', 'Portuguese', 'English'] },
+    'pt-PT': { required: ['Portuguese', 'Portuguese (Brazil)'], subtitles: ['Portuguese', 'Portuguese (Brazil)', 'English'] },
+    'fr': { required: ['French'], subtitles: ['French', 'English'] },
+    'it': { required: ['Italian'], subtitles: ['Italian', 'English'] },
+    'de': { required: ['German'], subtitles: ['German', 'English'] },
+    'nl': { required: ['Dutch'], subtitles: ['Dutch', 'English'] }
   };
-  return map[language] || map['es-MX'];
+  const base = map[language] || map['es-MX'];
+  const audio = options?.audioLanguages?.length ? options.audioLanguages : base.required;
+  const subtitles = options?.subtitleLanguages?.length ? options.subtitleLanguages : base.subtitles;
+  const codes = subtitleCodesFor(subtitles);
+  // es-MX conserva su lista probada de códigos (incluye «sp»).
+  return {
+    required: [...audio],
+    subtitles: [...subtitles],
+    primary: audio[0],
+    subtitleCodes: language === 'es-MX' && !options?.subtitleLanguages?.length ? ['ea', 'es', 'sp', 'en'] : codes
+  };
 }
 
 function buildTamtaroInputs(template, options) {
   const inputs = defaultsFromInputs(template?.metadata?.inputs || []);
-  const lang = languageProfile(options.language);
+  const lang = languageProfile(options.language, options);
   const hasDebrid = options.debrids.length > 0;
 
   inputs.languages = lang.required;
@@ -838,7 +884,7 @@ async function buildAioConfig(options) {
     { id: 'wizard.aiostreams.optimal.328', version: '1.0.0' },
     { id: 'wizard.aiostreams.restore.lightgdrive', version: '1.0.0' }
   ];
-  if (options.language !== 'es-MX') {
+  if (options.language !== 'es-MX' || options.audioLanguages?.length || options.subtitleLanguages?.length) {
     for (const key of ['requiredLanguages', 'preferredLanguages', 'requiredSubtitles', 'preferredSubtitles']) {
       if (key in generated) config[key] = deepClone(generated[key]);
     }
@@ -869,6 +915,22 @@ async function buildAioConfig(options) {
     };
     visit(config);
     if (!configured) throw new Error('La plantilla AIOStreams no incluyó Debridio; no se aplicaron cambios.');
+  }
+
+  // Los subtítulos de OpenSubtitles V3+ dentro de AIOStreams siguen el idioma elegido
+  // (el perfil base trae los de español latino).
+  const subtitleCodes = languageProfile(options.language, options).subtitleCodes;
+  for (const preset of config.presets || []) {
+    if (preset?.type === 'opensubtitles-v3-plus' && preset.options) preset.options.language = [...subtitleCodes];
+  }
+
+  // Portugués de Brasil: Brazuca Torrents suma fuentes locales (igual que el Bootstrapper).
+  if (options.language === 'pt-BR') {
+    config.presets = config.presets || [];
+    if (!config.presets.some(p => p?.type === 'brazuca-torrents')) {
+      config.presets.push({ type: 'brazuca-torrents', instanceId: 'b7a', enabled: true,
+        options: { name: 'Brazuca Torrents', timeout: 5000, resources: ['stream'] } });
+    }
   }
 
   config.services = options.debrids.map(entry => ({
@@ -1131,9 +1193,10 @@ async function configureAioMetadata(preset, options) {
   config.language = options.language;
   config.catalogs = deepClone((options.kids ? wrapper.catalogs?.kids : wrapper.catalogs?.standard) || config.catalogs || []);
 
-  if (options.language.startsWith('es') && Array.isArray(config.catalogs)) {
+  const catalogLocale = bootstrapperLocale(options.language);
+  if (catalogLocale !== 'en' && Array.isArray(config.catalogs)) {
     try {
-      const locale = await fetchJson(LOCALE_ES_URL, {}, 12000);
+      const locale = await fetchJson(BOOTSTRAPPER_LOCALE_URL + catalogLocale + '.json', {}, 12000);
       config.catalogs = config.catalogs.map(catalog => {
         const source = String(catalog.source || '');
         const type = String(catalog.type || '');
@@ -1449,9 +1512,8 @@ async function buildStandaloneAddons(preset, options) {
         preset.languages?.[options.language]?.mediafusion || {}
       );
       const config = deepClone(preset.mediafusionConfig || {});
-      const langName = options.language === 'es-MX'
-        ? 'Latino'
-        : options.language === 'es-ES' ? 'Spanish' : 'English';
+      const langName = ({ 'es-MX': 'Latino', 'es-ES': 'Spanish', 'pt-BR': 'Portuguese', 'pt-PT': 'Portuguese',
+        fr: 'French', it: 'Italian', de: 'German', nl: 'Dutch' })[options.language] || 'English';
 
       if (Array.isArray(config.language_sorting)) {
         config.language_sorting = [
@@ -1781,13 +1843,58 @@ function addonPlan(addon, options) {
     };
   }
 
+  if (isWatchlyAddon(addon)) {
+    return options.watchly
+      ? { action: 'replace', reason: 'Watchly se vuelve a conectar con tu cuenta y el idioma elegido.' }
+      : { action: 'ask', reason: 'Complemento ajeno al wizard: tú decides si conservarlo.' };
+  }
   if (id === 'com.stremio.watchhub' && options.removeWatchHub) {
     return { action: 'remove', reason: 'WatchHub está marcado para eliminar.' };
   }
   return { action: 'ask', reason: 'Complemento ajeno al wizard: tú decides si conservarlo.' };
 }
 
-async function buildDesiredAddons(options, currentAddons) {
+// Crea (o actualiza) la cuenta de Watchly de este usuario y devuelve su complemento.
+// Stremio: Watchly lee la biblioteca con la AuthKey. Nuvio: con la sesión de Nuvio del perfil elegido.
+async function createWatchlyAddon(options, auth) {
+  const payload = {
+    language: WATCHLY_LOCALES[options.language] || 'en-US',
+    popularity: 'balanced',
+    sorting_order: 'default'
+  };
+  if (auth?.platform === 'nuvio') {
+    if (!auth.nuvioSession?.refreshToken) throw new Error('Nuvio no entregó una sesión renovable para Watchly');
+    Object.assign(payload, {
+      watch_history_source: 'nuvio',
+      nuvio_access_token: auth.authKey,
+      nuvio_refresh_token: auth.nuvioSession.refreshToken,
+      nuvio_expires_at: auth.nuvioSession.expiresAt || null,
+      nuvio_profile_id: auth.profileId || 1,
+      nuvio_profile_name: auth.nuvioSession.profileName || null
+    });
+  } else {
+    if (!auth?.authKey) throw new Error('Falta la sesión de Stremio para Watchly');
+    Object.assign(payload, { watch_history_source: 'stremio', authKey: auth.authKey });
+  }
+  const data = await fetchJson(WATCHLY_BASE + '/tokens/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }, 30000);
+  const url = String(data?.manifestUrl || '');
+  if (!/^https:\/\/[^/]+\/.+\/manifest\.json$/i.test(url)) throw new Error('Watchly no devolvió una URL de instalación');
+  const manifest = await fetchJson(url, {}, 25000);
+  if (!manifest?.id) throw new Error('El manifiesto de Watchly no es válido');
+  return { transportUrl: url, transportName: 'http', manifest };
+}
+
+function isWatchlyAddon(addon) {
+  const id = String(addon?.manifest?.id || '').toLowerCase();
+  const url = String(addon?.transportUrl || '').toLowerCase();
+  return id.includes('watchly') || /\/\/watchly[.-]/.test(url);
+}
+
+async function buildDesiredAddons(options, currentAddons, auth) {
   const preset = await fetchJson(PRESET_URL);
   const custom = [];
   const stores = [];
@@ -1823,10 +1930,25 @@ async function buildDesiredAddons(options, currentAddons) {
     metadataReused = true;
     console.warn('AIOMetadata conservado: la instancia rechazó su clave TMDB compartida.');
   }
+  // Watchly es opcional: si su servidor falla, se instala todo lo demás y se avisa.
+  let watchly = null, watchlyReused = false;
+  const skipped = [...(standalone.skipped || [])];
+  if (options.watchly) {
+    try { watchly = await createWatchlyAddon(options, auth); }
+    catch (error) {
+      logError('Watchly omitido:', error);
+      // Si ya tenía Watchly, se conserva el anterior en vez de perderlo.
+      const old = currentAddons.find(isWatchlyAddon);
+      if (old) { watchly = deepClone(old); watchlyReused = true; }
+      else skipped.push('Watchly');
+    }
+  }
   const aio = await createOrUpdateAio(options, currentAddons);
+  // Orden recomendado por las guías: las filas de Watchly antes que los catálogos de AIOMetadata.
   const desired = [
     ...(options.trailers ? [staticDesired[1]] : []),
     staticDesired[0],
+    ...(watchly ? [watchly] : []),
     metadata,
     aio.addon,
     ...staticDesired.slice(options.trailers ? 2 : 1),
@@ -1846,13 +1968,19 @@ async function buildDesiredAddons(options, currentAddons) {
   const platformAddons = options.platform === 'nuvio'
     ? unique.filter(addon => !['com.linvo.cinemeta', 'org.streailer.trailer'].includes(addon?.manifest?.id))
     : unique;
-  return { desired: platformAddons, aio, metadataReused, skippedAddons: standalone.skipped || [] };
+  return { desired: platformAddons, aio, metadataReused, skippedAddons: skipped, watchlyInstalled: !!watchly && !watchlyReused, watchlyReused };
 }
 
 const FREE_STANDALONE_ADDONS = new Set([
   'comet','webstreamr','sootiohttp','torrentsdb','stremthru',
   'mediafusion','cometa','animes'
 ]);
+
+// Lista ordenada de idiomas válidos (sin repetidos, máximo 8). Vacía = usar los del idioma principal.
+function languageList(value, allowed) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map(String).filter(name => allowed.has(name)))].slice(0, 8);
+}
 
 function normalizeOptions(body) {
   const noDebrid = body.noDebrid === true;
@@ -1881,7 +2009,10 @@ function normalizeOptions(body) {
     platform: body.platform === 'nuvio' ? 'nuvio' : 'stremio',
     profileId: Number(body.profileId || 1),
     noDebrid,
-    language: ['es-MX', 'es-ES', 'en'].includes(body.language) ? body.language : 'es-MX',
+    language: CONTENT_LANGUAGES.includes(body.language) ? body.language : 'es-MX',
+    audioLanguages: languageList(body.audioLanguages, AIO_AUDIO_LANGUAGES),
+    subtitleLanguages: languageList(body.subtitleLanguages, new Set(Object.keys(SUBTITLE_CODES))),
+    watchly: body.watchly === true,
     profileMode: body.profileMode === 'tamtaro' ? 'tamtaro' : 'recommended',
     instanceMode: 'recommended',
     aioInstallMode: 'new',
@@ -2060,6 +2191,7 @@ async function handleAnalyze(body) {
   if (options.openSubtitles) addIfMissing(ids.has('community.opensubtitlesv3.pro'), 'OpenSubtitles PRO', 'Proveedor adicional de subtítulos.');
   if (options.anime) addIfMissing(ids.has('community.anime.kitsu'), 'Anime Kitsu', 'Catálogos y metadata de anime.');
   if (options.argentinaTv) addIfMissing(ids.has('community.argentinatv'), 'Argentina TV', 'Canales en vivo.');
+  if (options.watchly) addIfMissing(addons.some(isWatchlyAddon), 'Watchly', 'Recomendaciones personalizadas según lo que ves.');
 
   const standaloneDefs = [
     ['torrentio','com.stremio.torrentio.addon','Torrentio standalone'],
@@ -2230,7 +2362,7 @@ async function handleConfigure(body) {
 
   const backupId = preparedBackupId;
   let built;
-  try { built = await buildDesiredAddons(options, current); }
+  try { built = await buildDesiredAddons(options, current, auth); }
   catch (error) { throw new Error('Falló la preparación de los complementos: ' + error.message); }
   let collectionWritten = false;
   let stage = 'guardar la colección';
@@ -2311,6 +2443,7 @@ async function handleConfigure(body) {
       },
       metadataReused: built.metadataReused,
       skippedAddons: built.skippedAddons,
+      watchly: options.watchly ? { installed: built.watchlyInstalled, reused: built.watchlyReused } : null,
       sourceFingerprint: collectionFingerprint(installed)
     };
   } catch (error) {
@@ -2564,13 +2697,26 @@ async function handleAioPush(body) {
   }
 }
 
+// Ordena complementos y, en Stremio, oculta o renombra catálogos.
+// Antes de configurar: exige el respaldo preparado. Después de instalar: exige la huella que devolvió
+// la instalación (la cuenta no cambió desde entonces) y crea un respaldo de seguridad antes de escribir.
 async function handleOrganize(body) {
   const auth = await resolveStremioAuth(body);
   const current = await getAddonCollection(auth);
-  const backup = await readBackup(String(body.preparedBackupId || ''));
-  if (!accountOwnsBackup(auth, backup) ||
-      !fingerprintMatches(backup.fingerprint, current)) {
-    throw new Error('Crea un respaldo nuevo de la colección actual antes de organizar');
+  const nuvio = auth.platform === 'nuvio';
+  let safetyBackupId = null;
+  if (body.expectedFingerprint) {
+    if (!fingerprintMatches(String(body.expectedFingerprint), current)) {
+      throw new Error('Tus complementos cambiaron desde la instalación. Vuelve a conectar la cuenta antes de personalizar');
+    }
+    const extra = nuvio ? { nuvioCollections: await pullNuvioCollections(auth) } : null;
+    safetyBackupId = await backupCollection(auth.identity, current, null, extra);
+  } else {
+    const backup = await readBackup(String(body.preparedBackupId || ''));
+    if (!accountOwnsBackup(auth, backup) ||
+        !fingerprintMatches(backup.fingerprint, current)) {
+      throw new Error('Crea un respaldo nuevo de la colección actual antes de organizar');
+    }
   }
   const order = body.order;
   if (!Array.isArray(order) || order.length !== current.length ||
@@ -2578,21 +2724,33 @@ async function handleOrganize(body) {
       order.some(i => !Number.isInteger(i) || i < 0 || i >= current.length)) {
     throw new Error('El orden de complementos no es válido');
   }
-  const catalogChoices = body.catalogChoices || {};
+  // Nuvio guarda sólo la URL de cada complemento: los catálogos se eligen dentro de la app.
+  const catalogChoices = nuvio ? {} : (body.catalogChoices || {});
+  const catalogNames = nuvio ? {} : (body.catalogNames || {});
   const edited = current.map((addon, index) => {
     const copy = deepClone(addon);
+    const original = copy.manifest?.catalogs;
     if (Object.prototype.hasOwnProperty.call(catalogChoices, index)) {
-      const original = copy.manifest?.catalogs;
       const selected = catalogChoices[index];
       if (!Array.isArray(selected) || (!Array.isArray(original) && selected.length)) {
         throw new Error('Selección de catálogos inválida');
       }
-      if (!Array.isArray(original)) return copy;
-      const keys = new Set(selected);
-      const known = new Set(original.map(c => String(c.type) + ':' + String(c.id)));
-      if ([...keys].some(key => !known.has(key))) throw new Error('Catálogo no reconocido');
-      if (original.length && !keys.size) throw new Error('Deja al menos un catálogo por complemento');
-      copy.manifest.catalogs = original.filter(c => keys.has(String(c.type) + ':' + String(c.id)));
+      if (Array.isArray(original)) {
+        const keys = new Set(selected);
+        const known = new Set(original.map(c => String(c.type) + ':' + String(c.id)));
+        if ([...keys].some(key => !known.has(key))) throw new Error('Catálogo no reconocido');
+        if (original.length && !keys.size) throw new Error('Deja al menos un catálogo por complemento');
+        copy.manifest.catalogs = original.filter(c => keys.has(String(c.type) + ':' + String(c.id)));
+      }
+    }
+    const names = catalogNames[index];
+    if (names && typeof names === 'object' && Array.isArray(copy.manifest?.catalogs)) {
+      copy.manifest.catalogs = copy.manifest.catalogs.map(c => {
+        const key = String(c.type) + ':' + String(c.id);
+        if (!Object.prototype.hasOwnProperty.call(names, key)) return c;
+        const name = String(names[key] || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+        return name ? { ...c, name } : c;
+      });
     }
     return copy;
   });
@@ -2600,14 +2758,15 @@ async function handleOrganize(body) {
   try {
     await setAddonCollection(auth, desired);
     const actual = await getAddonCollection(auth);
-    const signature = addons => addons.map(a => ({
+    const signature = addons => addons.map(a => nuvio ? { url: nuvioUrlKey(a) } : {
       url: a.transportUrl,
-      catalogs: (a.manifest?.catalogs || []).map(c => String(c.type) + ':' + String(c.id))
-    }));
-    if (JSON.stringify(signature(actual)) !== JSON.stringify(signature(desired))) {
-      throw new Error('Stremio no confirmó el orden y los catálogos');
+      catalogs: (a.manifest?.catalogs || []).map(c => String(c.type) + ':' + String(c.id) + ':' + String(c.name || ''))
+    });
+    if (JSON.stringify(signature(actual)) !== JSON.stringify(signature(nuvio ? uniqueNuvioAddons(desired) : desired))) {
+      throw new Error('La app no confirmó el orden y los catálogos');
     }
-    return { ok: true, count: actual.length, addons: addonSummary(actual) };
+    return { ok: true, count: actual.length, addons: addonSummary(actual),
+      sourceFingerprint: collectionFingerprint(actual), safetyBackupId };
   } catch (error) {
     try { await setAddonCollection(auth, current); }
     catch (restoreError) { logError('Falló restauración tras organizar:', restoreError.message); }
@@ -2815,6 +2974,7 @@ const ADDON_HEALTH_STATIC = [
   { key: 'aiostreams', name: 'AIOStreams (instance)', url: AIO_BASE + '/api/v1/status', expect: d => d?.success === true },
   { key: 'aiometadata', name: 'AIOMetadata', url: AIOMETA_BASE + '/api/config', expect: d => !!d && typeof d === 'object' },
   { key: 'tamtaro', name: 'Tamtaro template', url: TAMTARO_URL, expect: d => Array.isArray(d) && d.some(x => x?.metadata?.id === 'tamtaro.complete') },
+  { key: 'watchly', name: 'Watchly', url: WATCHLY_BASE + '/health', expect: d => d?.status === 'healthy' },
   { key: 'peerflix', name: 'Peerflix', url: 'https://addon.peerflix.mov/manifest.json' },
   { key: 'cometa', name: 'Cometa', url: 'https://cometa.stremx.net/manifest.json' },
   { key: 'latinobrid', name: 'Latinobrid', url: 'https://latinobrid.stremx.net/manifest.json' },
@@ -2938,4 +3098,4 @@ function recordStep(pathname, body, ok, started, error) {
 
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,
   languageProfile, backupCollection, readBackup, parseAioManifest, handleAioPush, createOrUpdateAio,
-  handleTransferPreview, handleTransferApply, transferDesired };
+  handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan };

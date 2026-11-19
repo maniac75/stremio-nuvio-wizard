@@ -13,10 +13,13 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 
 - **Safe by default:** a verified, encrypted backup is required before any change, and the wizard refuses to apply if the account changed since that backup. Failed applies roll back.
 - **Review before apply:** shows what will be added, replaced or removed, and lets you keep your own add-ons.
-- **AIOStreams + AIOMetadata** set up with sensible Spanish/Latin American defaults, optional Debrid (TorBox, Real-Debrid, AllDebrid, Premiumize, Debrid-Link, EasyDebrid) with "cached only" mode.
+- **9 content languages:** Latin American Spanish, Spain Spanish, English, Brazilian and European Portuguese, French, Italian, German and Dutch, plus an advanced, ordered list of audio and subtitle languages.
+- **AIOStreams + AIOMetadata** set up with sensible defaults for your language, optional Debrid (TorBox, Real-Debrid, AllDebrid, Premiumize, Debrid-Link, EasyDebrid) with "cached only" mode.
 - **Subtitles and trailers:** SubSense, OpenSubtitles PRO, Streailer.
 - **Copy between apps:** Stremio → Nuvio and Nuvio → Stremio, reusing the same AIOStreams instance.
 - **Nuvio extras:** home-screen collections (Watch now, Genres, Decades, Themed, International, and Franchises with your own TMDB key), and one-click copy of the setup to the other profiles of the account. Collections are included in the backup.
+- **Watchly recommendations (optional):** “Because you watched…” rows from your Stremio or Nuvio history, plus a guide to connect Trakt.
+- **Customize after installing:** reorder add-ons and, in Stremio, hide or rename catalogs, with a safety backup first.
 - **Restore** any previous backup or an exported JSON.
 - **Check my setup:** finds broken or retired add-ons in your account and removes them, with a backup first.
 - **Daily add-on monitor:** a GitHub Action checks every add-on the wizard installs and opens an issue if one goes down.

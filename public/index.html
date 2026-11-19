@@ -117,6 +117,13 @@ footer{color:#6f8fa2;text-align:center;margin-top:28px;font-size:12px}
 .steps button.done{color:#b7f2dc}.steps button.done span{background:rgba(103,230,167,.22)}
 .steps button:disabled{opacity:.55}
 .step-actions{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:3px 0 15px}
+.langList{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px}
+.langList li{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:6px 8px;color:var(--text)}
+.langList li span{flex:1}.langList li b{color:var(--accent);min-width:1.4em}
+.langList button{padding:5px 9px;min-height:0}
+.langAdd{display:flex;gap:8px;align-items:center}.langAdd select{flex:1}
+.customize{margin-top:14px}.customize .orderRow{display:block;margin:8px 0}
+.customize .catalogRow{display:flex;gap:8px;align-items:center;margin:6px 0}.customize .catalogRow input[type=text]{flex:1;min-height:34px;padding:5px 9px;font-size:14px}
 .fold{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:rgba(7,22,33,.55);padding:0 12px}
 .fold>summary{cursor:pointer;color:#d9f3f5;font-weight:700;padding:13px 3px;list-style:none}.fold>summary::-webkit-details-marker{display:none}.fold>summary:after{content:'⌄';float:right;color:var(--accent)}.fold[open]>summary:after{content:'⌃'}
 .fold[open]{padding-bottom:14px}.fold .checks{margin-top:5px}
@@ -296,8 +303,28 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
       <option value="es-MX" selected>Español Latino</option>
       <option value="es-ES">Español España</option>
       <option value="en">English</option>
+      <option value="pt-BR">Português (Brasil)</option>
+      <option value="pt-PT">Português (Portugal)</option>
+      <option value="fr">Français</option>
+      <option value="it">Italiano</option>
+      <option value="de">Deutsch</option>
+      <option value="nl">Nederlands</option>
     </select>
   </div>
+  <details class="fold" id="languageOrderFold"><summary>Idiomas de audio y subtítulos (avanzado)</summary>
+  <div class="small" style="margin:8px 0 12px">Por defecto se usan los del idioma principal. Aquí puedes sumar otros idiomas y ordenarlos: el primero es el preferido. Los resultados en versión original, multi o dual se siguen mostrando.</div>
+  <div class="langOrder" data-kind="audio">
+    <div class="platformLabel">Audio, en orden de preferencia</div>
+    <ol class="langList" id="audioLanguageList"></ol>
+    <div class="langAdd"><select id="audioLanguageAdd" aria-label="Agregar idioma de audio"></select><button class="secondary" type="button" data-lang-add="audio">+ Agregar</button></div>
+  </div>
+  <div class="langOrder" data-kind="subtitle" style="margin-top:14px">
+    <div class="platformLabel">Subtítulos, en orden de preferencia</div>
+    <ol class="langList" id="subtitleLanguageList"></ol>
+    <div class="langAdd"><select id="subtitleLanguageAdd" aria-label="Agregar idioma de subtítulos"></select><button class="secondary" type="button" data-lang-add="subtitle">+ Agregar</button></div>
+  </div>
+  <div class="actions"><button class="secondary" type="button" id="resetLanguageOrder">Volver a los del idioma principal</button></div>
+  </details>
   <details class="fold optionDisclosure"><summary>Preferencias adicionales de contenido</summary>
   <div class="actions" style="margin:0 0 10px"><button class="secondary selectGroup" type="button" data-group="contentPreferences" data-checked="true">Seleccionar todos</button><button class="secondary selectGroup" type="button" data-group="contentPreferences" data-checked="false">Borrar selección</button></div>
   <div class="checks" id="contentPreferences">
@@ -352,6 +379,14 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <div class="check"><input id="stores" type="checkbox" checked><label for="stores"><b>Store por Debrid</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Catálogo para explorar lo que ya tienes guardado en cada servicio Debrid.</div></label></div>
   </div>
   <div class="small" style="margin-top:11px">AIOStreams reúne las fuentes principales. Aquí puedes sumar subtítulos, tráileres y otras opciones. AIOMetadata se instala siempre.</div>
+
+  <details class="fold optionDisclosure" id="watchlyFold"><summary>Recomendaciones personalizadas (opcional)</summary>
+  <div class="checks">
+    <div class="check"><input id="watchly" type="checkbox"><label for="watchly"><b>Watchly</b> <span class="rec-tag tag-opt">OPCIONAL</span><div class="small">Agrega filas al inicio con recomendaciones según lo que ves, como «Porque viste…», en el idioma elegido. Al marcarlo, Watchly (servidor de ElfHosted, código abierto) recibe un acceso de sólo lectura a tu historial: la sesión de tu cuenta, nunca tu contraseña. Si tu cuenta es nueva, las filas aparecen cuando tengas historial.</div></label></div>
+  </div>
+  <div class="small" style="margin-top:9px">¿Usas Trakt? Al terminar te mostramos cómo conectarlo para sincronizar lo que ves entre apps y mejorar las recomendaciones.</div>
+  <div class="linkrow"><a class="link" href="https://github.com/TimilsinaBimal/Watchly" target="_blank" rel="noreferrer noopener">Watchly ↗</a></div>
+  </details>
 
   <details class="fold optionDisclosure"><summary>Complementos en español (opcional)</summary>
   <div class="small" style="margin-bottom:9px">Estas opciones aparecen en la guía de <a class="link" href="https://stremio-and-nuvio-esp.gitbook.io/docs" target="_blank" rel="noreferrer noopener">Stremio & Nuvio ESP ↗</a>. Se configuran automáticamente cuando es posible.</div>

@@ -206,9 +206,9 @@ function renderOrganizer(reset){
   organizerOrder.forEach(function(index,position){
     var a=installedAddons[index];
     html+='<div class="check" style="display:block;margin:8px 0"><b>'+esc(a.name)+'</b> <span class="small">('+esc(a.id)+')</span>'+
-      '<div class="actions"><button class="secondary orderMove" type="button" data-position="'+position+'" data-step="-1" '+(position===0?'disabled':'')+'>↑ Subir</button>'+
-      '<button class="secondary orderMove" type="button" data-position="'+position+'" data-step="1" '+(position===organizerOrder.length-1?'disabled':'')+'>↓ Bajar</button></div>';
-    if(a.catalogs&&a.catalogs.length){
+      '<div class="actions"><button class="secondary orderMove" type="button" data-position="'+position+'" data-dir="-1" '+(position===0?'disabled':'')+'>↑ Subir</button>'+
+      '<button class="secondary orderMove" type="button" data-position="'+position+'" data-dir="1" '+(position===organizerOrder.length-1?'disabled':'')+'>↓ Bajar</button></div>';
+    if(platformName()!=='Nuvio'&&a.catalogs&&a.catalogs.length){
       html+='<details><summary class="small">Catálogos ('+a.catalogs.length+')</summary>';
       a.catalogs.forEach(function(c){
         var key=catalogKey(c),checked=(organizerCatalogs[index]||[]).includes(key);
@@ -229,7 +229,8 @@ function exportWizardProfile(){
     kids:c.kids,anime:c.anime,argentinaTv:c.argentinaTv,no4k:c.no4k,
     cachedOnly:c.cachedOnly,removeWatchHub:c.removeWatchHub,
     trailers:c.trailers,subtitles:c.subtitles,openSubtitles:c.openSubtitles,
-    stores:c.stores,standaloneAddons:c.standaloneAddons};
+    stores:c.stores,standaloneAddons:c.standaloneAddons,
+    audioLanguages:c.audioLanguages,subtitleLanguages:c.subtitleLanguages,watchly:c.watchly};
   downloadJsonFile('Stremio-Wizard-perfil-sin-claves.json',profile);
 }
 var serviceNames = {
@@ -390,6 +391,9 @@ function collect(){
   return Object.assign({},auth,{
     noDebrid:free,
     language:document.getElementById('language').value,
+    audioLanguages:languageOrderCustomized?languageOrder.audio.slice():[],
+    subtitleLanguages:languageOrderCustomized?languageOrder.subtitle.slice():[],
+    watchly:document.getElementById('watchly').checked,
     profileMode:document.getElementById('profileMode').value,
     instanceMode:document.getElementById('instanceMode').value,
     aioInstallMode:document.getElementById('aioInstallMode').value,
@@ -1316,6 +1320,16 @@ document.getElementById('configureBtn').addEventListener('click',async function(
           return '<div class="check"><input class="nuvioProfileTarget" type="checkbox" value="'+Number(p.id)+'" id="np'+Number(p.id)+'"><label for="np'+Number(p.id)+'"><b>'+esc(p.name)+'</b></label></div>';
         }).join('')+'</div>'+
         '<div class="actions"><button class="primary" id="applyOtherProfiles" type="button">Aplicar a los perfiles marcados</button></div><div class="small" id="otherProfilesStatus"></div></div>':'')+
+      watchlyResultHtml(d)+
+      '<details class="fold customize" id="customizeFold"><summary>Personaliza tu inicio: orden y catálogos</summary>'+
+        '<div class="small" style="margin:8px 0">'+(d.platform==='nuvio'
+          ?'Sube o baja complementos: el orden define qué filas y fuentes aparecen primero. En Nuvio, los catálogos de cada complemento se eligen dentro de la app.'
+          :'Sube o baja complementos para cambiar el orden de las filas del inicio. Desmarca los catálogos que no quieras ver o cámbiales el nombre.')+
+        ' Antes de guardar se crea un respaldo de seguridad.</div>'+
+        '<div id="customizeList"></div>'+
+        '<div class="actions"><button class="primary" id="customizeSave" type="button">Guardar orden y catálogos</button></div>'+
+        '<div class="small" id="customizeResult"></div></details>'+
+      traktGuideHtml(d.platform,!!(d.watchly&&(d.watchly.installed||d.watchly.reused)))+
       '<details class="fold"><summary>Ver detalles de la instalación</summary><pre>'+esc(details.join('\n'))+'</pre></details>'+
       '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIOStreams</button>':'')+
       '<button class="secondary" id="downloadInstalledAfter" type="button">Descargar lista y URL de complementos</button>'+
@@ -1393,6 +1407,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
 
     document.getElementById('downloadInstalledAfter').addEventListener('click',downloadInstalledList);
     latestSourceFingerprint=d.sourceFingerprint||'';
+    startCustomizer(d.addons,d.platform);
     var copyAfter=document.getElementById('copyAfterSuccess');
     if(copyAfter)copyAfter.addEventListener('click',openCopyAccounts);
     document.getElementById('showInstalledAfter').addEventListener('click',function(){showWizardStep(2);});
@@ -1436,7 +1451,7 @@ document.getElementById('organizerList').addEventListener('change',function(e){
 });
 document.getElementById('organizerList').addEventListener('click',function(e){
   var btn=e.target.closest('.orderMove');if(!btn)return;
-  var from=Number(btn.dataset.position),to=from+Number(btn.dataset.step);
+  var from=Number(btn.dataset.position),to=from+Number(btn.dataset.dir);
   if(to<0||to>=organizerOrder.length)return;
   var moved=organizerOrder.splice(from,1)[0];organizerOrder.splice(to,0,moved);
   renderOrganizer(false);
@@ -1474,7 +1489,8 @@ document.getElementById('profileInput').addEventListener('change',async function
       if(p[id]&&Array.from(document.getElementById(id).options).some(function(x){return x.value===p[id];}))
         document.getElementById(id).value=p[id];
     });
-    ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores'].forEach(function(id){
+    setLanguageOrder(p.audioLanguages,p.subtitleLanguages);
+    ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores','watchly'].forEach(function(id){
       if(typeof p[id]==='boolean')document.getElementById(id).checked=p[id];
     });
     document.querySelectorAll('.standaloneAddon').forEach(function(x){x.checked=Array.isArray(p.standaloneAddons)&&p.standaloneAddons.includes(x.value);});
@@ -1598,7 +1614,203 @@ document.addEventListener('change',function(){setTimeout(syncFloatingNext,0);});
 new MutationObserver(syncFloatingNext).observe(document.querySelector('.grid'),{
   subtree:true,attributes:true,attributeFilter:['hidden','disabled']
 });
+
+// ---- Idiomas de audio y subtítulos (avanzado) ----
+var LANGUAGE_LABELS={
+  'Latino':['Español latino','Latin American Spanish'],'Spanish':['Español (España)','Spanish (Spain)'],
+  'English':['Inglés','English'],'Portuguese (Brazil)':['Portugués (Brasil)','Portuguese (Brazil)'],
+  'Portuguese':['Portugués (Portugal)','Portuguese (Portugal)'],'French':['Francés','French'],'Italian':['Italiano','Italian'],
+  'German':['Alemán','German'],'Dutch':['Neerlandés','Dutch'],'Japanese':['Japonés','Japanese'],'Korean':['Coreano','Korean'],
+  'Chinese':['Chino','Chinese'],'Russian':['Ruso','Russian'],'Arabic':['Árabe','Arabic'],'Hindi':['Hindi','Hindi'],
+  'Turkish':['Turco','Turkish'],'Polish':['Polaco','Polish'],'Swedish':['Sueco','Swedish'],'Norwegian':['Noruego','Norwegian'],
+  'Danish':['Danés','Danish'],'Finnish':['Finés','Finnish'],'Greek':['Griego','Greek'],'Hebrew':['Hebreo','Hebrew'],
+  'Czech':['Checo','Czech'],'Hungarian':['Húngaro','Hungarian'],'Romanian':['Rumano','Romanian'],'Ukrainian':['Ucraniano','Ukrainian'],
+  'Vietnamese':['Vietnamita','Vietnamese'],'Thai':['Tailandés','Thai'],'Indonesian':['Indonesio','Indonesian'],'Malay':['Malayo','Malay'],
+  'Persian':['Persa','Persian'],'Bulgarian':['Búlgaro','Bulgarian'],'Croatian':['Croata','Croatian'],'Serbian':['Serbio','Serbian'],
+  'Slovak':['Eslovaco','Slovak'],'Slovenian':['Esloveno','Slovenian'],'Bengali':['Bengalí','Bengali'],'Tamil':['Tamil','Tamil'],
+  'Telugu':['Telugu','Telugu'],'Malayalam':['Malayalam','Malayalam'],'Kannada':['Canarés','Kannada'],'Marathi':['Maratí','Marathi'],
+  'Lithuanian':['Lituano','Lithuanian'],'Latvian':['Letón','Latvian'],'Estonian':['Estonio','Estonian']
+};
+// Igual que languageProfile() en el servidor.
+var LANGUAGE_DEFAULTS={
+  'es-MX':{audio:['Latino','Spanish'],subtitle:['Latino','Spanish','English']},
+  'es-ES':{audio:['Spanish'],subtitle:['Spanish','English']},
+  'en':{audio:['English'],subtitle:['English']},
+  'pt-BR':{audio:['Portuguese (Brazil)','Portuguese'],subtitle:['Portuguese (Brazil)','Portuguese','English']},
+  'pt-PT':{audio:['Portuguese','Portuguese (Brazil)'],subtitle:['Portuguese','Portuguese (Brazil)','English']},
+  'fr':{audio:['French'],subtitle:['French','English']},
+  'it':{audio:['Italian'],subtitle:['Italian','English']},
+  'de':{audio:['German'],subtitle:['German','English']},
+  'nl':{audio:['Dutch'],subtitle:['Dutch','English']}
+};
+var languageOrder={audio:[],subtitle:[]};
+var languageOrderCustomized=false;
+function languageLabel(name){var l=LANGUAGE_LABELS[name];return l?l[document.documentElement.lang==='en'?1:0]:name;}
+function languageDefaults(){return LANGUAGE_DEFAULTS[document.getElementById('language').value]||LANGUAGE_DEFAULTS['es-MX'];}
+function renderLanguageOrder(){
+  ['audio','subtitle'].forEach(function(kind){
+    var list=document.getElementById(kind+'LanguageList'),items=languageOrder[kind];
+    list.innerHTML=items.map(function(name,i){
+      return '<li><b>'+(i+1)+'</b><span>'+esc(languageLabel(name))+'</span>'+
+        '<button class="secondary" type="button" data-lang-move="'+kind+'" data-index="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+' aria-label="Subir">↑</button>'+
+        '<button class="secondary" type="button" data-lang-move="'+kind+'" data-index="'+i+'" data-dir="1" '+(i===items.length-1?'disabled':'')+' aria-label="Bajar">↓</button>'+
+        '<button class="secondary" type="button" data-lang-remove="'+kind+'" data-index="'+i+'" '+(items.length===1?'disabled':'')+' aria-label="Quitar">✕</button></li>';
+    }).join('');
+    var add=document.getElementById(kind+'LanguageAdd');
+    var options=Object.keys(LANGUAGE_LABELS).filter(function(name){return items.indexOf(name)<0;})
+      .sort(function(a,b){return languageLabel(a).localeCompare(languageLabel(b));});
+    add.innerHTML=options.map(function(name){return '<option value="'+esc(name)+'">'+esc(languageLabel(name))+'</option>';}).join('');
+    var addButton=document.querySelector('[data-lang-add="'+kind+'"]');
+    if(addButton)addButton.disabled=!options.length||items.length>=8;
+  });
+}
+function resetLanguageOrder(){
+  var d=languageDefaults();
+  languageOrder={audio:d.audio.slice(),subtitle:d.subtitle.slice()};
+  languageOrderCustomized=false;
+  renderLanguageOrder();
+}
+function setLanguageOrder(audio,subtitle){
+  var valid=function(list){return Array.isArray(list)?list.filter(function(x){return !!LANGUAGE_LABELS[x];}).slice(0,8):[];};
+  var a=valid(audio),s=valid(subtitle);
+  if(!a.length&&!s.length){resetLanguageOrder();return;}
+  var d=languageDefaults();
+  languageOrder={audio:a.length?a:d.audio.slice(),subtitle:s.length?s:d.subtitle.slice()};
+  languageOrderCustomized=true;
+  renderLanguageOrder();
+}
+function languageOrderChanged(){
+  languageOrderCustomized=true;
+  renderLanguageOrder();
+  if(backupReady)clearReview('Cambiaste los idiomas: revisa nuevamente el plan.');
+}
+document.getElementById('languageOrderFold').addEventListener('click',function(e){
+  var move=e.target.closest('[data-lang-move]'),remove=e.target.closest('[data-lang-remove]'),add=e.target.closest('[data-lang-add]');
+  if(move){
+    var list=languageOrder[move.dataset.langMove],from=Number(move.dataset.index),to=from+Number(move.dataset.dir);
+    if(to<0||to>=list.length)return;
+    list.splice(to,0,list.splice(from,1)[0]);languageOrderChanged();
+  }else if(remove){
+    var items=languageOrder[remove.dataset.langRemove];
+    if(items.length>1){items.splice(Number(remove.dataset.index),1);languageOrderChanged();}
+  }else if(add){
+    var kind=add.dataset.langAdd,value=document.getElementById(kind+'LanguageAdd').value;
+    if(value&&languageOrder[kind].indexOf(value)<0&&languageOrder[kind].length<8){languageOrder[kind].push(value);languageOrderChanged();}
+  }
+});
+document.getElementById('resetLanguageOrder').addEventListener('click',function(){
+  resetLanguageOrder();
+  if(backupReady)clearReview('Cambiaste los idiomas: revisa nuevamente el plan.');
+});
+document.getElementById('language').addEventListener('change',function(){if(!languageOrderCustomized)resetLanguageOrder();});
+document.getElementById('uiLanguage').addEventListener('change',function(){setTimeout(function(){if(languageOrderCustomized)renderLanguageOrder();else resetLanguageOrder();},0);});
+document.getElementById('watchly').addEventListener('change',function(){if(backupReady)clearReview('Cambiaste las recomendaciones: revisa nuevamente el plan.');});
+
+// ---- Después de instalar: Watchly, Trakt y personalización del inicio ----
+function watchlyResultHtml(d){
+  if(!d.watchly)return '';
+  if(d.watchly.installed)return '<div class="note good"><b>Watchly instalado.</b> Tus filas de recomendaciones aparecerán en el inicio a medida que '+platformName()+' tenga historial. La primera carga puede tardar un par de minutos.</div>';
+  if(d.watchly.reused)return '<div class="note"><b>Watchly no respondió</b>, así que se conservó el Watchly que ya tenías. Puedes volver a intentarlo más tarde.</div>';
+  return '<div class="note bad"><b>Watchly no respondió y no se instaló.</b> El resto quedó configurado. Puedes intentarlo más tarde repitiendo el wizard con Watchly marcado.</div>';
+}
+function traktGuideHtml(platform,watchly){
+  var app=platform==='nuvio'
+    ?'<li>En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.</li>'
+    :'<li>En Stremio, abre Ajustes, busca Trakt y pulsa Autenticar. También puedes hacerlo en <a class="link" href="https://web.stremio.com/#/settings" target="_blank" rel="noopener noreferrer">web.stremio.com ↗</a>.</li>';
+  return '<details class="fold"><summary>Conectar Trakt (opcional)</summary>'+
+    '<div class="small" style="margin:8px 0">Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.</div>'+
+    '<ol class="small">'+app+
+      (watchly?'<li>Para que Watchly también use tu historial de Trakt, entra a <a class="link" href="https://watchly.elfhosted.com/configure" target="_blank" rel="noopener noreferrer">Watchly ↗</a>, inicia sesión con la misma cuenta y conecta Trakt.</li>':'')+
+    '</ol></details>';
+}
+var customize={addons:[],order:[],catalogs:{},names:{},platform:'stremio'};
+function startCustomizer(addons,platform){
+  customize={addons:Array.isArray(addons)?addons:[],order:[],catalogs:{},names:{},platform:platform==='nuvio'?'nuvio':'stremio'};
+  customize.order=customize.addons.map(function(_,i){return i;});
+  customize.addons.forEach(function(a,i){customize.catalogs[i]=(a.catalogs||[]).map(catalogKey);});
+  renderCustomizer();
+}
+function renderCustomizer(){
+  var box=document.getElementById('customizeList');if(!box)return;
+  var open={};box.querySelectorAll('details[data-index]').forEach(function(d){if(d.open)open[d.dataset.index]=true;});
+  var html='';
+  customize.order.forEach(function(index,position){
+    var a=customize.addons[index];
+    html+='<div class="check orderRow"><b>'+(position+1)+'. '+esc(a.name)+'</b>'+
+      '<div class="actions"><button class="secondary customizeMove" type="button" data-position="'+position+'" data-dir="-1" '+(position===0?'disabled':'')+'>↑ Subir</button>'+
+      '<button class="secondary customizeMove" type="button" data-position="'+position+'" data-dir="1" '+(position===customize.order.length-1?'disabled':'')+'>↓ Bajar</button></div>';
+    if(customize.platform!=='nuvio'&&a.catalogs&&a.catalogs.length){
+      html+='<details data-index="'+index+'"'+(open[index]?' open':'')+'><summary class="small">Catálogos ('+a.catalogs.length+')</summary>';
+      a.catalogs.forEach(function(c){
+        var key=catalogKey(c),checked=(customize.catalogs[index]||[]).indexOf(key)>=0;
+        var name=(customize.names[index]&&customize.names[index][key]!==undefined)?customize.names[index][key]:c.name;
+        html+='<div class="catalogRow"><input class="customizeCatalog" type="checkbox" aria-label="Mostrar catálogo" data-index="'+index+'" data-key="'+esc(key)+'" '+(checked?'checked':'')+'>'+
+          '<input class="customizeName" type="text" maxlength="60" aria-label="Nombre del catálogo" data-index="'+index+'" data-key="'+esc(key)+'" value="'+esc(name)+'">'+
+          '<span class="small">'+esc(c.type==='movie'?'Películas':c.type==='series'?'Series':c.type)+'</span></div>';
+      });
+      html+='</details>';
+    }
+    html+='</div>';
+  });
+  box.innerHTML=html;
+}
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.customizeMove');if(!btn)return;
+  var from=Number(btn.dataset.position),to=from+Number(btn.dataset.dir);
+  if(to<0||to>=customize.order.length)return;
+  customize.order.splice(to,0,customize.order.splice(from,1)[0]);
+  renderCustomizer();
+});
+document.addEventListener('change',function(e){
+  if(e.target.classList.contains('customizeCatalog')){
+    var index=Number(e.target.dataset.index),key=e.target.dataset.key,set=new Set(customize.catalogs[index]||[]);
+    if(e.target.checked)set.add(key);else set.delete(key);
+    customize.catalogs[index]=Array.from(set);
+  }
+});
+document.addEventListener('input',function(e){
+  if(!e.target.classList.contains('customizeName'))return;
+  var index=Number(e.target.dataset.index);
+  customize.names[index]=customize.names[index]||{};
+  customize.names[index][e.target.dataset.key]=e.target.value;
+});
+document.addEventListener('click',async function(e){
+  var btn=e.target.closest('#customizeSave');if(!btn)return;
+  var result=document.getElementById('customizeResult');
+  if(!latestSourceFingerprint){result.textContent='Vuelve a conectar la cuenta para personalizar.';return;}
+  var empty=Object.keys(customize.catalogs).some(function(i){
+    return (customize.addons[i].catalogs||[]).length&&!(customize.catalogs[i]||[]).length;
+  });
+  if(empty){result.textContent='Deja al menos un catálogo marcado en cada complemento.';return;}
+  var choices={},names={};
+  customize.addons.forEach(function(a,i){
+    var all=(a.catalogs||[]).map(catalogKey);
+    if(customize.platform!=='nuvio'&&(customize.catalogs[i]||[]).length!==all.length)choices[i]=customize.catalogs[i];
+    var changed={};
+    Object.keys(customize.names[i]||{}).forEach(function(key){
+      var original=(a.catalogs||[]).find(function(c){return catalogKey(c)===key;});
+      var value=String(customize.names[i][key]||'').trim();
+      if(original&&value&&value!==original.name)changed[key]=value;
+    });
+    if(customize.platform!=='nuvio'&&Object.keys(changed).length)names[i]=changed;
+  });
+  if(!confirm('¿Guardar el nuevo orden y los catálogos en '+platformName()+'? Antes se guarda un respaldo para poder volver atrás.'))return;
+  setBusy(btn,true,'Guardando…');
+  try{
+    var r=await post('/api/organize',Object.assign({},authPayload(),{
+      expectedFingerprint:latestSourceFingerprint,order:customize.order,catalogChoices:choices,catalogNames:names
+    }));
+    latestSourceFingerprint=r.sourceFingerprint||'';
+    showInstalledAddons(r.addons);
+    startCustomizer(r.addons,customize.platform);
+    result.textContent='✓ Guardado. Cierra y vuelve a abrir '+platformName()+' para ver el nuevo orden. El respaldo previo quedó guardado en este navegador.';
+  }catch(err){result.textContent='No se pudo guardar: '+err.message;}
+  finally{setBusy(btn,false);}
+});
 initAccess();
+resetLanguageOrder();
+// i18n.js se carga después y puede ajustar el idioma del contenido: se recalcula al terminar.
+setTimeout(function(){if(!languageOrderCustomized)resetLanguageOrder();},0);
 showWizardStep(1);
 addDebrid('torbox');
 syncDebridMode(false);
