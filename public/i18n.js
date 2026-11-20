@@ -362,6 +362,16 @@ Nuvio omite Cinemeta y Streailer: por eso puede mostrar dos complementos menos q
 Copiar Stremio ↔ Nuvio	Copy Stremio ↔ Nuvio
 Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 ¿También usas la otra app?	Do you also use the other app?
+¿Usas Stremio y Nuvio?	Do you use Stremio and Nuvio?
+Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
+Abre el enlace oficial de Stremio y aprueba el acceso. Si no has iniciado sesión allá, Stremio te la pedirá en su propio sitio. El wizard detecta solo cuando apruebas.	Open Stremio's official link and approve access. If you're not signed in there, Stremio will ask you on its own site. The wizard detects when you approve.
+Abrir Stremio y aprobar ↗	Open Stremio and approve ↗
+Desde otro dispositivo: escanea el QR o entra a	From another device: scan the QR or go to
+Esperando que apruebes en Stremio…	Waiting for you to approve in Stremio…
+El enlace venció. Pulsa el botón otra vez para crear uno nuevo.	The link expired. Press the button again to create a new one.
+✓ Aprobado. Conectando…	✓ Approved. Connecting…
+Creando enlace…	Creating link…
+Código QR del enlace de Stremio	QR code for the Stremio link
 Copia tu configuración de complementos entre Stremio y Nuvio sin volver a instalar todo desde cero. El wizard respalda primero la cuenta de destino y reutiliza el mismo AIOStreams.	Copy your addon setup between Stremio and Nuvio without reinstalling everything from scratch. The wizard backs up the destination account first and reuses the same AIOStreams.
 Copiar configuración entre Stremio y Nuvio	Copy setup between Stremio and Nuvio
 Misma configuración en Stremio y Nuvio	Same setup in Stremio and Nuvio
@@ -708,6 +718,7 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
     [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
     [/^Paso (\d)\/(\d)$/,'Step $1/$2'],
+    [/^No se pudo crear el enlace: (.*)$/,'Could not create the link: $1'],
     [/^Configurar (Stremio|Nuvio) igual que (Stremio|Nuvio)$/,'Set up $1 the same as $2'],
     [/^Trakt conectado como @(.*?)\.$/,'Trakt connected as @$1.'],
     [/^Conectar cuenta de (Stremio|Nuvio)$/,'Connect $1 account'],

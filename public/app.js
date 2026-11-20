@@ -342,6 +342,8 @@ function syncPlatform(){
   document.getElementById('nuvioProfileField').hidden=!nuvio;
   document.getElementById('stremioAuthField').hidden=nuvio;
   document.getElementById('rememberAccountField').hidden=nuvio;
+  document.getElementById('stremioLinkBox').hidden=nuvio;
+  if(nuvio)stopStremioLink();
   var collectionsField=document.getElementById('nuvioCollectionsField');
   if(collectionsField)collectionsField.hidden=!nuvio;
   // Streailer y WatchHub son propios de Stremio: en Nuvio no se instalan, así que no se muestran.
@@ -757,6 +759,40 @@ async function health(){
   }
   syncServiceSummary();
 }
+
+// ---- Inicio de sesión con el enlace oficial de Stremio ----
+var stremioLinkTimer=null;
+function stopStremioLink(){clearInterval(stremioLinkTimer);stremioLinkTimer=null;}
+document.getElementById('stremioLinkBtn').addEventListener('click',async function(){
+  var btn=this,panel=document.getElementById('stremioLinkPanel'),status=document.getElementById('stremioLinkStatus');
+  stopStremioLink();
+  setBusy(btn,true,'Creando enlace…');
+  try{
+    var link=await post('/api/stremio-link/create',{});
+    document.getElementById('stremioLinkOpen').href=link.link;
+    document.getElementById('stremioLinkQr').src=link.qrcode;
+    document.getElementById('stremioLinkUrl').textContent=link.link.replace('https://','');
+    panel.hidden=false;
+    status.textContent='Esperando que apruebes en Stremio…';
+    var until=Date.now()+5*60*1000,busy=false;
+    stremioLinkTimer=setInterval(async function(){
+      if(Date.now()>until){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';return;}
+      if(busy)return;busy=true;
+      try{
+        var r=await post('/api/stremio-link/read',{code:link.code});
+        if(r.status==='approved'){
+          stopStremioLink();
+          status.textContent='✓ Aprobado. Conectando…';
+          document.getElementById('email').value='';document.getElementById('password').value='';
+          document.getElementById('authKey').value=r.authKey;
+          document.getElementById('connectBtn').click();
+          panel.hidden=true;
+        }else if(r.status==='expired'){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';}
+      }catch(_){}finally{busy=false;}
+    },3000);
+  }catch(err){panel.hidden=false;status.textContent='No se pudo crear el enlace: '+err.message;}
+  finally{setBusy(btn,false);}
+});
 
 document.getElementById('connectBtn').addEventListener('click',async function(){
   var btn=this,box=document.getElementById('accountResult'),auth=authPayload();

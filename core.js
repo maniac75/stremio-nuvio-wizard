@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.23.2';
+const WIZARD_VERSION = '0.24.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1190,6 +1190,29 @@ async function validateMetadataOptions(options) {
       throw new Error('La instancia de AIOMetadata no ofrece clave TVDB ahora. Usa tu propia clave.');
     }
   }
+}
+
+// Inicio de sesión con el enlace oficial de Stremio (link.stremio.com): el usuario aprueba en
+// el sitio de Stremio y el wizard recibe una AuthKey sin ver nunca su contraseña.
+const STREMIO_LINK_API = 'https://link.stremio.com/api/v2';
+const STREMIO_LINK_HEADERS = { 'X-Requested-With': 'wizard.stremio-nuvio.workers.dev' };
+async function handleStremioLinkCreate() {
+  const data = await fetchJson(STREMIO_LINK_API + '/create?type=Create', { headers: STREMIO_LINK_HEADERS }, 12000);
+  const r = data?.result;
+  if (!r?.success || !/^[A-Za-z0-9]{3,12}$/.test(String(r.code || ''))) throw new Error('Stremio no entregó un enlace de inicio de sesión. Prueba con correo y contraseña.');
+  return { code: r.code, link: 'https://link.stremio.com/' + r.code, qrcode: 'https://link.stremio.com/qr?data=' + encodeURIComponent('https://link.stremio.com/' + r.code) };
+}
+async function handleStremioLinkRead(body) {
+  const code = String(body?.code || '');
+  if (!/^[A-Za-z0-9]{3,12}$/.test(code)) throw new Error('Código de enlace no válido');
+  const response = await fetch(STREMIO_LINK_API + '/read?type=Read&code=' + encodeURIComponent(code), { headers: STREMIO_LINK_HEADERS });
+  if (response.status === 404 || response.status === 410) return { status: 'expired' };
+  if (!response.ok) return { status: 'pending' };
+  const data = await response.json().catch(() => null);
+  if (data?.result?.authKey) return { status: 'approved', authKey: String(data.result.authKey) };
+  if (data?.error?.code === 101) return { status: 'pending' };
+  if (/expired/i.test(String(data?.error?.message || ''))) return { status: 'expired' };
+  return { status: 'pending' };
 }
 
 async function handleValidateKey(body) {
@@ -3266,6 +3289,8 @@ async function handleAddonHealth() {
 const ROUTES = {
   'POST /api/validate-key': handleValidateKey,
   'POST /api/connect': handleConnect,
+  'POST /api/stremio-link/create': handleStremioLinkCreate,
+  'POST /api/stremio-link/read': handleStremioLinkRead,
   'POST /api/analyze': handleAnalyze,
   'POST /api/backup': handleBackup,
   'POST /api/configure': handleConfigure,

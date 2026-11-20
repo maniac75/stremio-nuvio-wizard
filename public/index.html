@@ -223,6 +223,35 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
   .card,.card.full{padding:14px}.actions>button{flex-basis:100%}
 }
 .guideTopLink{display:block;width:max-content;max-width:100%;margin:0 4px 9px auto;color:#176e77;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}.guideTopLink:hover{text-decoration:underline;text-underline-offset:3px;color:#084d58}.guideTopLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.stremioLinkBox{margin:6px 0 12px}.orLine{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 10px}.orLine:before,.orLine:after{content:"";flex:1;height:1px;background:var(--line)}#stremioLinkBtn{width:100%}.stremioLinkPanel{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.stremioLinkRow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}#stremioLinkQr{border-radius:10px;background:#fff;padding:6px}
+/* Diseño compartido por ambos temas (los colores claros los pone polish.css) */
+#recommendedAddons .check{min-height:94px}
+@media(max-width:720px){#recommendedAddons .check{min-height:0}}
+/* Compact account step */
+section[data-step="1"]>.field:first-of-type .platformLabel{text-align:center}
+.platformSwitch{margin-left:auto;margin-right:auto}
+.platformSwitch+.small{text-align:center}
+.accountControls{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:2px}
+.accountRemember{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+#rememberAccountField{display:inline-flex;align-items:center;gap:8px;margin:0;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+#rememberAccountField input{width:16px;height:16px;min-height:0;margin:0;flex:none}
+.accountForget{padding:3px 0;border:0;background:transparent;color:var(--accent);font-size:12px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+#connectBtn{min-width:174px;min-height:44px}
+.accountHint{margin-top:7px;min-height:18px}
+@media(max-width:720px){.accountControls{display:grid;gap:11px}.accountRemember{gap:8px 14px}.accountControls #connectBtn{width:100%;min-width:0}.accountHint{margin-top:5px}}
+@media(max-width:720px){.accountControls{width:100%;grid-template-columns:minmax(0,1fr)}.accountControls #connectBtn{display:block;width:100%}}
+footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
+.footerPrivacy{display:inline-block;vertical-align:top;margin-left:12px;text-align:left}
+.footerPrivacy summary{display:inline-block;cursor:pointer;color:var(--muted);text-decoration:underline;text-decoration-color:rgba(154,180,199,.5);text-underline-offset:2px;list-style:none}
+.footerPrivacy summary::-webkit-details-marker{display:none}
+.footerPrivacy summary:hover{color:var(--text)}
+.footerPrivacy[open]{display:block;margin:5px auto 0;text-align:center;max-width:760px}
+.footerPrivacy div{margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
+@media(max-width:720px){.footerPrivacy{display:block;margin:4px 0 0;text-align:center}}
+
+/* Aviso no oficial y apoyo (15-nov-2026) */
+.footerNote,.footerSupport{font-size:12px;line-height:1.5;opacity:.85;margin-top:6px}
+.footerSupport a{margin:0 2px}
 </style>
 <link rel="stylesheet" href="/polish.css" id="lightTheme">
 <script src="/theme.js"></script>
@@ -276,12 +305,23 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <button class="primary" id="connectBtn" type="button">Conectar cuenta</button>
   </div>
   <div class="small accountHint" id="accountHint">Este paso no cambia tus complementos.</div>
+  <div id="stremioLinkBox" class="stremioLinkBox"><div class="orLine"><span>o</span></div>
+    <button class="secondary" type="button" id="stremioLinkBtn">Entrar con Stremio, sin escribir tu contraseña aquí</button>
+    <div id="stremioLinkPanel" class="stremioLinkPanel" hidden>
+      <p class="small">Abre el enlace oficial de Stremio y aprueba el acceso. Si no has iniciado sesión allá, Stremio te la pedirá en su propio sitio. El wizard detecta solo cuando apruebas.</p>
+      <div class="stremioLinkRow"><img id="stremioLinkQr" alt="Código QR del enlace de Stremio" width="132" height="132"><div>
+        <a class="button primary" id="stremioLinkOpen" target="_blank" rel="noopener noreferrer">Abrir Stremio y aprobar ↗</a>
+        <div class="small" style="margin-top:8px">Desde otro dispositivo: escanea el QR o entra a <b id="stremioLinkUrl"></b></div>
+      </div></div>
+      <div class="small" id="stremioLinkStatus" role="status"></div>
+    </div>
+  </div>
   <div id="accountResult" class="result note"></div>
   <div class="actions"><button class="primary" id="nextAccount" type="button" hidden>Continuar al respaldo →</button><button class="secondary" id="checkSetupBtn" type="button" hidden>Revisar mi configuración actual</button></div>
   <div id="checkSetupResult" class="result note"></div>
   <div class="crossAppCard">
     <div>
-      <b>¿También usas la otra app?</b>
+      <b>¿Usas Stremio y Nuvio?</b>
       <div class="small">Deja tus cuentas de Stremio y Nuvio con los mismos complementos sin configurar todo dos veces. Antes de cambiar nada, el wizard respalda la cuenta que se va a configurar, y ambas apps usan el mismo AIOStreams.</div>
     </div>
     <button class="secondary" type="button" id="copyAccountsBtn">Usar en Stremio y Nuvio</button>
