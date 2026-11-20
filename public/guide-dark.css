@@ -1,0 +1,26 @@
+/* Tema oscuro de las guías. theme.js lo activa (Oscuro, o Auto con el sistema en oscuro). */
+:root{color-scheme:dark;--bg:#081520;--paper:#0f2230;--ink:#e8f3f7;--muted:#9ab4c3;--line:#21394a;--teal:#4fd1c5;--pale:#123a40;--amber:#2c2414}
+html{background:#081520}
+body{background:linear-gradient(180deg,#0b1c27,#081520 460px,#07131c);color:var(--ink)}
+a{color:#5fd6cb}a:hover{color:#8ee8df}
+.brand{color:#e8f3f7}.toplink{color:#6fd8ce}
+.hero,.panel,.toc,.altDebrid{background:var(--paper);border-color:var(--line);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.eyebrow,.toc a:hover{color:#5fd6cb}
+.hero h1 span{color:#9cc4cc}.lead,.panel p,.panel ol,.panel ul,.addonList li{color:#bcd2dc}
+.btn{border-color:#2f5a63}.btn.primary{background:#0a8f97;border-color:#0a8f97;color:#fff}.btn.secondary{background:#123a40;color:#8ee8df}
+.path{color:#9ab4c3}.path span{background:#132a37;border-color:#21394a}
+.toc strong{color:#8aa5b2}.toc a{color:#b4cbd5}
+.step{background:var(--pale);color:#6fe0d5}
+.tile,.addonGroup{background:#122836;border-color:var(--line)}
+.callout{background:#10302f;border-color:#1f5550;color:#bfe9e2}
+.callout.amber{background:var(--amber);border-color:#5a4720;color:#f0d9a8}
+.altDebrid b,.addonList strong{color:#e8f3f7}.altDebrid span{color:#9ab4c3}
+.addonList li{border-top-color:#21394a}
+.referralRow button,.referralRow a{background:#0f2230;border-color:#2f5a63;color:#6fd8ce}.referralRow button:hover,.referralRow a:hover{background:#123a40}
+.mini,.affiliate{color:#93aebb!important}.langNote{color:#7f98a4}.footer{color:#7f98a4}
+.languageMenu{color:#6fd8ce}.languageMenu summary,.languageOptions,.iconAction{background:#0f2230;border-color:#2f5a63}
+.languageMenu[open] summary,.languageMenu summary:hover,.languageOptions a:hover,.iconAction:hover{background:#123a40}
+.languageOptions a{color:#b4dfe0}.iconAction{color:#6fd8ce}.iconAction:hover{color:#8ee8df}.iconAction.whatsapp{color:#3fd08f}
+.shareFeedback{background:#e8f3f7;color:#0b1c27}
+code,kbd{background:#132a37;color:#e8f3f7}
+.themeMenu{background:#0f2230;border-color:#2f5a63;color:#6fd8ce}.themeMenu select option{background:#0f2230;color:#e8f3f7}
