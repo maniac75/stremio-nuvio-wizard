@@ -1670,17 +1670,41 @@ function floatingAction(){
   }
   return id?document.getElementById(id):null;
 }
+// El botón real ya se ve en pantalla: no hace falta repetirlo flotando.
+function targetOnScreen(target){
+  var rects=target.getClientRects();if(!rects.length)return false;
+  var r=rects[0],floatTop=window.innerHeight-90;
+  return r.bottom>0&&r.top<floatTop;
+}
 function syncFloatingNext(){
   var floating=document.getElementById('floatingNext'),target=floatingAction();
-  if(!target){floating.hidden=true;return;}
+  if(!target||targetOnScreen(target)){floating.hidden=true;return;}
   floating.hidden=false;
-  floating.disabled=target.disabled;
-  floating.textContent=target.id==='confirmPlanCheck'?'Confirmar plan para aplicar':target.textContent.trim();
-  floating.setAttribute('aria-label',floating.textContent);
+  var busy=target.disabled&&!!target.querySelector('.spinner');
+  floating.disabled=busy;
+  floating.classList.toggle('isDisabled',target.disabled&&!busy);
+  floating.setAttribute('aria-disabled',target.disabled?'true':'false');
+  var label=target.id==='confirmPlanCheck'?'Confirmar plan para aplicar':target.textContent.trim();
+  floating.innerHTML='<span class="fnStep">Paso '+currentWizardStep+'/5</span><span class="fnLabel">'+esc(label)+'</span>';
+  floating.setAttribute('aria-label',label);
 }
+var floatScrollQueued=false;
+window.addEventListener('scroll',function(){
+  if(floatScrollQueued)return;floatScrollQueued=true;
+  requestAnimationFrame(function(){floatScrollQueued=false;syncFloatingNext();});
+},{passive:true});
+window.addEventListener('resize',syncFloatingNext);
 document.getElementById('floatingNext').addEventListener('click',function(){
   var target=floatingAction();
-  if(!target||target.disabled)return;
+  if(!target)return;
+  if(target.disabled){
+    // Lleva al botón real y al primer campo vacío visible del paso.
+    var card=target.closest('[data-step]');
+    var empty=card&&Array.from(card.querySelectorAll('input:not([type=checkbox]):not([type=hidden]),select')).find(function(i){return i.getClientRects().length&&!i.value&&i.required;});
+    (empty||target).scrollIntoView({behavior:'smooth',block:'center'});
+    if(empty)empty.focus();
+    return;
+  }
   if(target.id==='confirmPlanCheck'){
     target.scrollIntoView({behavior:'smooth',block:'center'});
     target.focus();
@@ -1780,6 +1804,8 @@ document.getElementById('resetLanguageOrder').addEventListener('click',function(
   if(backupReady)clearReview('Cambiaste los idiomas: revisa nuevamente el plan.');
 });
 document.getElementById('language').addEventListener('change',function(){if(!languageOrderCustomized)resetLanguageOrder();});
+(function(){var sel=document.getElementById('uiTheme');if(!sel||!window.wizardTheme)return;
+  sel.value=window.wizardTheme.get();sel.addEventListener('change',function(){window.wizardTheme.set(sel.value);});})();
 document.getElementById('uiLanguage').addEventListener('change',function(){setTimeout(function(){if(languageOrderCustomized)renderLanguageOrder();else resetLanguageOrder();},0);});
 document.getElementById('watchly').addEventListener('change',function(){if(backupReady)clearReview('Cambiaste las recomendaciones: revisa nuevamente el plan.');});
 

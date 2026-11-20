@@ -338,6 +338,11 @@ Comprobar si ya quedó instalado	Check whether it is already installed
 Comprobando…	Checking…
 Copiar cuentas	Copy accounts
 Cerrar ✕	Close ✕
+Tema de la página	Page theme
+Claro	Light
+Oscuro	Dark
+Deja tus cuentas de Stremio y Nuvio con los mismos complementos sin configurar todo dos veces. Antes de cambiar nada, el wizard respalda la cuenta que se va a configurar, y ambas apps usan el mismo AIOStreams.	Give your Stremio and Nuvio accounts the same addons without setting everything up twice. Before changing anything, the wizard backs up the account being set up, and both apps use the same AIOStreams.
+Completa lo que falta en este paso para continuar.	Complete what's missing in this step to continue.
 Copiar a la otra cuenta	Copy to the other account
 Trakt en AIOMetadata	Trakt in AIOMetadata
 Agrega a tu inicio «Trakt Up Next» (el siguiente episodio de lo que estás viendo) y tu lista de pendientes de Trakt. Abre la conexión, autoriza en Trakt, copia el Token ID que te muestra AIOMetadata y pégalo aquí. No se guarda tu contraseña de Trakt.	Adds “Trakt Up Next” (the next episode of what you are watching) and your Trakt watchlist to your home screen. Open the connection, authorize on Trakt, copy the Token ID AIOMetadata shows you and paste it here. Your Trakt password is never stored.
@@ -702,6 +707,7 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Aplica la copia\. (Stremio|Nuvio) permanece intacto y ambas apps usarán el mismo AIOStreams\.$/,'Apply the copy. $1 remains unchanged and both apps will use the same AIOStreams.'],
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
     [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
+    [/^Paso (\d)\/(\d)$/,'Step $1/$2'],
     [/^Configurar (Stremio|Nuvio) igual que (Stremio|Nuvio)$/,'Set up $1 the same as $2'],
     [/^Trakt conectado como @(.*?)\.$/,'Trakt connected as @$1.'],
     [/^Conectar cuenta de (Stremio|Nuvio)$/,'Connect $1 account'],

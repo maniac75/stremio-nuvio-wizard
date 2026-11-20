@@ -156,6 +156,8 @@ button.platformChoice:focus-visible{outline:2px solid var(--accent);outline-offs
 .backupCallout button.primary{min-height:46px}
 button.floatingNext{position:fixed;right:20px;bottom:max(20px,env(safe-area-inset-bottom));z-index:30;padding:14px 24px;box-shadow:0 14px 36px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.2);font-size:15px}
 .wrap:has(.floatingNext:not([hidden])){padding-bottom:108px}
+button.floatingNext .fnStep{font-weight:600;opacity:.78;margin-right:8px;font-size:.88em}button.floatingNext.isDisabled{opacity:.6}
+a.button{display:inline-flex;align-items:center;justify-content:center;border-radius:13px;padding:11px 16px;font-size:14px;font-weight:700;text-decoration:none}a.button.primary{background:linear-gradient(135deg,#43d5bb,#657cff 72%);color:#fff;box-shadow:0 10px 28px rgba(84,225,200,.14)}
 @media(max-width:550px){.backupCallout{top:6px;padding:13px}.backupCallout .actions button{flex:1}.platformSwitch{max-width:none}button.platformChoice{font-size:14px;gap:6px}button.platformChoice img{width:29px;height:29px}}
 @media(max-width:780px){.wrap{width:min(100% - 18px,1080px);padding-top:14px}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}.row{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.debrid{grid-template-columns:1fr}.debrid>.remove{margin-top:0;justify-self:start}header{padding:19px 18px;border-radius:20px}.statusbar{justify-content:flex-start}}
 
@@ -222,7 +224,8 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
 }
 .guideTopLink{display:block;width:max-content;max-width:100%;margin:0 4px 9px auto;color:#176e77;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}.guideTopLink:hover{text-decoration:underline;text-underline-offset:3px;color:#084d58}.guideTopLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 </style>
-<link rel="stylesheet" href="/polish.css">
+<link rel="stylesheet" href="/polish.css" id="lightTheme">
+<script src="/theme.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -239,6 +242,7 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <span class="pill" id="wizardStatus" hidden>Wizard…</span>
     <span class="pill" id="aioStatus" hidden>AIOStreams…</span>
     <span class="pill" id="tamStatus" hidden>Tamtaro…</span>
+    <label class="uiLanguage uiTheme" for="uiTheme" title="Tema de la página"><span class="langIcon" aria-hidden="true">🌓</span><select id="uiTheme" aria-label="Tema de la página"><option value="auto">Auto</option><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
     <label class="uiLanguage" for="uiLanguage" title="Idioma de la página"><span class="langIcon" aria-hidden="true">🌐</span><select id="uiLanguage" aria-label="Idioma de la página"><option value="es">ES</option><option value="en">EN</option></select></label>
   </div>
 </header>
@@ -278,7 +282,7 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
   <div class="crossAppCard">
     <div>
       <b>¿También usas la otra app?</b>
-      <div class="small">Copia tu configuración de complementos entre Stremio y Nuvio sin volver a instalar todo desde cero. El wizard respalda primero la cuenta de destino y reutiliza el mismo AIOStreams.</div>
+      <div class="small">Deja tus cuentas de Stremio y Nuvio con los mismos complementos sin configurar todo dos veces. Antes de cambiar nada, el wizard respalda la cuenta que se va a configurar, y ambas apps usan el mismo AIOStreams.</div>
     </div>
     <button class="secondary" type="button" id="copyAccountsBtn">Usar en Stremio y Nuvio</button>
   </div>
