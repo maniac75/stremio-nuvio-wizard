@@ -608,6 +608,10 @@ El servidor no confirmó la verificación	The server did not confirm verificatio
 No se pudo actualizar AIOStreams	Could not update AIO
 Ingresa una clave válida.	Enter a valid key.
 No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.	No reliable automatic check is available for this service. Make sure the key is complete.
+Escribe también la contraseña para comprobar la cuenta de Easynews.	Also enter the password to check the Easynews account.
+Contraseña no válida.	Invalid password.
+Easynews rechazó el usuario o la contraseña.	Easynews rejected the username or password.
+Cuenta de Easynews verificada.	Easynews account verified.
 El servicio no pudo responder ahora. Prueba de nuevo más tarde.	The service could not respond right now. Try again later.
 TVDB no aceptó esta API key.	TVDB did not accept this API key.
 TorBox no aceptó esta API key.	TorBox did not accept this API key.

@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.22.0';
+const WIZARD_VERSION = '0.22.1';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1199,36 +1199,57 @@ async function handleValidateKey(body) {
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
-  if (service === 'rpdb' || service === 'premiumize' || service === 'alldebrid' || service === 'debridlink' ||
-      service === 'easydebrid' || service === 'offcloud' || service === 'debrider' || service === 'easynews') return unknown;
+  const secret = String(body?.secret || '');
+  if (service === 'easynews' && !secret) return { status: 'unknown', message: 'Escribe también la contraseña para comprobar la cuenta de Easynews.' };
+  if (secret.length > 512 || /[\r\n]/.test(secret)) return { status: 'invalid', message: 'Contraseña no válida.' };
+  const names = { tmdb: 'TMDB', tvdb: 'TVDB', rpdb: 'RPDB', mdblist: 'MDBList', debridio: 'Debridio', gemini: 'Gemini',
+    torbox: 'TorBox', realdebrid: 'Real-Debrid', premiumize: 'Premiumize', alldebrid: 'AllDebrid', debridlink: 'Debrid-Link',
+    easydebrid: 'EasyDebrid', offcloud: 'Offcloud', debrider: 'Debrider', easynews: 'Easynews' };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   try {
-    let url, options = { signal: controller.signal };
+    let url, options = { signal: controller.signal, redirect: 'manual', headers: { Accept: 'application/json' } };
+    const bearer = () => { options.headers.Authorization = 'Bearer ' + key; };
     if (service === 'tmdb') {
       const v4 = key.startsWith('eyJ') || key.length > 80;
       url = 'https://api.themoviedb.org/3/configuration' + (v4 ? '' : '?api_key=' + encodeURIComponent(key));
-      if (v4) options.headers = { Authorization: 'Bearer ' + key };
+      if (v4) bearer();
     } else if (service === 'tvdb') {
       url = 'https://api4.thetvdb.com/v4/login';
-      options = { ...options, method: 'POST', headers: { 'Content-Type': 'application/json' },
+      options = { ...options, method: 'POST', headers: { ...options.headers, 'Content-Type': 'application/json' },
         body: JSON.stringify({ apikey: key }) };
     } else if (service === 'mdblist') {
       url = 'https://api.mdblist.com/user?apikey=' + encodeURIComponent(key);
     } else if (service === 'gemini') {
       url = 'https://generativelanguage.googleapis.com/v1beta/models';
-      options.headers = { 'x-goog-api-key': key };
+      options.headers['x-goog-api-key'] = key;
     } else if (service === 'debridio') {
       // Debridio no publica un endpoint de verificación: su manifiesto responde 403
       // («Subscription is inactive») si la clave no existe o la suscripción venció.
       const config = Buffer.from(JSON.stringify({ api_key: key, provider: 'torbox', providerKey: '' })).toString('base64');
       url = 'https://addon.debridio.com/' + config + '/manifest.json';
     } else if (service === 'torbox') {
-      url = 'https://api.torbox.app/v1/api/user/me';
-      options.headers = { Authorization: 'Bearer ' + key };
+      url = 'https://api.torbox.app/v1/api/user/me'; bearer();
+    } else if (service === 'realdebrid') {
+      url = 'https://api.real-debrid.com/rest/1.0/user'; bearer();
+    } else if (service === 'premiumize') {
+      url = 'https://www.premiumize.me/api/account/info?apikey=' + encodeURIComponent(key);
+    } else if (service === 'alldebrid') {
+      url = 'https://api.alldebrid.com/v4/user?agent=stremio-nuvio-wizard&apikey=' + encodeURIComponent(key);
+    } else if (service === 'debridlink') {
+      url = 'https://debrid-link.com/api/v2/account/infos'; bearer();
+    } else if (service === 'easydebrid') {
+      url = 'https://easydebrid.com/api/v1/user/details'; bearer();
+    } else if (service === 'offcloud') {
+      url = 'https://offcloud.com/api/account/info?key=' + encodeURIComponent(key);
+    } else if (service === 'debrider') {
+      url = 'https://debrider.app/api/v1/account'; bearer();
+    } else if (service === 'rpdb') {
+      url = 'https://api.ratingposterdb.com/' + encodeURIComponent(key) + '/isValid';
     } else {
-      url = 'https://api.real-debrid.com/rest/1.0/user';
-      options.headers = { Authorization: 'Bearer ' + key };
+      // Easynews: una búsqueda mínima con usuario y contraseña; 401 = credenciales rechazadas.
+      url = 'https://members.easynews.com/2.0/search/solr-search/?gps=test&pby=1';
+      options.headers.Authorization = 'Basic ' + Buffer.from(key + ':' + secret).toString('base64');
     }
     const response = await fetch(url, options);
     if (service === 'gemini' && (response.status === 400 || response.status === 403)) {
@@ -1238,18 +1259,28 @@ async function handleValidateKey(body) {
       return { status: 'invalid', message: 'Debridio rechazó la clave o la suscripción no está activa.' };
     }
     if (response.status === 401 || response.status === 403) {
-      return { status: 'invalid', message: 'La clave fue rechazada por ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
+      return { status: 'invalid', message: service === 'easynews' ? 'Easynews rechazó el usuario o la contraseña.' : 'La clave fue rechazada por ' + names[service] + '.' };
     }
     if (response.status === 429 || response.status >= 500) return { status: 'unknown', message: 'El servicio no pudo responder ahora. Prueba de nuevo más tarde.' };
     if (!response.ok) return unknown;
-    const result = await response.json();
+    if (service === 'rpdb' || service === 'easynews') {
+      return { status: 'valid', message: service === 'easynews' ? 'Cuenta de Easynews verificada.' : 'Clave verificada con RPDB.' };
+    }
+    const result = await response.json().catch(() => null);
+    if (!result) return unknown;
+    if ((service === 'premiumize' || service === 'alldebrid') && result.status !== 'success') {
+      return { status: 'invalid', message: 'La clave fue rechazada por ' + names[service] + '.' };
+    }
+    if ((service === 'debridlink' && result.success !== true) || (service === 'offcloud' && result.error)) {
+      return { status: 'invalid', message: 'La clave fue rechazada por ' + names[service] + '.' };
+    }
     if (service === 'tvdb' && !result?.data?.token) return { status: 'invalid', message: 'TVDB no aceptó esta API key.' };
     if (service === 'torbox' && result?.success === false) return { status: 'invalid', message: 'TorBox no aceptó esta API key.' };
     if (service === 'gemini') return { status: 'valid', message: 'Clave de Gemini verificada.' };
     if (service === 'debridio') {
       return result?.id ? { status: 'valid', message: 'Clave y suscripción de Debridio activas.' } : unknown;
     }
-    return { status: 'valid', message: 'Clave verificada con ' + (service === 'mdblist' ? 'MDBList' : service.toUpperCase()) + '.' };
+    return { status: 'valid', message: 'Clave verificada con ' + names[service] + '.' };
   } catch {
     return { status: 'unknown', message: 'No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.' };
   } finally {

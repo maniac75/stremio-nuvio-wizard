@@ -539,13 +539,15 @@ function disconnectState(message){
 
 async function validateKeyInput(input, service) {
   var key=input.value.trim(),status=input.parentElement.querySelector('.keyStatus');
+  var secretInput=service==='easynews'&&input.closest('.debrid')?input.closest('.debrid').querySelector('.secret'):null;
+  var secret=secretInput?secretInput.value:'';
   if(!status)return 'unknown';
   if(!key){
     status.textContent='';
     input.dataset.keyCheck='';
     return 'invalid';
   }
-  if(input.dataset.checkedValue===service+':'+key && input.dataset.keyCheck && input.dataset.keyCheck!=='checking')
+  if(input.dataset.checkedValue===service+':'+key+':'+secret && input.dataset.keyCheck && input.dataset.keyCheck!=='checking')
     return input.dataset.keyCheck;
   var request=String(Number(input.dataset.keyRequest||0)+1);
   input.dataset.keyRequest=request;
@@ -553,10 +555,10 @@ async function validateKeyInput(input, service) {
   status.textContent='Comprobando clave…';
   status.style.color='';
   try{
-    var result=await post('/api/validate-key',{service:service,key:key});
-    if(input.dataset.keyRequest!==request||input.value.trim()!==key)return 'changed';
+    var result=await post('/api/validate-key',{service:service,key:key,secret:secret});
+    if(input.dataset.keyRequest!==request||input.value.trim()!==key||(secretInput&&secretInput.value!==secret))return 'changed';
     input.dataset.keyCheck=result.status;
-    input.dataset.checkedValue=service+':'+key;
+    input.dataset.checkedValue=service+':'+key+':'+secret;
     status.textContent=(result.status==='valid'?'✓ ':result.status==='invalid'?'✗ ':'ⓘ ')+result.message;
     status.style.color=result.status==='invalid'?'#ff9da5':result.status==='valid'?'#9ce6c9':'#ffdc93';
     return result.status;
@@ -627,6 +629,11 @@ function addDebrid(service){
     if(input.value.trim())input.keyTimer=setTimeout(function(){validateKeyInput(input,service);},650);
   });
   row.querySelector('.key').addEventListener('blur',function(){if(this.value.trim())validateKeyInput(this,row.querySelector('.service').value);});
+  row.querySelector('.secret').addEventListener('input',function(){
+    var input=row.querySelector('.key');
+    input.dataset.keyCheck='';input.dataset.checkedValue='';clearTimeout(input.keyTimer);
+    if(input.value.trim()&&this.value)input.keyTimer=setTimeout(function(){validateKeyInput(input,'easynews');},650);
+  });
   row.querySelector('.remove').addEventListener('click',function(){
     row.remove();
     if(backupReady) clearReview('Cambiaste opciones: revisa nuevamente el plan.');
