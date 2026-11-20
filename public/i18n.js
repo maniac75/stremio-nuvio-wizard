@@ -2,6 +2,67 @@
 (function(){
   'use strict';
   var entries = `
+Punto de partida	Starting point
+Recomendada	Recommended
+Mínima	Minimal
+Completa	Full
+Solo HTTP	HTTP only
+Lo probado para la mayoría. Puedes ajustar cada opción después.	What works for most people. You can adjust every option afterwards.
+Lo justo: AIOStreams, AIOMetadata y subtítulos, con pocas filas en el inicio.	Just the essentials: AIOStreams, AIOMetadata and subtitles, with few home rows.
+Todo lo recomendado más anime, fuentes adicionales y más filas en el inicio.	Everything recommended plus anime, extra sources and more home rows.
+Sin torrents: sólo fuentes HTTP gratuitas. No necesitas Debrid y nadie ve tu IP, pero hay menos resultados.	No torrents: free HTTP sources only. No Debrid needed and nobody sees your IP, but there are fewer results.
+Cambiaste el punto de partida: revisa nuevamente el plan.	You changed the starting point: review the plan again.
+Búsqueda con IA (Gemini)	AI search (Gemini)
+Permite buscar escribiendo lo que quieres ver, por ejemplo «película de terror en un barco». Necesita una clave gratuita de Google AI Studio; queda sólo en tu AIOMetadata.	Lets you search by describing what you want, like “horror movie on a ship”. It needs a free Google AI Studio key, which stays only in your AIOMetadata.
+Clave de Gemini (opcional)	Gemini key (optional)
+Google rechazó la clave de Gemini.	Google rejected the Gemini key.
+Clave de Gemini verificada.	Gemini key verified.
+Catálogos de inicio (opcional)	Home catalogs (optional)
+Elige qué grupos de filas de AIOMetadata quieres ver. Los marcados por defecto son los recomendados. Después de instalar puedes ocultar o renombrar filas sueltas.	Choose which groups of AIOMetadata rows you want. The ones checked by default are recommended. After installing you can hide or rename single rows.
+Tendencias y novedades	Trending and new
+Lo más visto y los estrenos.	Most watched and new releases.
+Plataformas de streaming	Streaming services
+Netflix, Disney+, Prime Video, HBO Max y más.	Netflix, Disney+, Prime Video, HBO Max and more.
+Géneros	Genres
+Acción, comedia, terror, drama y más.	Action, comedy, horror, drama and more.
+Top 10 por plataforma	Top 10 per service
+Lo más visto esta semana en cada servicio.	This week's most watched on each service.
+Lo mejor de cada década	Best of each decade
+De los 70 a los 2020.	From the 70s to the 2020s.
+Estudios	Studios
+Pixar, Marvel, A24, Warner y más.	Pixar, Marvel, A24, Warner and more.
+Por país	By country
+Cine y series de 13 países.	Movies and shows from 13 countries.
+Temáticas	Themes
+Superhéroes, zombis, viajes en el tiempo y más.	Superheroes, zombies, time travel and more.
+Anime (MyAnimeList)	Anime (MyAnimeList)
+En emisión, populares y mejor valorados.	Airing, popular and top rated.
+Cambiaste los catálogos: revisa nuevamente el plan.	You changed the catalogs: review the plan again.
+Restablecer la cuenta (opcional)	Reset the account (optional)
+Deja la cuenta sólo con los complementos oficiales de Stremio (Cinemeta, canales, WatchHub, dominio público, OpenSubtitles y archivos locales), como recién creada. Útil para partir de cero. Tu respaldo permite volver atrás.	Leaves the account with only Stremio's official addons (Cinemeta, channels, WatchHub, public domain, OpenSubtitles and local files), like a new account. Useful to start from scratch. Your backup lets you go back.
+Restablecer cuenta	Reset account
+Restableciendo…	Resetting…
+La cuenta cambió. Crea un nuevo respaldo antes de configurar.	The account changed. Create a new backup before setting it up.
+Crea un respaldo nuevo de la colección actual antes de restablecer	Create a new backup of the current addons before resetting
+La app no confirmó el restablecimiento	The app did not confirm the reset
+Patrón propio (PostersPlus privado u otro)	Custom pattern (private PostersPlus or other)
+Patrón de URL de pósteres	Poster URL pattern
+Pega el patrón que entrega el configurador de tu servicio para AIOMetadata. Debe empezar con https:// e incluir un identificador como {imdb_id} o {tmdb_id}. Si trae claves, quedan sólo en tu AIOMetadata.	Paste the pattern your service's configurator gives you for AIOMetadata. It must start with https:// and include an ID such as {imdb_id} or {tmdb_id}. Any keys in it stay only in your AIOMetadata.
+¿Más estilos y ajustes? PostersPlus privado ↗	More styles and settings? Private PostersPlus ↗
+Pega el patrón de URL de tu servicio de pósteres.	Paste your poster service's URL pattern.
+El patrón debe empezar con https://.	The pattern must start with https://.
+Falta un identificador del título, como {imdb_id} o {tmdb_id}.	A title ID such as {imdb_id} or {tmdb_id} is missing.
+✓ El patrón tiene el formato esperado.	✓ The pattern looks right.
+Cambiaste los pósteres: revisa nuevamente el plan.	You changed the posters: review the plan again.
+El patrón de pósteres debe empezar con https:// e incluir un identificador como {imdb_id} o {tmdb_id}.	The poster pattern must start with https:// and include an ID such as {imdb_id} or {tmdb_id}.
+Contraseña de Easynews	Easynews password
+Usuario de Easynews	Easynews username
+Usuario	Username
+Crear cuenta de Easynews ↗	Create an Easynews account ↗
+Ingresa la contraseña de Easynews.	Enter your Easynews password.
+Easynews se suma a un servicio Debrid de torrents: agrega uno, o usa el modo gratuito.	Easynews works alongside a torrent Debrid service: add one, or use free mode.
+Easynews se suma a un servicio Debrid de torrents: agrega uno, o usa el modo gratuito	Easynews works alongside a torrent Debrid service: add one, or use free mode
+Debridio no funciona sólo con Offcloud: agrega otro servicio Debrid o deja vacía la clave de Debridio.	Debridio does not work with Offcloud alone: add another Debrid service or leave the Debridio key empty.
 Debridio rechazó la clave o la suscripción no está activa.	Debridio rejected the key or the subscription is not active.
 Clave y suscripción de Debridio activas.	Debridio key and subscription are active.
 Pósteres con notas	Posters with ratings
@@ -632,6 +693,10 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^¿Actualizar la configuración completa de AIOStreams en (.*?)\? Se guardará una copia antes del cambio\. La URL y los demás complementos se conservarán\.$/,'Update the full AIOStreams setup on $1? A backup will be saved before the change. The URL and other addons will be kept.']
   );
   patterns.push(
+    [/^Unas (\d+) filas\.( Stremio puede ocultar filas si hay demasiadas; conviene dejar menos de 110\.)?$/,function(m,a,b){return 'About '+a+' rows.'+(b?' Stremio may hide rows if there are too many; keep it under 110.':'');}],
+    [/^¿Restablecer (Stremio|Nuvio) a los complementos oficiales\? Se quitarán todos los demás, incluido AIOStreams\. Tu respaldo permite volver atrás\.$/,'Reset $1 to the official addons? All others will be removed, including AIOStreams. Your backup lets you go back.'],
+    [/^✓ (Stremio|Nuvio) quedó con (\d+) complementos oficiales\. Para volver atrás, usa «Restaurar respaldo anterior»\. Para configurar de nuevo, crea otro respaldo\.$/,'✓ $1 now has $2 official addons. To go back, use “Restore previous backup”. To set it up again, create another backup.'],
+    [/^No se pudo restablecer: ([\s\S]*)$/,function(m,a){return 'Could not reset: '+translate(a);}],
     [/^Catálogos \((\d+)\)$/,'Catalogs ($1)'],
     [/^Tus filas de recomendaciones aparecerán en el inicio a medida que (Stremio|Nuvio) tenga historial\. La primera carga puede tardar un par de minutos\.$/,'Your recommendation rows will appear on the home screen as $1 builds up history. The first load can take a couple of minutes.'],
     [/^¿Guardar el nuevo orden y los catálogos en (Stremio|Nuvio)\? Antes se guarda un respaldo para poder volver atrás\.$/,'Save the new order and catalogs in $1? A backup is saved first so you can go back.'],

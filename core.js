@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.20.1';
+const WIZARD_VERSION = '0.21.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -61,6 +61,8 @@ const WATCHLY_LOCALES = {
   'es-MX': 'es-MX', 'es-ES': 'es-ES', en: 'en-US', 'pt-BR': 'pt-BR', 'pt-PT': 'pt-PT',
   fr: 'fr-FR', it: 'it-IT', de: 'de-DE', nl: 'nl-NL'
 };
+
+const CLASSIC_DEBRIDS = new Set(['torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
 
 const MANAGED_IDS = new Set([
   'com.linvo.cinemeta',
@@ -856,9 +858,10 @@ async function buildAioConfig(options) {
   const template = document.find(x => x?.metadata?.id === 'tamtaro.complete');
   if (!template) throw new Error('No encontré el template Tamtaro Complete');
 
-  const services = options.debrids.map(x => x.service);
+  const services = [...options.debrids.map(x => x.service), ...(options.easynews ? ['easynews'] : [])];
   const inputs = buildTamtaroInputs(template, options);
   let config = applyTemplate(template.config, inputs, services);
+  const generatedEasynews = (config.presets || []).filter(p => /^easynews/i.test(String(p?.type || '')));
 
   const credentialValues = {};
   for (const entry of options.debrids) {
@@ -906,6 +909,9 @@ async function buildAioConfig(options) {
 
   }
 
+  if (options.debridioKey && !options.debrids.some(d => d.service !== 'offcloud')) {
+    throw new Error('Debridio no funciona sólo con Offcloud: agrega otro servicio Debrid o deja vacía la clave de Debridio.');
+  }
   if (options.debridioKey) {
     let configured = 0;
     const visit = (value) => {
@@ -942,6 +948,15 @@ async function buildAioConfig(options) {
     enabled: true,
     credentials: { apiKey: entry.key }
   }));
+  if (options.easynews) {
+    config.services.push({ id: 'easynews', enabled: true,
+      credentials: { username: options.easynews.username, password: options.easynews.password } });
+    // El perfil recomendado no trae la búsqueda de Easynews: se toma de la plantilla Tamtaro.
+    config.presets = config.presets || [];
+    for (const preset of generatedEasynews) {
+      if (!config.presets.some(p => p?.type === preset.type)) config.presets.push(deepClone(preset));
+    }
+  }
   config.formatter = { id: 'lightgdrive' };
   // Keep the tested quality/language/audio order, but do not prioritize Debrid when none exists.
   config.preferredStreamTypes = hasDebrid ? ['debrid', 'http', 'live', 'p2p'] : ['http', 'p2p', 'live'];
@@ -979,6 +994,10 @@ async function buildAioConfig(options) {
     if (config.yearMatching) config.yearMatching.enabled = false;
     if (config.titleMatching) config.titleMatching.enabled = false;
     config.bitrate = { ...(config.bitrate || {}), useMetadataRuntime: false };
+  }
+  if (options.httpOnly) {
+    config.excludedStreamTypes = ['p2p'];
+    config.preferredStreamTypes = ['http', 'live'];
   }
   if (options.cachedOnly && hasDebrid) config.excludeUncached = true;
   else if (!hasDebrid) config.excludeUncached = false;
@@ -1127,7 +1146,18 @@ async function createOrUpdateAio(options, currentAddons) {
   }
 }
 
+// Patrón propio de pósteres (PostersPlus privado, Pictorium, instancia propia…): https y un ID del título.
+function validPosterPattern(pattern) {
+  let url;
+  try { url = new URL(pattern.replace(/\{[a-z_|?]+\}/gi, 'x')); } catch { return false; }
+  return url.protocol === 'https:' && /\{(?:imdb_id|tmdb_id|tvdb_id|id)\??(?:\|[a-z_]+)*\??\}/.test(pattern) &&
+    !/[\s<>"'`]/.test(pattern);
+}
+
 async function validateMetadataOptions(options) {
+  if (options.rpdbMode === 'custom' && !validPosterPattern(options.posterPattern)) {
+    throw new Error('El patrón de pósteres debe empezar con https:// e incluir un identificador como {imdb_id} o {tmdb_id}.');
+  }
   for (const service of ['tmdb', 'tvdb', 'rpdb']) {
     if (options[service + 'Mode'] === 'personal' && !options[service + 'Key']) {
       throw new Error('Ingresa tu API key de ' + service.toUpperCase() + ' o cambia la opción.');
@@ -1147,12 +1177,12 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
+  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
-  if (service === 'rpdb' || service === 'premiumize' || service === 'alldebrid' ||
-      service === 'debridlink' || service === 'easydebrid') return unknown;
+  if (service === 'rpdb' || service === 'premiumize' || service === 'alldebrid' || service === 'debridlink' ||
+      service === 'easydebrid' || service === 'offcloud' || service === 'debrider' || service === 'easynews') return unknown;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   try {
@@ -1167,6 +1197,9 @@ async function handleValidateKey(body) {
         body: JSON.stringify({ apikey: key }) };
     } else if (service === 'mdblist') {
       url = 'https://api.mdblist.com/user?apikey=' + encodeURIComponent(key);
+    } else if (service === 'gemini') {
+      url = 'https://generativelanguage.googleapis.com/v1beta/models';
+      options.headers = { 'x-goog-api-key': key };
     } else if (service === 'debridio') {
       // Debridio no publica un endpoint de verificación: su manifiesto responde 403
       // («Subscription is inactive») si la clave no existe o la suscripción venció.
@@ -1180,6 +1213,9 @@ async function handleValidateKey(body) {
       options.headers = { Authorization: 'Bearer ' + key };
     }
     const response = await fetch(url, options);
+    if (service === 'gemini' && (response.status === 400 || response.status === 403)) {
+      return { status: 'invalid', message: 'Google rechazó la clave de Gemini.' };
+    }
     if (service === 'debridio' && response.status === 403) {
       return { status: 'invalid', message: 'Debridio rechazó la clave o la suscripción no está activa.' };
     }
@@ -1191,6 +1227,7 @@ async function handleValidateKey(body) {
     const result = await response.json();
     if (service === 'tvdb' && !result?.data?.token) return { status: 'invalid', message: 'TVDB no aceptó esta API key.' };
     if (service === 'torbox' && result?.success === false) return { status: 'invalid', message: 'TorBox no aceptó esta API key.' };
+    if (service === 'gemini') return { status: 'valid', message: 'Clave de Gemini verificada.' };
     if (service === 'debridio') {
       return result?.id ? { status: 'valid', message: 'Clave y suscripción de Debridio activas.' } : unknown;
     }
@@ -1207,6 +1244,7 @@ async function configureAioMetadata(preset, options) {
   const config = deepClone(wrapper.config || {});
   config.language = options.language;
   config.catalogs = deepClone((options.kids ? wrapper.catalogs?.kids : wrapper.catalogs?.standard) || config.catalogs || []);
+  if (!options.kids) config.catalogs = applyCatalogGroups(config.catalogs, options.catalogGroups);
 
   const catalogLocale = bootstrapperLocale(options.language);
   if (catalogLocale !== 'en' && Array.isArray(config.catalogs)) {
@@ -1242,7 +1280,15 @@ async function configureAioMetadata(preset, options) {
   config.apiKeys.rpdb = options.rpdbMode === 'personal' ? options.rpdbKey : '';
   // MDBList (opcional): búsqueda MDBList y registro de lo visto en la cuenta del usuario.
   config.apiKeys.mdblist = options.mdblistKey || '';
-  const ratingPosters = options.rpdbMode === 'personal' || options.rpdbMode === 'postersplus';
+  // Búsqueda con IA (opcional): AIOMetadata usa Gemini con la clave del usuario.
+  config.apiKeys.gemini = options.geminiKey || '';
+  config.search = config.search || {};
+  config.search.ai_enabled = !!options.geminiKey;
+  if (options.geminiKey) {
+    config.search.ai_provider = 'gemini';
+    config.search.engineEnabled = { ...(config.search.engineEnabled || {}), 'gemini.search': true };
+  }
+  const ratingPosters = ['personal', 'postersplus', 'custom'].includes(options.rpdbMode);
   if (options.rpdbMode === 'personal') {
     config.posterRatingProvider = 'rpdb';
     delete config.customPosterUrlPattern;
@@ -1250,6 +1296,9 @@ async function configureAioMetadata(preset, options) {
     // Por ID de IMDb; un título sin IMDb conserva su póster normal.
     config.posterRatingProvider = 'custom';
     config.customPosterUrlPattern = POSTERSPLUS_BASE + '/p/' + options.postersPlusStyle + '/{type}/{imdb_id}.jpg';
+  } else if (options.rpdbMode === 'custom') {
+    config.posterRatingProvider = 'custom';
+    config.customPosterUrlPattern = options.posterPattern;
   } else {
     config.posterRatingProvider = 'none';
     delete config.customPosterUrlPattern;
@@ -1269,6 +1318,38 @@ async function configureAioMetadata(preset, options) {
   }
   const manifest = await fetchJson(response.installUrl, {}, 30000);
   return { transportUrl: response.installUrl, transportName: 'http', manifest };
+}
+
+// Grupos de catálogos de AIOMetadata (preset del Bootstrapper) para elegirlos antes de instalar.
+const CATALOG_GROUPS = ['trending', 'top10', 'streaming', 'genres', 'decades', 'studios', 'countries', 'themes', 'anime'];
+const STUDIO_CATALOGS = /20th_century|a24|blumhouse|dreamworks|illumination|lionsgate|lucas_films|mgm|paramount|pixar|sony_pictures|universal_pictures|walt_disney|warner_bros/;
+const COUNTRY_CATALOGS = /(argentina|brazil|china|france|germany|india|italy|japan|mexico|south_korea|spain|united_kingdom|united_states)(_movies|_shows)?$/;
+function catalogGroup(catalog) {
+  const id = String(catalog?.id || '');
+  const source = String(catalog?.source || '');
+  if (source === 'streaming') return 'streaming';
+  if (source === 'mal') return 'anime';
+  if (source === 'flixpatrol') return 'top10';
+  if (/^tmdb\.trending|latest_|top_rated/.test(id)) return 'trending';
+  const base = id.replace(/\.[a-z0-9]{8}$/, '');
+  if (/\.\d+$/.test(base)) return 'genres';
+  if (/best_/.test(base)) return 'decades';
+  if (STUDIO_CATALOGS.test(base)) return 'studios';
+  if (COUNTRY_CATALOGS.test(base)) return 'countries';
+  return 'themes';
+}
+// Marcado: conserva lo que el preset activa en ese grupo (o activa todo si el preset no activa nada).
+// Desmarcado: apaga el grupo completo.
+function applyCatalogGroups(catalogs, groups) {
+  if (!groups || !Array.isArray(catalogs)) return catalogs;
+  const defaultsOn = {};
+  for (const c of catalogs) if (c.enabled) defaultsOn[catalogGroup(c)] = true;
+  return catalogs.map(c => {
+    const group = catalogGroup(c);
+    if (!(group in groups)) return c;
+    if (!groups[group]) return { ...c, enabled: false };
+    return defaultsOn[group] ? c : { ...c, enabled: true };
+  });
 }
 
 function presetAddon(preset, key, language) {
@@ -1351,7 +1432,9 @@ async function buildStandaloneAddons(preset, options) {
       return null;
     }
   };
-  const primary = options.debrids[0];
+  // Torrentio, Comet, Meteor y Jackettio sólo conocen los Debrid clásicos.
+  const classic = options.debrids.filter(d => CLASSIC_DEBRIDS.has(d.service));
+  const primary = classic[0];
 
   if (selected.has('torrentio')) {
     try {
@@ -1381,9 +1464,9 @@ async function buildStandaloneAddons(preset, options) {
       const decoded = decodeTransportData(base.transportUrl);
       const data = {
         ...decoded.data,
-        debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
+        debridServices: classic.map(d => ({ service: d.service, apiKey: d.key })),
         cachedOnly: options.cachedOnly,
-        enableTorrent: options.debrids.length === 0,
+        enableTorrent: classic.length === 0,
         maxResultsPerResolution: 10,
         resolutions: {
           ...(decoded.data.resolutions || {}),
@@ -1595,9 +1678,9 @@ async function buildStandaloneAddons(preset, options) {
       const decoded = decodeTransportData(base.transportUrl);
       const data = {
         ...decoded.data,
-        debridServices: options.debrids.map(d => ({ service: d.service, apiKey: d.key })),
+        debridServices: classic.map(d => ({ service: d.service, apiKey: d.key })),
         cachedOnly: options.cachedOnly,
-        enableTorrent: options.debrids.length === 0,
+        enableTorrent: classic.length === 0,
         maxResultsPerResolution: 10,
         languages: {
           ...(decoded.data.languages || {}),
@@ -1773,7 +1856,8 @@ function serviceNamesForMediaFusion(service) {
     premiumize:'Premiumize',
     debridlink:'DebridLink',
     torbox:'TorBox',
-    easydebrid:'EasyDebrid'
+    easydebrid:'EasyDebrid',
+    offcloud:'OffCloud'
   };
   return names[service] || service;
 }
@@ -2010,7 +2094,7 @@ function languageList(value, allowed) {
 
 function normalizeOptions(body) {
   const noDebrid = body.noDebrid === true;
-  const supported = new Set(['torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid']);
+  const supported = new Set(['torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider']);
   const rawDebrids = !noDebrid && Array.isArray(body.debrids) ? body.debrids
     .map(x => ({
       service: String(x.service || '').trim(),
@@ -2024,6 +2108,12 @@ function normalizeOptions(body) {
     seenServices.add(entry.service);
     debrids.push(entry);
   }
+
+  // Easynews (Usenet) va aparte: usuario y contraseña, y se suma a un Debrid de torrents.
+  const easynewsRow = !noDebrid && Array.isArray(body.debrids)
+    ? body.debrids.find(x => String(x?.service || '') === 'easynews') : null;
+  const easynews = easynewsRow && String(easynewsRow.key || '').trim() && String(easynewsRow.password || '')
+    ? { username: String(easynewsRow.key).trim().slice(0, 200), password: String(easynewsRow.password).slice(0, 200) } : null;
 
   const custom = Array.isArray(body.customAddons) ? body.customAddons :
     String(body.customAddons || '').split(/\r?\n/);
@@ -2039,20 +2129,28 @@ function normalizeOptions(body) {
     audioLanguages: languageList(body.audioLanguages, AIO_AUDIO_LANGUAGES),
     subtitleLanguages: languageList(body.subtitleLanguages, new Set(Object.keys(SUBTITLE_CODES))),
     watchly: body.watchly === true,
+    catalogGroups: body.catalogGroups && typeof body.catalogGroups === 'object'
+      ? Object.fromEntries(CATALOG_GROUPS.filter(g => g in body.catalogGroups).map(g => [g, body.catalogGroups[g] === true]))
+      : null,
+    // «Solo HTTP»: modo gratuito sin torrents P2P (no expone la IP a otros usuarios).
+    httpOnly: body.startPreset === 'http' && body.noDebrid === true,
     profileMode: body.profileMode === 'tamtaro' ? 'tamtaro' : 'recommended',
     instanceMode: 'recommended',
     aioInstallMode: 'new',
     debrids,
+    easynews,
     debridioKey: noDebrid ? '' : String(body.debridioKey || '').trim(),
     tmdbMode: body.tmdbMode === 'personal' ? 'personal' : (body.tmdbMode === 'instance' ? 'instance' : (body.tmdbKey ? 'personal' : 'instance')),
     tvdbMode: body.tvdbMode === 'personal' ? 'personal' : (body.tvdbMode === 'instance' ? 'instance' : (body.tvdbKey ? 'personal' : 'instance')),
-    rpdbMode: body.rpdbMode === 'personal' ? 'personal' : (body.rpdbMode === 'postersplus' ? 'postersplus' :
-      (body.rpdbMode === 'none' ? 'none' : (body.rpdbKey ? 'personal' : 'none'))),
+    rpdbMode: ['personal', 'postersplus', 'custom', 'none'].includes(body.rpdbMode) ? body.rpdbMode
+      : (body.rpdbKey ? 'personal' : 'none'),
+    posterPattern: body.rpdbMode === 'custom' ? String(body.posterPattern || '').trim().slice(0, 2000) : '',
     postersPlusStyle: POSTERSPLUS_STYLES.has(String(body.postersPlusStyle)) ? String(body.postersPlusStyle) : 'bar_sash',
     tmdbKey: body.tmdbMode === 'instance' ? '' : String(body.tmdbKey || '').trim(),
     tvdbKey: body.tvdbMode === 'instance' ? '' : String(body.tvdbKey || '').trim(),
     rpdbKey: body.rpdbMode === 'personal' || (!body.rpdbMode && body.rpdbKey) ? String(body.rpdbKey || '').trim() : '',
     mdblistKey: String(body.mdblistKey || '').trim().slice(0, 128),
+    geminiKey: String(body.geminiKey || '').trim().slice(0, 128),
     anime: body.anime === true,
     argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
     nuvioCollections: body.nuvioCollections !== false,
@@ -2364,7 +2462,11 @@ async function handleBackup(body) {
 async function handleConfigure(body) {
   const options = normalizeOptions(body);
   await validateMetadataOptions(options);
-  if (!options.noDebrid && options.debrids.length === 0) throw new Error('Agrega al menos un servicio Debrid o usa el modo gratuito');
+  if (!options.noDebrid && options.debrids.length === 0) {
+    throw new Error(options.easynews
+      ? 'Easynews se suma a un servicio Debrid de torrents: agrega uno, o usa el modo gratuito'
+      : 'Agrega al menos un servicio Debrid o usa el modo gratuito');
+  }
 
   const preparedBackupId = String(body.preparedBackupId || '').trim();
   if (!preparedBackupId) throw new Error('Primero crea y verifica el respaldo seguro');
@@ -2802,6 +2904,33 @@ async function handleOrganize(body) {
   }
 }
 
+// Restablece la cuenta a los complementos oficiales (igual que el preset «factory» del Bootstrapper).
+// Exige el respaldo preparado de la colección actual; si algo falla, vuelve a la colección anterior.
+const FACTORY_KEYS = ['cinemeta-unmodified', 'stremiochannels', 'watchhub', 'publicdomains', 'opensubtitlesv3', 'localfiles'];
+async function handleFactoryReset(body) {
+  const auth = await resolveStremioAuth(body);
+  const current = await getAddonCollection(auth);
+  const backup = await readBackup(String(body.preparedBackupId || ''));
+  if (!accountOwnsBackup(auth, backup) || !fingerprintMatches(backup.fingerprint, current)) {
+    throw new Error('Crea un respaldo nuevo de la colección actual antes de restablecer');
+  }
+  const preset = await fetchJson(PRESET_URL, {}, 20000);
+  // En Nuvio no tiene sentido el complemento de archivos locales del PC.
+  const keys = auth.platform === 'nuvio' ? FACTORY_KEYS.filter(k => k !== 'localfiles') : FACTORY_KEYS;
+  const desired = keys.map(key => presetAddon(preset, key, 'en'));
+  try {
+    await setAddonCollection(auth, desired);
+    const actual = await getAddonCollection(auth);
+    const urls = list => list.map(a => nuvioUrlKey(a));
+    if (JSON.stringify(urls(actual)) !== JSON.stringify(urls(desired))) throw new Error('La app no confirmó el restablecimiento');
+    return { ok: true, count: actual.length, addons: addonSummary(actual), sourceFingerprint: collectionFingerprint(actual) };
+  } catch (error) {
+    try { await setAddonCollection(auth, current); }
+    catch (restoreError) { logError('Falló restauración tras restablecer:', restoreError.message); }
+    throw error;
+  }
+}
+
 // Copia los complementos (y opcionalmente las colecciones) de un perfil de Nuvio a otros perfiles de la misma cuenta.
 async function handleNuvioApplyProfiles(body) {
   const auth = await resolveStremioAuth({ ...body, platform: 'nuvio' });
@@ -3067,6 +3196,7 @@ const ROUTES = {
   'POST /api/transfer-apply': handleTransferApply,
   'POST /api/aio-push': handleAioPush,
   'POST /api/organize': handleOrganize,
+  'POST /api/factory-reset': handleFactoryReset,
   'POST /api/restore': handleRestore,
   'POST /api/nuvio-apply-profiles': handleNuvioApplyProfiles,
   'POST /api/check-setup': handleCheckSetup,

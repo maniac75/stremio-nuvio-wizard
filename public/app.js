@@ -230,7 +230,8 @@ function exportWizardProfile(){
     cachedOnly:c.cachedOnly,removeWatchHub:c.removeWatchHub,
     trailers:c.trailers,subtitles:c.subtitles,openSubtitles:c.openSubtitles,
     stores:c.stores,standaloneAddons:c.standaloneAddons,
-    audioLanguages:c.audioLanguages,subtitleLanguages:c.subtitleLanguages,watchly:c.watchly};
+    audioLanguages:c.audioLanguages,subtitleLanguages:c.subtitleLanguages,watchly:c.watchly,
+    startPreset:c.startPreset,catalogGroups:c.catalogGroups};
   downloadJsonFile('Stremio-Wizard-perfil-sin-claves.json',profile);
 }
 var serviceNames = {
@@ -239,7 +240,10 @@ var serviceNames = {
   premiumize:'Premiumize',
   alldebrid:'AllDebrid',
   debridlink:'Debrid-Link',
-  easydebrid:'EasyDebrid'
+  easydebrid:'EasyDebrid',
+  offcloud:'Offcloud',
+  debrider:'Debrider',
+  easynews:'Easynews (Usenet)'
 };
 
 var serviceApiLinks = {
@@ -248,7 +252,10 @@ var serviceApiLinks = {
   premiumize:'https://www.premiumize.me/account',
   alldebrid:'https://alldebrid.com/apikeys',
   debridlink:'https://debrid-link.com/webapp/apikey',
-  easydebrid:'https://paradise-cloud.com/dashboard/'
+  easydebrid:'https://paradise-cloud.com/dashboard/',
+  offcloud:'https://offcloud.com/',
+  debrider:'https://debrider.app/',
+  easynews:'https://www.easynews.com/'
 };
 
 var freeStandaloneAddons = new Set(['comet','webstreamr','sootiohttp','torrentsdb','stremthru','mediafusion','cometa','animes']);
@@ -382,10 +389,10 @@ function collect(){
   var auth=authPayload();
   var free=isFreeMode();
   var debrids=free?[]:Array.from(document.querySelectorAll('.debrid')).map(function(row){
-    return {
-      service:row.querySelector('.service').value,
-      key:row.querySelector('.key').value.trim()
-    };
+    var service=row.querySelector('.service').value;
+    var entry={service:service,key:row.querySelector('.key').value.trim()};
+    if(service==='easynews')entry.password=row.querySelector('.secret').value;
+    return entry;
   }).filter(function(x){return x.key;});
 
   return Object.assign({},auth,{
@@ -394,6 +401,9 @@ function collect(){
     audioLanguages:languageOrderCustomized?languageOrder.audio.slice():[],
     subtitleLanguages:languageOrderCustomized?languageOrder.subtitle.slice():[],
     watchly:document.getElementById('watchly').checked,
+    startPreset:document.getElementById('startPreset').value,
+    catalogGroups:catalogGroupsState(),
+    geminiKey:document.getElementById('geminiKey').value.trim(),
     profileMode:document.getElementById('profileMode').value,
     instanceMode:document.getElementById('instanceMode').value,
     aioInstallMode:document.getElementById('aioInstallMode').value,
@@ -403,6 +413,7 @@ function collect(){
     tvdbMode:document.getElementById('tvdbMode').value,
     rpdbMode:document.getElementById('rpdbMode').value,
     postersPlusStyle:document.getElementById('postersPlusStyle').value,
+    posterPattern:document.getElementById('rpdbMode').value==='custom'?document.getElementById('posterPattern').value.trim():'',
     tmdbKey:document.getElementById('tmdbMode').value==='personal'?document.getElementById('tmdbKey').value.trim():'',
     tvdbKey:document.getElementById('tvdbMode').value==='personal'?document.getElementById('tvdbKey').value.trim():'',
     rpdbKey:document.getElementById('rpdbMode').value==='personal'?document.getElementById('rpdbKey').value.trim():'',
@@ -502,7 +513,7 @@ function disconnectState(message){
   analysisDone=false;
   installedAddons=[];
   syncAioInstallMode(true);
-  document.getElementById('organizer').hidden=true;
+  document.getElementById('organizer').hidden=true;document.getElementById('factoryFold').hidden=true;
   document.getElementById('installedAddons').className='result note';
   document.getElementById('installedAddons').textContent='';
   document.getElementById('nextAccount').hidden=true;
@@ -564,7 +575,12 @@ async function checkEnteredKeys(step){
       .concat(document.getElementById('debridioKey').value.trim()?[{input:document.getElementById('debridioKey'),service:'debridio'}]:[])
     :['tmdb','tvdb','rpdb'].filter(function(s){return document.getElementById(s+'Mode').value==='personal';})
       .map(function(s){return {input:document.getElementById(s+'Key'),service:s};})
-      .concat(document.getElementById('mdblistKey').value.trim()?[{input:document.getElementById('mdblistKey'),service:'mdblist'}]:[]);
+      .concat(document.getElementById('mdblistKey').value.trim()?[{input:document.getElementById('mdblistKey'),service:'mdblist'}]:[])
+      .concat(document.getElementById('geminiKey').value.trim()?[{input:document.getElementById('geminiKey'),service:'gemini'}]:[]);
+  if(step===4&&document.getElementById('rpdbMode').value==='custom'){
+    var patternInput=document.getElementById('posterPattern'),problem=posterPatternProblem(patternInput.value.trim());
+    if(problem){var ps=document.getElementById('posterPatternStatus');ps.textContent='✗ '+problem;ps.style.color='#ff9da5';patternInput.focus();return false;}
+  }
   var results=await Promise.all(entries.map(function(item){return validateKeyInput(item.input,item.service);}));
   var index=results.findIndex(function(result){return result==='invalid'||result==='changed';});
   if(index>=0){entries[index].input.focus();return false;}
@@ -580,13 +596,20 @@ function addDebrid(service){
       return '<option value="'+k+'"'+(k===service?' selected':'')+'>'+serviceNames[k]+'</option>';
     }).join('')+
     '</select></div>'+
-    '<div><label>API key</label><input class="key" type="password" autocomplete="off" placeholder="API key">'+
+    '<div><label class="keyLabel">API key</label><input class="key" type="password" autocomplete="off" placeholder="API key">'+
+    '<div class="secretField" hidden><label>Contraseña de Easynews</label><input class="secret" type="password" autocomplete="off" placeholder="Contraseña"></div>'+
     '<div class="linkrow"><a class="link apiKeyLink" target="_blank" rel="noreferrer noopener">Obtener API key ↗</a></div><div class="small keyStatus" role="status"></div></div>'+
     '<button class="danger remove" title="Quitar">×</button>';
   document.getElementById('debridList').appendChild(row);
 
   function sync(){
     var s=row.querySelector('.service').value;
+    var usenet=s==='easynews';
+    row.querySelector('.keyLabel').textContent=usenet?'Usuario de Easynews':'API key';
+    row.querySelector('.key').placeholder=usenet?'Usuario':'API key';
+    row.querySelector('.key').type=usenet?'text':'password';
+    row.querySelector('.secretField').hidden=!usenet;
+    row.querySelector('.apiKeyLink').textContent=usenet?'Crear cuenta de Easynews ↗':'Obtener API key ↗';
     var link=row.querySelector('.apiKeyLink');
     link.href=serviceApiLinks[s]||'#';
     link.style.display=serviceApiLinks[s]?'inline':'none';
@@ -635,9 +658,22 @@ function syncMetadataModes(){
   });
   var postersPlus=document.getElementById('rpdbMode').value==='postersplus';
   document.getElementById('postersPlusOwn').hidden=!postersPlus;
+  document.getElementById('posterPatternOwn').hidden=document.getElementById('rpdbMode').value!=='custom';
   if(postersPlus)syncPostersPlusPreview();
   syncPelisAvailability();
 }
+function posterPatternProblem(value){
+  if(!value)return 'Pega el patrón de URL de tu servicio de pósteres.';
+  if(!/^https:\/\//i.test(value))return 'El patrón debe empezar con https://.';
+  if(!/\{(?:imdb_id|tmdb_id|tvdb_id|id)\??(?:\|[a-z_]+)*\??\}/.test(value))return 'Falta un identificador del título, como {imdb_id} o {tmdb_id}.';
+  return '';
+}
+document.getElementById('posterPattern').addEventListener('input',function(){
+  var problem=posterPatternProblem(this.value.trim()),status=document.getElementById('posterPatternStatus');
+  status.textContent=this.value.trim()?(problem?'✗ '+problem:'✓ El patrón tiene el formato esperado.'):'';
+  status.style.color=problem?'#ff9da5':'#9ce6c9';
+  if(backupReady)clearReview('Cambiaste los pósteres: revisa nuevamente el plan.');
+});
 function syncPostersPlusPreview(){
   var style=document.getElementById('postersPlusStyle').value;
   // The Shawshank Redemption: mismo título para comparar estilos.
@@ -651,7 +687,7 @@ document.querySelectorAll('.metadataMode').forEach(function(select){
   select.addEventListener('change',syncMetadataModes);
 });
 syncMetadataModes();
-['tmdb','tvdb','rpdb','mdblist','debridio'].forEach(function(service){
+['tmdb','tvdb','rpdb','mdblist','debridio','gemini'].forEach(function(service){
   var input=document.getElementById(service+'Key');
   input.addEventListener('input',function(){
     if(service==='tmdb')syncPelisAvailability();
@@ -790,6 +826,7 @@ document.getElementById('backupBtn').addEventListener('click',async function(){
     aioPushPlan=null;
     document.getElementById('aioPushBtn').disabled=true;
     document.getElementById('organizer').hidden=partial;
+    document.getElementById('factoryFold').hidden=partial;
     if(!partial)renderOrganizer(true);
     setSetupLocked(partial);
     maxWizardStep=partial?2:3;
@@ -1429,7 +1466,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
     backupReady=false;
     preparedBackupId='';
     clearReview();
-    document.getElementById('organizer').hidden=true;
+    document.getElementById('organizer').hidden=true;document.getElementById('factoryFold').hidden=true;
     setSetupLocked(true);
     installationComplete=true;
     document.getElementById('applyCard').classList.remove('locked');
@@ -1485,7 +1522,7 @@ document.getElementById('organizeBtn').addEventListener('click',async function()
     setSetupLocked(true);
     resetWizardStep(2);
     document.getElementById('nextBackup').hidden=true;
-    document.getElementById('organizer').hidden=true;
+    document.getElementById('organizer').hidden=true;document.getElementById('factoryFold').hidden=true;
     box.className='result note good show';
     box.textContent='Orden y catálogos verificados. Crea un respaldo nuevo para seguir.';
     document.getElementById('backupStatus').className='result note';
@@ -1505,6 +1542,8 @@ document.getElementById('profileInput').addEventListener('change',async function
         document.getElementById(id).value=p[id];
     });
     setLanguageOrder(p.audioLanguages,p.subtitleLanguages);
+    if(p.catalogGroups&&typeof p.catalogGroups==='object')document.querySelectorAll('.catalogGroup').forEach(function(x){if(x.value in p.catalogGroups)x.checked=p.catalogGroups[x.value]===true;});
+    if(['recommended','minimal','full','http'].indexOf(p.startPreset)>=0)markPreset(p.startPreset);
     ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores','watchly'].forEach(function(id){
       if(typeof p[id]==='boolean')document.getElementById(id).checked=p[id];
     });
@@ -1585,6 +1624,9 @@ document.getElementById('nextPreferences').addEventListener('click',async functi
   if(!filled.length){hint.textContent='Ingresa la API key de tu servicio Debrid o elige «No tengo Debrid».';document.querySelector('.debrid .key')?.focus();return;}
   if(filled.length!==entries.length){hint.textContent='Completa o elimina las filas Debrid sin API key.';return;}
   if(new Set(filled.map(function(entry){return entry.service;})).size!==filled.length){hint.textContent='Hay servicios Debrid repetidos. Conserva una sola fila por servicio.';return;}
+  var usenetRow=Array.from(document.querySelectorAll('.debrid')).find(function(row){return row.querySelector('.service').value==='easynews';});
+  if(usenetRow&&!usenetRow.querySelector('.secret').value){hint.textContent='Ingresa la contraseña de Easynews.';usenetRow.querySelector('.secret').focus();return;}
+  if(usenetRow&&filled.length<2){hint.textContent='Easynews se suma a un servicio Debrid de torrents: agrega uno, o usa el modo gratuito.';return;}
   hint.textContent='Comprobando las claves Debrid…';
   if(!await checkEnteredKeys(3)){hint.textContent='Corrige la clave indicada antes de continuar.';return;}
   hint.textContent='';advanceWizardStep(4);
@@ -1829,8 +1871,83 @@ document.addEventListener('click',async function(e){
   }catch(err){result.textContent='No se pudo guardar: '+err.message;}
   finally{setBusy(btn,false);}
 });
+
+// ---- Punto de partida (configuraciones listas) ----
+var PRESET_HINTS={
+  recommended:'Lo probado para la mayoría. Puedes ajustar cada opción después.',
+  minimal:'Lo justo: AIOStreams, AIOMetadata y subtítulos, con pocas filas en el inicio.',
+  full:'Todo lo recomendado más anime, fuentes adicionales y más filas en el inicio.',
+  http:'Sin torrents: sólo fuentes HTTP gratuitas. No necesitas Debrid y nadie ve tu IP, pero hay menos resultados.'
+};
+function markPreset(name){
+  document.getElementById('startPreset').value=name;
+  document.querySelectorAll('.presetBtn').forEach(function(b){b.classList.toggle('active',b.dataset.preset===name);b.setAttribute('aria-pressed',b.dataset.preset===name?'true':'false');});
+  document.getElementById('presetHint').textContent=PRESET_HINTS[name]||'';
+}
+function setChecked(id,value){var el=document.getElementById(id);if(el&&!el.disabled)el.checked=value;}
+function applyPreset(name){
+  var groups={recommended:['trending','streaming','genres'],minimal:['trending','streaming'],
+    full:['trending','streaming','genres','decades','studios','themes','anime'],http:['trending','streaming','genres']}[name];
+  if(name==='http'){document.getElementById('debridMode').value='free';syncDebridMode(true);}
+  else if(isFreeMode()&&document.getElementById('startPreset').value==='http'){document.getElementById('debridMode').value='debrid';syncDebridMode(true);}
+  setChecked('kids',false);setChecked('no4k',false);setChecked('cachedOnly',false);setChecked('removeWatchHub',true);
+  setChecked('anime',name==='full');
+  setChecked('trailers',name!=='minimal');setChecked('subtitles',true);setChecked('openSubtitles',name!=='minimal');
+  setChecked('stores',name!=='minimal'&&name!=='http');
+  document.querySelectorAll('.standaloneAddon').forEach(function(x){
+    if(x.disabled)return;
+    x.checked=name==='full'&&(x.value==='jackettio'||x.value==='torrentsdb');
+  });
+  document.querySelectorAll('.catalogGroup').forEach(function(x){x.checked=groups.indexOf(x.value)>=0;});
+  markPreset(name);
+  syncCatalogGroupsHint();
+  if(backupReady)clearReview('Cambiaste el punto de partida: revisa nuevamente el plan.');
+}
+document.querySelectorAll('.presetBtn').forEach(function(b){b.addEventListener('click',function(){applyPreset(b.dataset.preset);});});
+// Si el usuario sale del modo gratuito, «Solo HTTP» deja de aplicar.
+document.getElementById('withDebridBtn').addEventListener('click',function(){if(document.getElementById('startPreset').value==='http')markPreset('recommended');});
+
+// ---- Grupos de catálogos ----
+var CATALOG_GROUP_SIZE={trending:4,top10:19,streaming:20,genres:30,decades:12,studios:15,countries:26,themes:14,anime:10};
+function catalogGroupsState(){
+  var out={};document.querySelectorAll('.catalogGroup').forEach(function(x){out[x.value]=x.checked;});return out;
+}
+function syncCatalogGroupsHint(){
+  var kids=document.getElementById('kids').checked;
+  document.getElementById('catalogGroupsFold').hidden=kids;
+  var total=0;document.querySelectorAll('.catalogGroup:checked').forEach(function(x){total+=CATALOG_GROUP_SIZE[x.value]||0;});
+  var hint=document.getElementById('catalogGroupsHint');
+  hint.textContent='Unas '+total+' filas.'+(total>110&&platformName()==='Stremio'?' Stremio puede ocultar filas si hay demasiadas; conviene dejar menos de 110.':'');
+  hint.style.color=total>110&&platformName()==='Stremio'?'#ffdc93':'';
+}
+document.getElementById('catalogGroups').addEventListener('change',function(){
+  syncCatalogGroupsHint();
+  if(backupReady)clearReview('Cambiaste los catálogos: revisa nuevamente el plan.');
+});
+document.getElementById('kids').addEventListener('change',syncCatalogGroupsHint);
+document.getElementById('platform').addEventListener('change',syncCatalogGroupsHint);
+
+// ---- Restablecer la cuenta ----
+document.getElementById('factoryBtn').addEventListener('click',async function(){
+  if(!backupReady||!preparedBackupId)return;
+  if(!confirm('¿Restablecer '+platformName()+' a los complementos oficiales? Se quitarán todos los demás, incluido AIOStreams. Tu respaldo permite volver atrás.'))return;
+  var btn=this,box=document.getElementById('factoryResult');
+  setBusy(btn,true,'Restableciendo…');
+  try{
+    var d=await post('/api/factory-reset',Object.assign({},authPayload(),{preparedBackupId:preparedBackupId}));
+    showInstalledAddons(d.addons);
+    backupReady=false;preparedBackupId='';clearReview('La cuenta cambió. Crea un nuevo respaldo antes de configurar.');
+    setSetupLocked(true);resetWizardStep(2);
+    document.getElementById('nextBackup').hidden=true;
+    document.getElementById('organizer').hidden=true;document.getElementById('factoryFold').hidden=true;
+    box.className='result note good show';
+    box.textContent='✓ '+platformName()+' quedó con '+d.count+' complementos oficiales. Para volver atrás, usa «Restaurar respaldo anterior». Para configurar de nuevo, crea otro respaldo.';
+  }catch(e){box.className='result note bad show';box.textContent='No se pudo restablecer: '+e.message;}
+  finally{setBusy(btn,false);}
+});
 initAccess();
 resetLanguageOrder();
+syncCatalogGroupsHint();
 // i18n.js se carga después y puede ajustar el idioma del contenido: se recalcula al terminar.
 setTimeout(function(){if(!languageOrderCustomized)resetLanguageOrder();},0);
 showWizardStep(1);
