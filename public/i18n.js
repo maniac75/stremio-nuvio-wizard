@@ -2,6 +2,15 @@
 (function(){
   'use strict';
   var entries = `
+Recordar mis claves en este navegador	Remember my keys in this browser
+Guarda cifradas las claves Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini y Easynews para la próxima vez. Quedan sólo en este navegador, nunca en el servidor. Úsalo sólo en un equipo personal: quien use este navegador podrá volver a usarlas.	Saves your Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini and Easynews keys encrypted for next time. They stay only in this browser, never on the server. Use it only on a personal device: anyone using this browser will be able to reuse them.
+Olvidar claves guardadas	Forget saved keys
+Claves guardadas en este navegador.	Keys saved in this browser.
+Este navegador no permitió guardar las claves cifradas.	This browser did not allow saving the encrypted keys.
+Claves olvidadas en este navegador.	Keys forgotten in this browser.
+Se cargaron tus claves guardadas en este navegador.	Your keys saved in this browser were loaded.
+No se pudieron recuperar las claves guardadas. Ingrésalas de nuevo.	Could not recover the saved keys. Enter them again.
+¿Olvidar las claves guardadas en este navegador?	Forget the keys saved in this browser?
 Punto de partida	Starting point
 Recomendada	Recommended
 Mínima	Minimal

@@ -6,6 +6,7 @@ This describes the public instance at <https://wizard.stremio-nuvio.workers.dev>
 
 - **Email and password.** Sent over HTTPS to the wizard server only to sign in to Stremio or Nuvio. They are used once and not stored.
 - **Access token.** Used only while a request runs. If you tick "Remember account", it is stored in your browser encrypted with a non-exportable key kept in IndexedDB. Use it only on a personal device; "Forget saved account" removes it.
+- **Remember my keys (optional).** If you tick it, your service keys are stored in your browser encrypted with the same non-exportable key as "Remember account". Anyone using that browser can reuse them, so use it only on a personal device; "Forget saved keys" removes them.
 - **Backups.** Before any change, the wizard creates a backup of your add-on list, encrypts it with AES-256-GCM using a key only the server holds, and gives it to your browser (`localStorage`, up to 8). The server keeps no copy. Backups can only be opened by this service and expire after 30 days. Add-on URLs can embed API keys (for example Debrid keys), so backups may contain them in encrypted form.
 - **Service keys and passwords** (Debrid keys, Easynews username and password, Gemini, TMDB, MDBList…) go only into the AIOStreams and AIOMetadata configurations created for you. The wizard does not store them.
 - **New AIOStreams credentials** created by the wizard are shown to you once and not stored.
@@ -24,6 +25,7 @@ There is nothing to delete on the server. To remove your backups, clear this sit
 
 - **Correo y contraseña:** viajan por HTTPS al servidor del wizard sólo para iniciar sesión en Stremio o Nuvio. Se usan una vez y no se guardan.
 - **Token de acceso:** si marcas «Recordar cuenta», queda en tu navegador cifrado con una clave no exportable. Úsalo sólo en un equipo personal.
+- **Recordar mis claves (opcional):** si lo marcas, tus claves quedan en el navegador cifradas con la misma llave no exportable de «Recordar cuenta». Quien use ese navegador podrá reutilizarlas: úsalo sólo en un equipo personal. «Olvidar claves guardadas» las borra.
 - **Respaldos:** se cifran (AES-256-GCM) con una clave que sólo tiene el servidor y se guardan en tu navegador, no en el servidor. Sólo este servicio puede abrirlos y vencen a los 30 días.
 - **Claves y contraseñas de servicios** (Debrid, usuario y contraseña de Easynews, Gemini, TMDB, MDBList…): van sólo a las configuraciones de AIOStreams y AIOMetadata que se crean para ti. El wizard no las guarda.
 - **Credenciales nuevas de AIOStreams:** se muestran una vez y no se guardan.

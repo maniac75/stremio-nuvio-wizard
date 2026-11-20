@@ -1629,10 +1629,11 @@ document.getElementById('nextPreferences').addEventListener('click',async functi
   if(usenetRow&&filled.length<2){hint.textContent='Easynews se suma a un servicio Debrid de torrents: agrega uno, o usa el modo gratuito.';return;}
   hint.textContent='Comprobando las claves Debrid…';
   if(!await checkEnteredKeys(3)){hint.textContent='Corrige la clave indicada antes de continuar.';return;}
-  hint.textContent='';advanceWizardStep(4);
+  hint.textContent='';saveRememberedKeys();advanceWizardStep(4);
 });
 document.getElementById('nextAddons').addEventListener('click',function(){
   if(!backupReady)return;
+  saveRememberedKeys();
   advanceWizardStep(5);
   document.getElementById('reviewBtn').click();
 });
@@ -1945,6 +1946,85 @@ document.getElementById('factoryBtn').addEventListener('click',async function(){
   }catch(e){box.className='result note bad show';box.textContent='No se pudo restablecer: '+e.message;}
   finally{setBusy(btn,false);}
 });
+
+// ---- Recordar claves en este navegador (opcional) ----
+// Mismo cifrado que «Recordar cuenta»: AES-GCM con una llave no exportable guardada en IndexedDB.
+var rememberedKeysStorage='stremio-wizard-keys-v1';
+function collectKeysForStorage(){
+  var debrids=Array.from(document.querySelectorAll('.debrid')).map(function(row){
+    var service=row.querySelector('.service').value,entry={service:service,key:row.querySelector('.key').value.trim()};
+    if(service==='easynews')entry.password=row.querySelector('.secret').value;
+    return entry;
+  }).filter(function(x){return x.key;});
+  var keys={debrids:debrids,debridio:document.getElementById('debridioKey').value.trim(),
+    mdblist:document.getElementById('mdblistKey').value.trim(),gemini:document.getElementById('geminiKey').value.trim()};
+  ['tmdb','tvdb','rpdb'].forEach(function(s){
+    if(document.getElementById(s+'Mode').value==='personal'){var v=document.getElementById(s+'Key').value.trim();if(v)keys[s]=v;}
+  });
+  return keys;
+}
+function hasStoredKeys(){return !!localStorage.getItem(rememberedKeysStorage);}
+function syncForgetKeys(){document.getElementById('forgetKeys').hidden=!hasStoredKeys();}
+async function saveRememberedKeys(){
+  if(!document.getElementById('rememberKeys').checked)return;
+  try{
+    var keys=collectKeysForStorage();
+    var empty=!keys.debrids.length&&!keys.debridio&&!keys.mdblist&&!keys.gemini&&!keys.tmdb&&!keys.tvdb&&!keys.rpdb;
+    if(empty)return;
+    var iv=crypto.getRandomValues(new Uint8Array(12));
+    var data=new TextEncoder().encode(JSON.stringify(keys));
+    var encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},await rememberedCryptoKey(),data);
+    localStorage.setItem(rememberedKeysStorage,JSON.stringify({v:1,iv:bytesToBase64(iv),data:bytesToBase64(new Uint8Array(encrypted))}));
+    document.getElementById('rememberKeysHint').textContent='Claves guardadas en este navegador.';
+  }catch(_){document.getElementById('rememberKeysHint').textContent='Este navegador no permitió guardar las claves cifradas.';}
+  syncForgetKeys();
+}
+function forgetRememberedKeys(){
+  localStorage.removeItem(rememberedKeysStorage);
+  document.getElementById('rememberKeys').checked=false;
+  document.getElementById('rememberKeysHint').textContent='Claves olvidadas en este navegador.';
+  syncForgetKeys();
+}
+async function restoreRememberedKeys(){
+  var saved=localStorage.getItem(rememberedKeysStorage);
+  if(!saved)return;
+  try{
+    var record=JSON.parse(saved);
+    if(record.v!==1)throw new Error('formato');
+    var plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:base64ToBytes(record.iv)},await rememberedCryptoKey(),base64ToBytes(record.data));
+    var keys=JSON.parse(new TextDecoder().decode(plain));
+    var debrids=Array.isArray(keys.debrids)?keys.debrids.filter(function(d){return d&&serviceNames[d.service]&&d.key;}):[];
+    if(debrids.length){
+      document.getElementById('debridList').textContent='';
+      debrids.forEach(function(d){
+        addDebrid(d.service);
+        var row=Array.from(document.querySelectorAll('.debrid')).pop();
+        row.querySelector('.key').value=d.key;
+        if(d.service==='easynews')row.querySelector('.secret').value=d.password||'';
+      });
+    }
+    if(keys.debridio)document.getElementById('debridioKey').value=keys.debridio;
+    if(keys.mdblist)document.getElementById('mdblistKey').value=keys.mdblist;
+    if(keys.gemini)document.getElementById('geminiKey').value=keys.gemini;
+    ['tmdb','tvdb','rpdb'].forEach(function(s){
+      if(keys[s]){document.getElementById(s+'Mode').value='personal';document.getElementById(s+'Key').value=keys[s];}
+    });
+    syncMetadataModes();
+    document.getElementById('rememberKeys').checked=true;
+    document.getElementById('rememberKeysHint').textContent='Se cargaron tus claves guardadas en este navegador.';
+  }catch(_){
+    localStorage.removeItem(rememberedKeysStorage);
+    document.getElementById('rememberKeysHint').textContent='No se pudieron recuperar las claves guardadas. Ingrésalas de nuevo.';
+  }
+  syncForgetKeys();
+}
+document.getElementById('rememberKeys').addEventListener('change',function(){
+  if(this.checked)saveRememberedKeys();
+  else if(hasStoredKeys())forgetRememberedKeys();
+});
+document.getElementById('forgetKeys').addEventListener('click',function(){
+  if(confirm('¿Olvidar las claves guardadas en este navegador?'))forgetRememberedKeys();
+});
 initAccess();
 resetLanguageOrder();
 syncCatalogGroupsHint();
@@ -1955,4 +2035,5 @@ addDebrid('torbox');
 syncDebridMode(false);
 syncForgetButton();
 restoreRememberedAccount();
+restoreRememberedKeys();
 health();

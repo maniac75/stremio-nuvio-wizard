@@ -372,6 +372,8 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
     <button class="secondary" id="addDebridBtn">+ Agregar servicio</button>
     <div class="field" style="margin-top:18px" id="debridioField"><label for="debridioKey">Debridio en AIOStreams <span class="rec-tag tag-opt">OPCIONAL</span></label><input id="debridioKey" type="password" autocomplete="off" placeholder="API key de Debridio"><div class="small">Sólo si tienes una cuenta de Debridio, que es un servicio aparte. Si no sabes qué es, déjalo vacío: no hace falta.</div><div class="linkrow"><a class="link" href="https://debridio.com" target="_blank" rel="noreferrer noopener">Obtener API key de Debridio</a></div><div class="small keyStatus" id="debridioKeyStatus" role="status"></div></div>
   </div>
+  <div class="check rememberKeys" style="margin-top:16px"><input id="rememberKeys" type="checkbox"><label for="rememberKeys"><b>Recordar mis claves en este navegador</b><div class="small">Guarda cifradas las claves Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini y Easynews para la próxima vez. Quedan sólo en este navegador, nunca en el servidor. Úsalo sólo en un equipo personal: quien use este navegador podrá volver a usarlas.</div></label></div>
+  <div class="actions" style="margin-top:6px"><button class="secondary" id="forgetKeys" type="button" hidden>Olvidar claves guardadas</button><span class="small" id="rememberKeysHint" role="status"></span></div>
 </section>
 <div class="step-actions" data-step="3" hidden><button class="secondary" type="button" data-goto="2">← Volver al respaldo</button><button class="primary" id="nextPreferences" type="button">Continuar a complementos →</button><span class="small" id="preferencesHint"></span></div>
 
