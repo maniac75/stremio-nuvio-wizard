@@ -295,6 +295,7 @@ Una URL	One URL
 por línea	per line
 Validar URLs	Validate URLs
 Guardar o importar opciones para otra cuenta	Save or import options for another account
+Exportar o importar tus opciones (sin claves)	Export or import your options (no keys)
 Exporta las selecciones del wizard sin contraseñas, claves Debrid ni URL privadas. Al importar tendrás que ingresar las claves y URLs personalizadas de esa cuenta.	Exports your wizard choices without passwords, Debrid keys, or private URLs. When importing, enter the keys and custom URLs for the new account.
 Descargar perfil sin claves	Download profile without keys
 Importar perfil	Import profile
@@ -338,14 +339,29 @@ Comprobando…	Checking…
 Copiar cuentas	Copy accounts
 Cerrar ✕	Close ✕
 Copiar a la otra cuenta	Copy to the other account
+Trakt en AIOMetadata	Trakt in AIOMetadata
+Agrega a tu inicio «Trakt Up Next» (el siguiente episodio de lo que estás viendo) y tu lista de pendientes de Trakt. Abre la conexión, autoriza en Trakt, copia el Token ID que te muestra AIOMetadata y pégalo aquí. No se guarda tu contraseña de Trakt.	Adds “Trakt Up Next” (the next episode of what you are watching) and your Trakt watchlist to your home screen. Open the connection, authorize on Trakt, copy the Token ID AIOMetadata shows you and paste it here. Your Trakt password is never stored.
+Conectar Trakt ↗	Connect Trakt ↗
+Pegar Token ID	Paste Token ID
+Agregar «Trakt Up Next»	Add “Trakt Up Next”
+Agregar mi Watchlist de Trakt	Add my Trakt Watchlist
+Pega el Token ID en el campo (mantén presionado o Ctrl/Cmd+V).	Paste the Token ID into the field (long-press or Ctrl/Cmd+V).
+AIOMetadata no reconoce ese Token ID. Vuelve a conectar Trakt y copia el código completo.	AIOMetadata does not recognize that Token ID. Connect Trakt again and copy the full code.
+Ese Token ID no es de Trakt.	That Token ID is not a Trakt token.
+La autorización de Trakt venció o fue revocada. Vuelve a conectar Trakt.	The Trakt authorization expired or was revoked. Connect Trakt again.
+Usar esta configuración también en Stremio	Use this setup in Stremio too
+Usar esta configuración también en Nuvio	Use this setup in Nuvio too
 Usa la lista de una cuenta para configurar la otra. El mismo AIOStreams se conserva; antes de aplicar se guarda un respaldo de destino.	Use one account’s addon list to set up the other. The same AIOStreams is kept; a backup of the destination is saved before applying.
 Primero conecta la cuenta de origen en el paso 1. Después podrás comprobar o copiar sus complementos sin repetir la instalación de AIOStreams.	First connect the source account in step 1. Then check or copy its addons without installing AIOStreams again.
 Nuvio omite Cinemeta y Streailer: por eso puede mostrar dos complementos menos que Stremio.	Nuvio omits Cinemeta and Streailer, so it may show two fewer addons than Stremio.
 Copiar Stremio ↔ Nuvio	Copy Stremio ↔ Nuvio
+Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 ¿También usas la otra app?	Do you also use the other app?
 Copia tu configuración de complementos entre Stremio y Nuvio sin volver a instalar todo desde cero. El wizard respalda primero la cuenta de destino y reutiliza el mismo AIOStreams.	Copy your addon setup between Stremio and Nuvio without reinstalling everything from scratch. The wizard backs up the destination account first and reuses the same AIOStreams.
 Copiar configuración entre Stremio y Nuvio	Copy setup between Stremio and Nuvio
+Misma configuración en Stremio y Nuvio	Same setup in Stremio and Nuvio
 Esta herramienta replica en una app la lista de complementos que ya tienes en la otra. La cuenta conectada en el paso 1 será el origen; la otra cuenta será el destino.	This tool replicates the addon list from one app to the other. The account connected in step 1 is the source; the other account is the destination.
+¿Usas Stremio y Nuvio? Deja ambas apps con los mismos complementos sin configurar dos veces. Tu cuenta del paso 1 sirve de modelo y no se modifica; se configura tu cuenta de la otra app.	Use both Stremio and Nuvio? Give both apps the same addons without setting things up twice. Your step 1 account is the model and is not changed; your account in the other app is the one configured.
 Stremio → Nuvio	Stremio → Nuvio
 Nuvio → Stremio	Nuvio → Stremio
 Copia los complementos de Stremio a Nuvio y reutiliza exactamente el mismo AIOStreams. Cinemeta y Streailer se omiten porque Nuvio no los usa.	Copies your Stremio addons to Nuvio and reuses the exact same AIOStreams. Cinemeta and Streailer are omitted because Nuvio does not use them.
@@ -685,6 +701,9 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^El wizard crea y verifica un respaldo de (Stremio|Nuvio) antes de modificarla\.$/,'The wizard creates and verifies a $1 backup before changing it.'],
     [/^Aplica la copia\. (Stremio|Nuvio) permanece intacto y ambas apps usarán el mismo AIOStreams\.$/,'Apply the copy. $1 remains unchanged and both apps will use the same AIOStreams.'],
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
+    [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
+    [/^Configurar (Stremio|Nuvio) igual que (Stremio|Nuvio)$/,'Set up $1 the same as $2'],
+    [/^Trakt conectado como @(.*?)\.$/,'Trakt connected as @$1.'],
     [/^Conectar cuenta de (Stremio|Nuvio)$/,'Connect $1 account'],
     [/^Comparar con (Stremio|Nuvio)$/,'Compare with $1'],
     [/^Respaldar (Stremio|Nuvio) y revisar$/,'Back up $1 and review'],
@@ -739,9 +758,13 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     var core=match[2], value=exact.get(core);
     if(value===undefined){
       value=core;
+      var hit=false;
       for(var i=0;i<patterns.length;i++){
-        if(patterns[i][0].test(value)){value=value.replace(patterns[i][0],patterns[i][1]);break;}
+        if(patterns[i][0].test(value)){value=value.replace(patterns[i][0],patterns[i][1]);hit=true;break;}
       }
+      // Mensajes de estado con prefijo ✓/✗/ⓘ: traducir el resto y conservar el símbolo.
+      var mark=!hit&&core.match(/^([✓✗ⓘ⚠]\uFE0F? )([\s\S]+)$/);
+      if(mark&&translate(mark[2])!==mark[2])value=mark[1]+translate(mark[2]);
     }
     return match[1]+value+match[3];
   }

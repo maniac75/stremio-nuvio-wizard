@@ -404,6 +404,9 @@ function collect(){
     startPreset:document.getElementById('startPreset').value,
     catalogGroups:catalogGroupsState(),
     geminiKey:document.getElementById('geminiKey').value.trim(),
+    traktTokenId:document.getElementById('traktTokenKey').value.trim(),
+    traktUpNext:document.getElementById('traktUpNext').checked,
+    traktWatchlist:document.getElementById('traktWatchlist').checked,
     profileMode:document.getElementById('profileMode').value,
     instanceMode:document.getElementById('instanceMode').value,
     aioInstallMode:document.getElementById('aioInstallMode').value,
@@ -578,7 +581,8 @@ async function checkEnteredKeys(step){
     :['tmdb','tvdb','rpdb'].filter(function(s){return document.getElementById(s+'Mode').value==='personal';})
       .map(function(s){return {input:document.getElementById(s+'Key'),service:s};})
       .concat(document.getElementById('mdblistKey').value.trim()?[{input:document.getElementById('mdblistKey'),service:'mdblist'}]:[])
-      .concat(document.getElementById('geminiKey').value.trim()?[{input:document.getElementById('geminiKey'),service:'gemini'}]:[]);
+      .concat(document.getElementById('geminiKey').value.trim()?[{input:document.getElementById('geminiKey'),service:'gemini'}]:[])
+      .concat(document.getElementById('traktTokenKey').value.trim()?[{input:document.getElementById('traktTokenKey'),service:'trakttoken'}]:[]);
   if(step===4&&document.getElementById('rpdbMode').value==='custom'){
     var patternInput=document.getElementById('posterPattern'),problem=posterPatternProblem(patternInput.value.trim());
     if(problem){var ps=document.getElementById('posterPatternStatus');ps.textContent='✗ '+problem;ps.style.color='#ff9da5';patternInput.focus();return false;}
@@ -694,12 +698,20 @@ document.querySelectorAll('.metadataMode').forEach(function(select){
   select.addEventListener('change',syncMetadataModes);
 });
 syncMetadataModes();
-['tmdb','tvdb','rpdb','mdblist','debridio','gemini'].forEach(function(service){
-  var input=document.getElementById(service+'Key');
+function syncTraktChoices(){document.getElementById('traktCatalogChoices').hidden=!document.getElementById('traktTokenKey').value.trim();}
+document.getElementById('traktTokenPaste').addEventListener('click',async function(){
+  var input=document.getElementById('traktTokenKey');
+  try{var text=(await navigator.clipboard.readText()||'').trim();
+    if(text){input.value=text;input.dispatchEvent(new Event('input'));return;}}catch(_){}
+  input.focus();document.getElementById('traktTokenKeyStatus').textContent='Pega el Token ID en el campo (mantén presionado o Ctrl/Cmd+V).';
+});
+['tmdb','tvdb','rpdb','mdblist','debridio','gemini','trakttoken'].forEach(function(service){
+  var input=document.getElementById((service==='trakttoken'?'traktToken':service)+'Key');
   input.addEventListener('input',function(){
     if(service==='tmdb')syncPelisAvailability();
     input.dataset.keyCheck='';input.dataset.checkedValue='';clearTimeout(input.keyTimer);
-    document.getElementById(service+'KeyStatus').textContent=input.value.trim()?'Esperando para comprobar…':'';
+    document.getElementById(input.id+'Status').textContent=input.value.trim()?'Esperando para comprobar…':'';
+    if(service==='trakttoken')syncTraktChoices();
     if(input.value.trim())input.keyTimer=setTimeout(function(){validateKeyInput(input,service);},650);
   });
   input.addEventListener('blur',function(){if(input.value.trim())validateKeyInput(input,service);});
@@ -1176,7 +1188,7 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
   var panel=document.createElement('div');
   panel.className='note';
   panel.style.marginTop='18px';
-  panel.innerHTML='<h3>Copiar '+sourceName+' → '+targetName+'</h3>'+
+  panel.innerHTML='<h3>Configurar '+targetName+' igual que '+sourceName+'</h3>'+
     '<p class="copyDirectionSummary"><b>Origen:</b> la cuenta de '+sourceName+' que ya conectaste. <b>Destino:</b> la cuenta de '+targetName+' que conectarás aquí. Al aplicar, la lista de complementos de '+targetName+' se reemplazará por una copia compatible de '+sourceName+'.</p>'+
     (targetPlatform==='nuvio'
       ?'<p class="small"><b>Adaptación para Nuvio:</b> Cinemeta y Streailer no se copian porque Nuvio no los utiliza. El resto, incluido AIOStreams, conserva sus mismas URL.</p>'
@@ -1187,7 +1199,7 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
       '<li>Revisa el plan: elige si conservas complementos que sólo tiene el destino y, en Nuvio, si agregas sus extras.</li>'+
       '<li>Aplica la copia. '+sourceName+' permanece intacto y ambas apps usarán el mismo AIOStreams.</li>'+
     '</ol></div>'+
-    '<button class="secondary" type="button" id="transferOpen">Preparar copia a '+targetName+'</button>'+
+    '<button class="secondary" type="button" id="transferOpen">Configurar mi '+targetName+'</button>'+
     '<div id="transferForm" hidden style="margin-top:14px">'+
       '<div class="row"><div class="field"><label for="transferEmail">Correo de '+targetName+'</label><input id="transferEmail" type="email" autocomplete="username"></div>'+
       '<div class="field"><label for="transferPassword">Contraseña de '+targetName+'</label><input id="transferPassword" type="password" autocomplete="current-password"></div></div>'+
@@ -1269,7 +1281,7 @@ function offerSecondPlatform(sourceAuth, sourceFingerprint, container) {
           '<div class="check"><input id="transferCollections" type="checkbox" checked><label for="transferCollections"><b>Colecciones de inicio</b><div class="small">Filas Ver ahora, Géneros, Décadas, Temáticas e Internacional. Reemplaza las colecciones actuales del perfil; quedan en el respaldo.</div></label></div>'+
           (tmdbForm?'<div class="check"><input id="transferFranchises" type="checkbox" checked><label for="transferFranchises"><b>Franquicias</b><div class="small">Fila con sagas como Star Wars o Marvel, usando tu clave de TMDB.</div></label></div>':'')+
           '</div></div>':'')+
-        '<button class="primary" type="button" id="transferApply">Copiar '+sourceName+' → '+targetName+'</button></div>';
+        '<button class="primary" type="button" id="transferApply">Configurar '+targetName+' igual que '+sourceName+'</button></div>';
       status.textContent='Revisa el cambio antes de aplicarlo. Sólo se modificará '+targetName+'; '+sourceName+' permanecerá intacto.';
       plan.querySelector('#transferApply').addEventListener('click',async function(){
         if(!confirm('¿Copiar la configuración de '+sourceName+' a '+targetName+'? Se reemplazará la lista de '+targetName+'; su respaldo ya está guardado y '+sourceName+' no se modificará.'))return;
@@ -1393,7 +1405,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
       '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIOStreams</button>':'')+
       '<button class="secondary" id="downloadInstalledAfter" type="button">Descargar lista y URL de complementos</button>'+
       '<button class="secondary" id="showInstalledAfter" type="button">Ver complementos instalados</button>'+
-       '<button class="primary" id="copyAfterSuccess" type="button">Copiar a la otra cuenta</button></div>'+
+       '<button class="primary" id="copyAfterSuccess" type="button">Usar esta configuración también en '+(d.platform==='nuvio'?'Stremio':'Nuvio')+'</button></div>'+
       (lastRecovery?'<p class="small">El JSON contiene otra copia del UUID, la clave de edición y la URL de instalación de AIOStreams. Guárdalo también en privado. El respaldo de '+platformName()+' permite restaurar la colección anterior, pero <b>no guarda esta clave de AIOStreams</b>.</p>':'<p class="small">Guarda la lista de URL para reinstalar los complementos más adelante. El respaldo de '+platformName()+' permite restaurar la colección anterior.</p>');
 
     var otherProfilesButton=document.getElementById('applyOtherProfiles');
@@ -2000,7 +2012,8 @@ function collectKeysForStorage(){
     return entry;
   }).filter(function(x){return x.key;});
   var keys={debrids:debrids,debridio:document.getElementById('debridioKey').value.trim(),
-    mdblist:document.getElementById('mdblistKey').value.trim(),gemini:document.getElementById('geminiKey').value.trim()};
+    mdblist:document.getElementById('mdblistKey').value.trim(),gemini:document.getElementById('geminiKey').value.trim(),
+    trakt:document.getElementById('traktTokenKey').value.trim()};
   ['tmdb','tvdb','rpdb'].forEach(function(s){
     if(document.getElementById(s+'Mode').value==='personal'){var v=document.getElementById(s+'Key').value.trim();if(v)keys[s]=v;}
   });
@@ -2012,7 +2025,7 @@ async function saveRememberedKeys(){
   if(!document.getElementById('rememberKeys').checked)return;
   try{
     var keys=collectKeysForStorage();
-    var empty=!keys.debrids.length&&!keys.debridio&&!keys.mdblist&&!keys.gemini&&!keys.tmdb&&!keys.tvdb&&!keys.rpdb;
+    var empty=!keys.debrids.length&&!keys.debridio&&!keys.mdblist&&!keys.gemini&&!keys.trakt&&!keys.tmdb&&!keys.tvdb&&!keys.rpdb;
     if(empty)return;
     var iv=crypto.getRandomValues(new Uint8Array(12));
     var data=new TextEncoder().encode(JSON.stringify(keys));
@@ -2049,6 +2062,7 @@ async function restoreRememberedKeys(){
     if(keys.debridio)document.getElementById('debridioKey').value=keys.debridio;
     if(keys.mdblist)document.getElementById('mdblistKey').value=keys.mdblist;
     if(keys.gemini)document.getElementById('geminiKey').value=keys.gemini;
+    if(keys.trakt){document.getElementById('traktTokenKey').value=keys.trakt;syncTraktChoices();}
     ['tmdb','tvdb','rpdb'].forEach(function(s){
       if(keys[s]){document.getElementById(s+'Mode').value='personal';document.getElementById(s+'Key').value=keys[s];}
     });

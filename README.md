@@ -29,6 +29,7 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Posters with ratings:** free PostersPlus styles (no key, with live preview), RPDB with your own key, or your own pattern (private PostersPlus, Pictorium…).
 - **Nuvio quality badges:** a short guide to add a community Fusion badge pack.
 - **Optional MDBList key** for watch tracking and MDBList search in AIOMetadata.
+- **Trakt (optional):** one-click Trakt connect for your Stremio account (auto-detected), plus Trakt Up Next and Watchlist rows in AIOMetadata with a validated Token ID.
 - **Beginner's guide** in [English](https://wizard.stremio-nuvio.workers.dev/guide.html) and [Spanish](https://wizard.stremio-nuvio.workers.dev/guia.html).
 
 ## How it works

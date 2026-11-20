@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.22.2';
+const WIZARD_VERSION = '0.23.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1195,7 +1195,7 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews']);
+  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews', 'trakttoken']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
@@ -1204,7 +1204,7 @@ async function handleValidateKey(body) {
   if (secret.length > 512 || /[\r\n]/.test(secret)) return { status: 'invalid', message: 'Contraseña no válida.' };
   const names = { tmdb: 'TMDB', tvdb: 'TVDB', rpdb: 'RPDB', mdblist: 'MDBList', debridio: 'Debridio', gemini: 'Gemini',
     torbox: 'TorBox', realdebrid: 'Real-Debrid', premiumize: 'Premiumize', alldebrid: 'AllDebrid', debridlink: 'Debrid-Link',
-    easydebrid: 'EasyDebrid', offcloud: 'Offcloud', debrider: 'Debrider', easynews: 'Easynews' };
+    easydebrid: 'EasyDebrid', offcloud: 'Offcloud', debrider: 'Debrider', easynews: 'Easynews', trakttoken: 'AIOMetadata' };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   try {
@@ -1244,6 +1244,11 @@ async function handleValidateKey(body) {
       url = 'https://offcloud.com/api/account/info?key=' + encodeURIComponent(key);
     } else if (service === 'debrider') {
       url = 'https://debrider.app/api/v1/account'; bearer();
+    } else if (service === 'trakttoken') {
+      // Token ID que entrega AIOMetadata tras autorizar Trakt; su API dice a qué usuario pertenece.
+      url = AIOMETA_BASE + '/api/oauth/token/info';
+      options = { ...options, method: 'POST', headers: { ...options.headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId: key }) };
     } else if (service === 'rpdb') {
       url = 'https://api.ratingposterdb.com/' + encodeURIComponent(key) + '/isValid';
     } else {
@@ -1258,6 +1263,9 @@ async function handleValidateKey(body) {
     if (service === 'debridio' && response.status === 403) {
       return { status: 'invalid', message: 'Debridio rechazó la clave o la suscripción no está activa.' };
     }
+    if (service === 'trakttoken' && (response.status === 404 || response.status === 400)) {
+      return { status: 'invalid', message: 'AIOMetadata no reconoce ese Token ID. Vuelve a conectar Trakt y copia el código completo.' };
+    }
     if (response.status === 401 || response.status === 403) {
       return { status: 'invalid', message: service === 'easynews' ? 'Easynews rechazó el usuario o la contraseña.' : 'La clave fue rechazada por ' + names[service] + '.' };
     }
@@ -1268,6 +1276,11 @@ async function handleValidateKey(body) {
     }
     const result = await response.json().catch(() => null);
     if (!result) return unknown;
+    if (service === 'trakttoken') {
+      if (result.provider !== 'trakt') return { status: 'invalid', message: 'Ese Token ID no es de Trakt.' };
+      if (result.status === 'invalid') return { status: 'invalid', message: 'La autorización de Trakt venció o fue revocada. Vuelve a conectar Trakt.' };
+      return { status: 'valid', message: 'Trakt conectado como @' + String(result.username || '').slice(0, 60) + '.' };
+    }
     if ((service === 'premiumize' || service === 'alldebrid') && result.status !== 'success') {
       return { status: 'invalid', message: 'La clave fue rechazada por ' + names[service] + '.' };
     }
@@ -1331,6 +1344,18 @@ async function configureAioMetadata(preset, options) {
   config.apiKeys.mdblist = options.mdblistKey || '';
   // Búsqueda con IA (opcional): AIOMetadata usa Gemini con la clave del usuario.
   config.apiKeys.gemini = options.geminiKey || '';
+  // Trakt (opcional): Token ID de AIOMetadata y catálogos personales de Trakt.
+  if (options.traktTokenId) {
+    config.apiKeys.traktTokenId = options.traktTokenId;
+    config.catalogs = Array.isArray(config.catalogs) ? config.catalogs : [];
+    const addCatalog = catalog => {
+      if (!config.catalogs.some(c => c.id === catalog.id)) config.catalogs.unshift(catalog);
+    };
+    if (options.traktWatchlist) addCatalog({ id: 'trakt.watchlist', type: 'all', name: 'Trakt Watchlist', enabled: true, showInHome: true, source: 'trakt' });
+    if (options.traktUpNext) addCatalog({ id: 'trakt.upnext', type: 'series', name: 'Trakt Up Next', enabled: true, showInHome: true, source: 'trakt', cacheTTL: 300 });
+  } else {
+    delete config.apiKeys.traktTokenId;
+  }
   config.search = config.search || {};
   config.search.ai_enabled = !!options.geminiKey;
   if (options.geminiKey) {
@@ -2200,6 +2225,9 @@ function normalizeOptions(body) {
     rpdbKey: body.rpdbMode === 'personal' || (!body.rpdbMode && body.rpdbKey) ? String(body.rpdbKey || '').trim() : '',
     mdblistKey: String(body.mdblistKey || '').trim().slice(0, 128),
     geminiKey: String(body.geminiKey || '').trim().slice(0, 128),
+    traktTokenId: /^[A-Za-z0-9_-]{8,128}$/.test(String(body.traktTokenId || '').trim()) ? String(body.traktTokenId).trim() : '',
+    traktUpNext: body.traktUpNext !== false,
+    traktWatchlist: body.traktWatchlist !== false,
     anime: body.anime === true,
     argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
     nuvioCollections: body.nuvioCollections !== false,
