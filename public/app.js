@@ -761,8 +761,33 @@ async function health(){
 }
 
 // ---- Inicio de sesión con el enlace oficial de Stremio ----
+// Inicio con el sitio de Stremio: vuelve a esta página con la AuthKey en el fragmento (#…),
+// que nunca llega al servidor; se borra de la barra de direcciones al leerla.
+var STREMIO_RETURN='#stremio-login';
+document.getElementById('stremioLoginBtn').addEventListener('click',function(){
+  try{sessionStorage.setItem('wizard-stremio-login',JSON.stringify({remember:document.getElementById('rememberAccount').checked}));}catch(_){}
+  var callback=location.origin+location.pathname+STREMIO_RETURN;
+  location.href='https://www.stremio.com/login?appName='+encodeURIComponent('Stremio & Nuvio Wizard')+'&appCallback='+encodeURIComponent(callback);
+});
+function consumeStremioReturn(){
+  var hash=location.hash||'';
+  if(hash.indexOf(STREMIO_RETURN)!==0)return;
+  var match=hash.match(/[?&]key=([^&]+)/);
+  history.replaceState(null,'',location.pathname+location.search);
+  var state={};try{state=JSON.parse(sessionStorage.getItem('wizard-stremio-login')||'{}');sessionStorage.removeItem('wizard-stremio-login');}catch(_){}
+  if(!match){document.getElementById('accountHint').textContent='Stremio no devolvió el acceso. Prueba de nuevo o usa correo y contraseña.';return;}
+  if(document.getElementById('platform').value!=='stremio')document.getElementById('platformStremio').click();
+  document.getElementById('email').value='';document.getElementById('password').value='';
+  document.getElementById('authKey').value=decodeURIComponent(match[1]);
+  if(state.remember)document.getElementById('rememberAccount').checked=true;
+  document.getElementById('accountHint').textContent='✓ Stremio aprobó el acceso. Conectando…';
+  document.getElementById('connectBtn').click();
+}
 var stremioLinkTimer=null;
-function stopStremioLink(){clearInterval(stremioLinkTimer);stremioLinkTimer=null;}
+// Safari pausa los temporizadores en segundo plano: al volver a la pestaña, revisar de inmediato.
+var stremioLinkCheckNow=null;
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&stremioLinkCheckNow)stremioLinkCheckNow();});
+function stopStremioLink(){clearInterval(stremioLinkTimer);stremioLinkTimer=null;stremioLinkCheckNow=null;}
 document.getElementById('stremioLinkBtn').addEventListener('click',async function(){
   var btn=this,panel=document.getElementById('stremioLinkPanel'),status=document.getElementById('stremioLinkStatus');
   stopStremioLink();
@@ -779,7 +804,7 @@ document.getElementById('stremioLinkBtn').addEventListener('click',async functio
     panel.hidden=false;
     status.textContent='Esperando que apruebes en Stremio…';
     var until=Date.now()+5*60*1000,busy=false;
-    stremioLinkTimer=setInterval(async function(){
+    stremioLinkCheckNow=async function(){
       if(Date.now()>until){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';return;}
       if(busy)return;busy=true;
       try{
@@ -796,7 +821,8 @@ document.getElementById('stremioLinkBtn').addEventListener('click',async functio
           panel.hidden=true;
         }else if(r.status==='expired'){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';}
       }catch(_){}finally{busy=false;}
-    },3000);
+    };
+    stremioLinkTimer=setInterval(stremioLinkCheckNow,3000);
   }catch(err){panel.hidden=false;status.textContent='No se pudo crear el enlace: '+err.message;}
   finally{setBusy(btn,false);}
 });
@@ -2160,6 +2186,6 @@ showWizardStep(1);
 addDebrid('torbox');
 syncDebridMode(false);
 syncForgetButton();
-restoreRememberedAccount();
+if((location.hash||'').indexOf(STREMIO_RETURN)===0)consumeStremioReturn();else restoreRememberedAccount();
 restoreRememberedKeys();
 health();

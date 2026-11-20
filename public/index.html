@@ -223,7 +223,7 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
   .card,.card.full{padding:14px}.actions>button{flex-basis:100%}
 }
 .guideTopLink{display:block;width:max-content;max-width:100%;margin:0 4px 9px auto;color:#176e77;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}.guideTopLink:hover{text-decoration:underline;text-underline-offset:3px;color:#084d58}.guideTopLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.stremioLinkBox{margin:6px 0 12px}.orLine{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 10px}.orLine:before,.orLine:after{content:"";flex:1;height:1px;background:var(--line)}#stremioLinkBtn{width:100%}.stremioLinkPanel{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.stremioLinkRow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}#stremioLinkQr{border-radius:10px;background:#fff;padding:6px}
+.stremioLinkBox{margin:6px 0 12px}.orLine{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 10px}.orLine:before,.orLine:after{content:"";flex:1;height:1px;background:var(--line)}#stremioLoginBtn{width:100%}.linkButton{border:0;background:none;padding:0;min-height:0;color:var(--accent);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.stremioLinkPanel{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.stremioLinkRow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}#stremioLinkQr{border-radius:10px;background:#fff;padding:6px}
 /* Diseño compartido por ambos temas (los colores claros los pone polish.css) */
 #recommendedAddons .check{min-height:94px}
 @media(max-width:720px){#recommendedAddons .check{min-height:0}}
@@ -306,9 +306,10 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
   </div>
   <div class="small accountHint" id="accountHint">Este paso no cambia tus complementos.</div>
   <div id="stremioLinkBox" class="stremioLinkBox"><div class="orLine"><span>o</span></div>
-    <button class="secondary" type="button" id="stremioLinkBtn">Entrar con Stremio, sin escribir tu contraseña aquí</button>
+    <button class="secondary" type="button" id="stremioLoginBtn">Entrar con Stremio, sin escribir tu contraseña aquí</button>
+    <div class="small" style="margin-top:6px;text-align:center">Te lleva al sitio oficial de Stremio; al aprobar vuelves aquí solo. <button class="linkButton" type="button" id="stremioLinkBtn">¿Prefieres aprobar desde otro dispositivo con un QR?</button></div>
     <div id="stremioLinkPanel" class="stremioLinkPanel" hidden>
-      <p class="small">Abre el enlace oficial de Stremio y aprueba el acceso. Si no has iniciado sesión allá, Stremio te la pedirá en su propio sitio. El wizard detecta solo cuando apruebas.</p>
+      <p class="small">Escanea el QR con el celular (o abre el enlace) y aprueba el acceso en el sitio de Stremio. Cuando apruebes, vuelve a esta pantalla: el wizard lo detecta solo.</p>
       <div class="stremioLinkRow"><img id="stremioLinkQr" alt="Código QR del enlace de Stremio" width="132" height="132"><div>
         <a class="button primary" id="stremioLinkOpen" target="_blank" rel="noopener noreferrer">Abrir Stremio y aprobar ↗</a>
         <div class="small" style="margin-top:8px">Desde otro dispositivo: escanea el QR o entra a <b id="stremioLinkUrl"></b></div>

@@ -1,6 +1,6 @@
 {
   "name": "stremio-nuvio-wizard",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "private": true,
   "description": "Step-by-step setup wizard for Stremio and Nuvio: connect your account, take a verified backup, choose add-ons and review before applying.",
   "main": "server.js",
