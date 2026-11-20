@@ -365,6 +365,8 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 ¿Usas Stremio y Nuvio?	Do you use Stremio and Nuvio?
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
 Entrar con Stremio	Sign in with Stremio
+Cambiar de cuenta	Switch account
+Elige cómo conectar tu cuenta.	Choose how to connect your account.
 Inicias sesión en el sitio oficial de Stremio y vuelves aquí solo. Tu contraseña nunca pasa por el wizard.	You sign in on Stremio's official site and come back here automatically. Your password never goes through the wizard.
 Otras formas:	Other ways:
 con código QR	with a QR code
@@ -731,6 +733,8 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
     [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
     [/^Paso (\d)\/(\d)$/,'Step $1/$2'],
+    [/^Conectado a (Stremio|Nuvio)$/,'Connected to $1'],
+    [/^Cuenta: (.*)$/,'Account: $1'],
     [/^No se pudo crear el enlace: (.*)$/,'Could not create the link: $1'],
     [/^Configurar (Stremio|Nuvio) igual que (Stremio|Nuvio)$/,'Set up $1 the same as $2'],
     [/^Trakt conectado como @(.*?)\.$/,'Trakt connected as @$1.'],

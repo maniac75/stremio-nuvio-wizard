@@ -506,7 +506,34 @@ function clearReview(message){
   if(message) document.getElementById('workHint').textContent=message;
 }
 
+// Tarjeta de cuenta conectada: reemplaza las formas de entrar y lleva el botón para continuar.
+function showConnectedCard(platform,account,notice){
+  var section=document.querySelector('section[data-step="1"]'),card=document.getElementById('connectedCard');
+  var name=platform==='nuvio'?'Nuvio':'Stremio';
+  document.getElementById('connectedText').textContent='Conectado a '+name;
+  document.getElementById('connectedWho').textContent=account?'Cuenta: '+account:'';
+  var actions=document.getElementById('connectedActions');
+  actions.appendChild(document.getElementById('nextAccount'));
+  actions.appendChild(document.getElementById('checkSetupBtn'));
+  document.getElementById('connectedForgetWrap').hidden=!(platform==='stremio'&&localStorage.getItem(rememberedStorageKey));
+  document.getElementById('connectedNotice').textContent=notice||'';
+  section.classList.add('isConnected');
+  card.hidden=false;
+  var stepNumber=document.querySelector('.steps button[data-goto="1"] span');if(stepNumber)stepNumber.textContent='✓';
+}
+function hideConnectedCard(){
+  var section=document.querySelector('section[data-step="1"]');
+  if(section)section.classList.remove('isConnected');
+  document.getElementById('connectedCard').hidden=true;
+  var stepNumber=document.querySelector('.steps button[data-goto="1"] span');if(stepNumber)stepNumber.textContent='1';
+}
+document.getElementById('changeAccount').addEventListener('click',function(){
+  disconnectState('Elige cómo conectar tu cuenta.');
+  document.querySelector('section[data-step="1"]').scrollIntoView({behavior:'smooth',block:'start'});
+});
+document.getElementById('connectedForget').addEventListener('click',function(){document.getElementById('forgetAccount').click();});
 function disconnectState(message){
+  hideConnectedCard();
   latestSourceFingerprint='';
   document.getElementById('copyAccountsDialog').close();
   connected=false;
@@ -880,9 +907,9 @@ document.getElementById('connectBtn').addEventListener('click',async function(){
     }else{
       document.getElementById('restoreBtn').style.display='none';
     }
-    box.className='connectionFeedback show';
-    box.setAttribute('role','status');
-    box.textContent='✓ Cuenta conectada.';
+    box.className='result note';
+    box.textContent='';
+    showConnectedCard(auth.platform,d.account,rememberNotice);
     showInstalledAddons(d.addons);
     latestSourceFingerprint=d.sourceFingerprint||'';
     document.getElementById('nextAccount').hidden=false;

@@ -224,6 +224,8 @@ dialog.toolDialog::backdrop{background:rgba(1,8,15,.8);backdrop-filter:blur(4px)
 }
 .guideTopLink{display:block;width:max-content;max-width:100%;margin:0 4px 9px auto;color:#176e77;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}.guideTopLink:hover{text-decoration:underline;text-underline-offset:3px;color:#084d58}.guideTopLink:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .stremioLinkBox{margin:6px 0 14px}.altLogins{text-align:center;margin-top:10px;color:var(--muted)}.orLine{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:4px 0 10px}.orLine:before,.orLine:after{content:"";flex:1;height:1px;background:var(--line)}#stremioLoginBtn{width:100%}.linkButton{border:0;background:none;padding:0;min-height:0;color:var(--accent);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}.stremioLinkPanel{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.stremioLinkRow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}#stremioLinkQr{border-radius:10px;background:#fff;padding:6px}
+.connectedCard{margin:6px 0 14px;padding:16px;border:1px solid rgba(103,230,167,.45);border-radius:16px;background:rgba(103,230,167,.08)}.connectedTitle{font-weight:800;font-size:17px;color:var(--good)}#connectedWho{margin-top:2px}.connectedCard .actions{margin-top:12px}.connectedCard .actions button{flex:1 1 auto}.connectedLinks{margin-top:10px}#connectedNotice:empty{display:none}#connectedNotice{margin-top:6px;color:var(--warn)}
+section.isConnected .stremioLinkBox,section.isConnected #passwordLoginRow,section.isConnected .accountControls,section.isConnected #accountHint{display:none!important}
 /* Diseño compartido por ambos temas (los colores claros los pone polish.css) */
 #recommendedAddons .check{min-height:94px}
 @media(max-width:720px){#recommendedAddons .check{min-height:0}}
@@ -292,6 +294,13 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
 <section class="card full" data-step="1">
   <h2 id="accountTitle">1 · Conecta tu cuenta Stremio</h2>
   <div class="field"><div class="platformLabel">¿Dónde quieres instalar los complementos?</div><input id="platform" type="hidden" value="stremio"><div class="platformSwitch" role="group" aria-label="Aplicación donde instalar"><button id="platformStremio" class="platformChoice selected" type="button" aria-pressed="true"><img src="/stremio-icon.svg" alt="" width="34" height="34">Stremio</button><button id="platformNuvio" class="platformChoice" type="button" aria-pressed="false"><img src="/nuvio-icon.png" alt="" width="34" height="34">Nuvio</button></div><div class="small">Elige la app que quieres configurar. Stremio y Nuvio guardan sus complementos por separado.</div></div>
+  <div id="connectedCard" class="connectedCard" hidden role="status">
+    <div class="connectedTitle">✓ <span id="connectedText">Conectado</span></div>
+    <div class="small" id="connectedWho"></div>
+    <div class="actions" id="connectedActions"></div>
+    <div class="small connectedLinks"><button class="linkButton" type="button" id="changeAccount">Cambiar de cuenta</button><span id="connectedForgetWrap" hidden> · <button class="linkButton" type="button" id="connectedForget">Olvidar cuenta guardada</button></span></div>
+    <div class="small" id="connectedNotice"></div>
+  </div>
   <div class="field" id="nuvioProfileField" hidden><label for="profileId">Perfil de Nuvio</label><select id="profileId"><option value="1">Se detectará al conectar</option></select><div class="small">Si hay varios perfiles, elige cuál vas a configurar antes de crear el respaldo.</div></div>
   <div id="stremioLinkBox" class="stremioLinkBox">    <button class="primary" type="button" id="stremioLoginBtn">Entrar con Stremio</button>
     <div class="small" style="margin-top:6px;text-align:center">Inicias sesión en el sitio oficial de Stremio y vuelves aquí solo. Tu contraseña nunca pasa por el wizard.</div>

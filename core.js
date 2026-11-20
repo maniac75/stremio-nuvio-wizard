@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.24.4';
+const WIZARD_VERSION = '0.25.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -243,6 +243,7 @@ async function resolveStremioAuth(body) {
   return {
     authKey,
     stremioUserId: String(user._id),
+    accountEmail: String(user.email || email || ''),
     traktConnected: traktActive(user),
     identity: 'user:' + String(user._id),
     legacyIdentities: aliases,
@@ -2433,6 +2434,7 @@ async function handleAnalyze(body) {
   }
 
   return {
+    account: maskEmail(auth.platform === 'nuvio' ? body.email : auth.accountEmail),
     count: addons.length,
     addons: addonSummary(addons),
     plans,
@@ -2441,6 +2443,13 @@ async function handleAnalyze(body) {
     aioPreview,
     backups: await accountBackups(auth, body.storedBackups)
   };
+}
+
+// Muestra con qué cuenta se conectó sin exponer el correo completo en pantalla.
+function maskEmail(value) {
+  const m = String(value || '').trim().match(/^([^@\s]{1,64})@([^@\s]{1,255})$/);
+  if (!m) return '';
+  return m[1].slice(0, Math.min(2, m[1].length - 1 || 1)) + '•••@' + m[2];
 }
 
 async function handleConnect(body) {
