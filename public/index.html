@@ -252,6 +252,7 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
 /* Aviso no oficial y apoyo (15-nov-2026) */
 .footerNote,.footerSupport{font-size:12px;line-height:1.5;opacity:.85;margin-top:6px}
 .footerSupport a{margin:0 2px}
+@media(max-width:550px){.statusbar{flex-wrap:nowrap;gap:6px;align-items:center}.statusbar>*{margin:0!important}.statusbar>*{height:32px;display:inline-flex;align-items:center;box-sizing:border-box}.statusbar .pill{flex:0 1 auto}.statusbar .uiLanguage{flex:0 0 auto;gap:5px}}
 </style>
 <link rel="stylesheet" href="/polish.css" id="lightTheme">
 <script src="/theme.js"></script>
@@ -266,7 +267,7 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
     <div class="small" style="margin-top:5px">Creado por <b>supermaniac75</b></div>
   </div>
   <div class="statusbar">
-    <span class="pill" id="serviceStatus" title="">Comprobando servicios…</span>
+    <span class="pill" id="serviceStatus" title="">Comprobando…</span>
     <span class="pill" id="accessStatus" hidden>Acceso…</span>
     <span class="pill" id="wizardStatus" hidden>Wizard…</span>
     <span class="pill" id="aioStatus" hidden>AIOStreams…</span>

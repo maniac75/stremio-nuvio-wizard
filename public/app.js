@@ -726,7 +726,7 @@ function syncServiceSummary(){
   if(!pill)return;
   var bad=parts.some(function(el){return el&&/\bbad\b/.test(el.className);});
   var pending=parts.some(function(el){return el&&!/\b(good|bad)\b/.test(el.className);});
-  pill.textContent=pending?'Comprobando servicios…':bad?'⚠ Algún servicio no responde':'✓ Servicios funcionando';
+  pill.textContent=pending?'Comprobando…':bad?'⚠ Servicios con fallas':'✓ Servicios OK';
   pill.className='pill '+(pending?'':bad?'bad':'good');
   pill.title=parts.filter(Boolean).map(function(el){return el.textContent;}).join(' · ');
 }

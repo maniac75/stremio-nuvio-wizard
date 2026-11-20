@@ -411,6 +411,8 @@ Stremio & Nuvio Wizard · creado por supermaniac75 · 2026	Stremio & Nuvio Wizar
 Comprobando servicios…	Checking services…
 ⚠ Algún servicio no responde	⚠ A service is not responding
 ✓ Servicios funcionando	✓ Services working
+✓ Servicios OK	✓ Services OK
+⚠ Servicios con fallas	⚠ Service issues
 Opciones avanzadas (la mayoría no las necesita)	Advanced options (most people don't need these)
 Restaurar una configuración anterior (opcional)	Restore a previous setup (optional)
 Qué vas a obtener:	What you will get:
