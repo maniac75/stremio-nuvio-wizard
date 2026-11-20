@@ -1786,8 +1786,9 @@ function floatingAction(){
 // El botón real ya se ve en pantalla: no hace falta repetirlo flotando.
 function targetOnScreen(target){
   var rects=target.getClientRects();if(!rects.length)return false;
-  var r=rects[0],floatTop=window.innerHeight-90;
-  return r.bottom>0&&r.top<floatTop;
+  // visualViewport descuenta las barras de Safari; basta con que asome parte del botón real.
+  var r=rects[0],vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  return r.bottom>0&&r.top<vh-40;
 }
 function syncFloatingNext(){
   var floating=document.getElementById('floatingNext'),target=floatingAction();
@@ -1807,6 +1808,7 @@ window.addEventListener('scroll',function(){
   requestAnimationFrame(function(){floatScrollQueued=false;syncFloatingNext();});
 },{passive:true});
 window.addEventListener('resize',syncFloatingNext);
+if(window.visualViewport){window.visualViewport.addEventListener('resize',syncFloatingNext);window.visualViewport.addEventListener('scroll',syncFloatingNext);}
 document.getElementById('floatingNext').addEventListener('click',function(){
   var target=floatingAction();
   if(!target)return;

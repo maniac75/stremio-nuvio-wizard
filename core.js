@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.25.1';
+const WIZARD_VERSION = '0.25.2';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -180,7 +180,8 @@ async function stremioLogin(email, password) {
 }
 
 async function stremioUser(authKey) {
-  const data = await stremioPost('getUser', { authKey });
+  // Con type GetUser (como Stremio Web y AIOManager) la respuesta incluye el correo de la cuenta.
+  const data = await stremioPost('getUser', { type: 'GetUser', authKey });
   if (data?.error) throw new Error(data.error.message || 'No se pudo identificar la cuenta de Stremio');
   const user = data?.result?.user || data?.result || data?.user;
   if (!user?._id) throw new Error('Stremio no devolvió un identificador de cuenta válido');
