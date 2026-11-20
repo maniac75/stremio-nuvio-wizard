@@ -14,7 +14,7 @@ for (const file of fs.readdirSync(PUBLIC).filter(f => f.endsWith('.html'))) {
   }
 }
 const csp = ["default-src 'self'", "script-src 'self' " + [...hashes].join(' '), "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https:", "connect-src 'self'", "font-src 'self' data:", "object-src 'none'",
+  "img-src 'self' data: https:", "connect-src 'self' https://link.stremio.com", "font-src 'self' data:", "object-src 'none'",
   "base-uri 'none'", "form-action 'self'", "frame-ancestors 'none'"].join('; ');
 
 const out = `/*

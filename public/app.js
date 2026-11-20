@@ -768,7 +768,11 @@ document.getElementById('stremioLinkBtn').addEventListener('click',async functio
   stopStremioLink();
   setBusy(btn,true,'Creando enlace…');
   try{
-    var link=await post('/api/stremio-link/create',{});
+    // Directo desde el navegador al servicio oficial de Stremio (permite CORS); el wizard no interviene.
+    var created=await (await fetch('https://link.stremio.com/api/v2/create?type=Create',{referrerPolicy:'no-referrer'})).json();
+    var cr=created&&created.result;
+    if(!cr||!cr.success||!/^[A-Za-z0-9]{3,12}$/.test(String(cr.code||'')))throw new Error('Stremio no entregó un enlace. Prueba con correo y contraseña.');
+    var link={code:cr.code,link:'https://link.stremio.com/'+cr.code,qrcode:'https://link.stremio.com/qr?data='+encodeURIComponent('https://link.stremio.com/'+cr.code)};
     document.getElementById('stremioLinkOpen').href=link.link;
     document.getElementById('stremioLinkQr').src=link.qrcode;
     document.getElementById('stremioLinkUrl').textContent=link.link.replace('https://','');
@@ -779,7 +783,10 @@ document.getElementById('stremioLinkBtn').addEventListener('click',async functio
       if(Date.now()>until){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';return;}
       if(busy)return;busy=true;
       try{
-        var r=await post('/api/stremio-link/read',{code:link.code});
+        var res=await fetch('https://link.stremio.com/api/v2/read?type=Read&code='+encodeURIComponent(link.code),{referrerPolicy:'no-referrer'});
+        var rd=res.status===404||res.status===410?null:await res.json().catch(function(){return {};});
+        var r=!rd?{status:'expired'}:(rd.result&&rd.result.authKey)?{status:'approved',authKey:String(rd.result.authKey)}
+          :(rd.error&&rd.error.code!==101&&/expired/i.test(String(rd.error.message||'')))?{status:'expired'}:{status:'pending'};
         if(r.status==='approved'){
           stopStremioLink();
           status.textContent='✓ Aprobado. Conectando…';

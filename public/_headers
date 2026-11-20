@@ -5,4 +5,4 @@
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-xW8SKsT/IxxZ5uCWzldy1eFiGSgXY4M2RaUsM2IeyI4=' 'sha256-qiLvqCKoKgTtCmYArWSQ8bgs3VXs/jnI267pK++pv4s=' 'sha256-/xIpDxlGH1HqVoZqL1jdl0+T42Sa0PwUqzBpayM0W8s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-xW8SKsT/IxxZ5uCWzldy1eFiGSgXY4M2RaUsM2IeyI4=' 'sha256-qiLvqCKoKgTtCmYArWSQ8bgs3VXs/jnI267pK++pv4s=' 'sha256-/xIpDxlGH1HqVoZqL1jdl0+T42Sa0PwUqzBpayM0W8s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://link.stremio.com; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'

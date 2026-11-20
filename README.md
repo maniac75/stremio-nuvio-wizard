@@ -11,6 +11,7 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 
 ## Features
 
+- **Sign in with Stremio:** approve access on Stremio’s official link page (or scan the QR), no password typed into the wizard.
 - **Safe by default:** a verified, encrypted backup is required before any change, and the wizard refuses to apply if the account changed since that backup. Failed applies roll back.
 - **Review before apply:** shows what will be added, replaced or removed, and lets you keep your own add-ons.
 - **9 content languages:** Latin American Spanish, Spain Spanish, English, Brazilian and European Portuguese, French, Italian, German and Dutch, plus an advanced, ordered list of audio and subtitle languages.
