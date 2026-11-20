@@ -511,7 +511,7 @@ function showConnectedCard(platform,account,notice){
   var section=document.querySelector('section[data-step="1"]'),card=document.getElementById('connectedCard');
   var name=platform==='nuvio'?'Nuvio':'Stremio';
   document.getElementById('connectedText').textContent='Conectado a '+name;
-  document.getElementById('connectedWho').textContent=account?'Cuenta: '+account:'';
+  document.getElementById('connectedWho').textContent=account?(account.indexOf('@')>0?'Cuenta: '+account:account.charAt(0).toUpperCase()+account.slice(1)):'';
   var actions=document.getElementById('connectedActions');
   actions.appendChild(document.getElementById('nextAccount'));
   actions.appendChild(document.getElementById('checkSetupBtn'));
@@ -805,6 +805,8 @@ document.getElementById('showPasswordLogin').addEventListener('click',function()
 // Inicio con el sitio de Stremio: vuelve a esta página con la AuthKey en el fragmento (#…),
 // que nunca llega al servidor; se borra de la barra de direcciones al leerla.
 var STREMIO_RETURN='#stremio-login';
+// Stremio no siempre entrega el correo en las sesiones aprobadas desde su sitio.
+var viaStremioSite=false;
 document.getElementById('stremioLoginBtn').addEventListener('click',function(){
   try{sessionStorage.setItem('wizard-stremio-login',JSON.stringify({remember:document.getElementById('rememberAccount').checked}));}catch(_){}
   var callback=location.origin+location.pathname+STREMIO_RETURN;
@@ -822,6 +824,7 @@ function consumeStremioReturn(){
   document.getElementById('authKey').value=decodeURIComponent(match[1]);
   if(state.remember)document.getElementById('rememberAccount').checked=true;
   document.getElementById('accountHint').textContent='✓ Stremio aprobó el acceso. Conectando…';
+  viaStremioSite=true;
   document.getElementById('connectBtn').click();
 }
 var stremioLinkTimer=null;
@@ -858,6 +861,7 @@ document.getElementById('stremioLinkBtn').addEventListener('click',async functio
           status.textContent='✓ Aprobado. Conectando…';
           document.getElementById('email').value='';document.getElementById('password').value='';
           document.getElementById('authKey').value=r.authKey;
+          viaStremioSite=true;
           document.getElementById('connectBtn').click();
           panel.hidden=true;
         }else if(r.status==='expired'){stopStremioLink();status.textContent='El enlace venció. Pulsa el botón otra vez para crear uno nuevo.';}
@@ -912,6 +916,8 @@ document.getElementById('connectBtn').addEventListener('click',async function(){
     // Si el servidor no pudo leer el correo de la cuenta, usa el que se escribió o se recordó.
     var typed=(document.getElementById('email').value||'').trim(),shown=d.account||'';
     if(!shown&&/^[^@\s]+@[^@\s]+$/.test(typed)){var at=typed.indexOf('@');shown=typed.slice(0,Math.min(2,Math.max(1,at-1)))+'•••'+typed.slice(at);}
+    if(!shown&&viaStremioSite)shown='sesión iniciada en el sitio de Stremio';
+    viaStremioSite=false;
     showConnectedCard(auth.platform,shown,rememberNotice);
     showInstalledAddons(d.addons);
     latestSourceFingerprint=d.sourceFingerprint||'';

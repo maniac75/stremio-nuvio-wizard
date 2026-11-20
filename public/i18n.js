@@ -366,6 +366,7 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
 Entrar con Stremio	Sign in with Stremio
 Cambiar de cuenta	Switch account
+Sesión iniciada en el sitio de Stremio	Signed in on Stremio's site
 Elige cómo conectar tu cuenta.	Choose how to connect your account.
 Inicias sesión en el sitio oficial de Stremio y vuelves aquí solo. Tu contraseña nunca pasa por el wizard.	You sign in on Stremio's official site and come back here automatically. Your password never goes through the wizard.
 Otras formas:	Other ways:
