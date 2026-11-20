@@ -1774,7 +1774,8 @@ function watchlyResultHtml(d){
 function traktGuideHtml(platform,watchly){
   var app=platform==='nuvio'
     ?'<li>En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.</li>'
-    :'<li>En Stremio, abre Ajustes, busca Trakt y pulsa Autenticar. También puedes hacerlo en <a class="link" href="https://web.stremio.com/#/settings" target="_blank" rel="noopener noreferrer">web.stremio.com ↗</a>.</li>';
+    :'<li>Abre <a class="link" href="https://web.stremio.com/#/settings" target="_blank" rel="noopener noreferrer">web.stremio.com ↗</a> o Stremio en el computador e inicia sesión. En Ajustes, busca «Trakt Scrobbling» (en algunas versiones está en la pestaña Integraciones) y pulsa Autenticar. La app del iPhone no trae esta opción.</li>'+
+      '<li>Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de Trakt. Si no quieres esas filas, puedes quitarlo: la sincronización sigue funcionando.</li>';
   return '<details class="fold"><summary>Conectar Trakt (opcional)</summary>'+
     '<div class="small" style="margin:8px 0">Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.</div>'+
     '<ol class="small">'+app+

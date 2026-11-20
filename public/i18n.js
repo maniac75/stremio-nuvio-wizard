@@ -2,6 +2,9 @@
 (function(){
   'use strict';
   var entries = `
+Abre	Open
+o Stremio en el computador e inicia sesión. En Ajustes, busca «Trakt Scrobbling» (en algunas versiones está en la pestaña Integraciones) y pulsa Autenticar. La app del iPhone no trae esta opción.	or Stremio on a computer and sign in. In Settings, find “Trakt Scrobbling” (in some versions it is under the Integrations tab) and press Authenticate. The iPhone app doesn't have this option.
+Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de Trakt. Si no quieres esas filas, puedes quitarlo: la sincronización sigue funcionando.	Once connected, Stremio adds the Trakt Integration addon with your Trakt lists. If you don't want those rows you can remove it: syncing keeps working.
 Recordar mis claves en este navegador	Remember my keys in this browser
 Guarda cifradas las claves Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini y Easynews para la próxima vez. Quedan sólo en este navegador, nunca en el servidor. Úsalo sólo en un equipo personal: quien use este navegador podrá volver a usarlas.	Saves your Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini and Easynews keys encrypted for next time. They stay only in this browser, never on the server. Use it only on a personal device: anyone using this browser will be able to reuse them.
 Olvidar claves guardadas	Forget saved keys
