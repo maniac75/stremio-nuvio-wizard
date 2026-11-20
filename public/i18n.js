@@ -364,6 +364,12 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 ¿También usas la otra app?	Do you also use the other app?
 ¿Usas Stremio y Nuvio?	Do you use Stremio and Nuvio?
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
+Entrar con Stremio	Sign in with Stremio
+Inicias sesión en el sitio oficial de Stremio y vuelves aquí solo. Tu contraseña nunca pasa por el wizard.	You sign in on Stremio's official site and come back here automatically. Your password never goes through the wizard.
+Otras formas:	Other ways:
+con código QR	with a QR code
+con correo y contraseña	with email and password
+ocultar correo y contraseña	hide email and password
 Te lleva al sitio oficial de Stremio; al aprobar vuelves aquí solo.	Takes you to Stremio's official site; after approving you come back here automatically.
 ¿Prefieres aprobar desde otro dispositivo con un QR?	Rather approve from another device with a QR?
 Escanea el QR con el celular (o abre el enlace) y aprueba el acceso en el sitio de Stremio. Cuando apruebes, vuelve a esta pantalla: el wizard lo detecta solo.	Scan the QR with your phone (or open the link) and approve access on Stremio's site. Once approved, come back to this screen: the wizard detects it automatically.

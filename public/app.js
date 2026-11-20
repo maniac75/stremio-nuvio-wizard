@@ -344,6 +344,7 @@ function syncPlatform(){
   document.getElementById('rememberAccountField').hidden=nuvio;
   document.getElementById('stremioLinkBox').hidden=nuvio;
   if(nuvio)stopStremioLink();
+  syncPasswordLogin();
   var collectionsField=document.getElementById('nuvioCollectionsField');
   if(collectionsField)collectionsField.hidden=!nuvio;
   // Streailer y WatchHub son propios de Stremio: en Nuvio no se instalan, así que no se muestran.
@@ -761,6 +762,19 @@ async function health(){
 }
 
 // ---- Inicio de sesión con el enlace oficial de Stremio ----
+// En Stremio el método principal es «Entrar con Stremio»; correo y contraseña quedan como alternativa.
+var passwordLoginMode=false;
+function syncPasswordLogin(){
+  var stremio=document.getElementById('platform').value==='stremio';
+  var show=!stremio||passwordLoginMode;
+  document.getElementById('passwordLoginRow').hidden=!show;
+  document.getElementById('connectBtn').hidden=!show;
+  document.getElementById('showPasswordLogin').textContent=passwordLoginMode?'ocultar correo y contraseña':'con correo y contraseña';
+}
+document.getElementById('showPasswordLogin').addEventListener('click',function(){
+  passwordLoginMode=!passwordLoginMode;syncPasswordLogin();
+  if(passwordLoginMode)document.getElementById('email').focus();
+});
 // Inicio con el sitio de Stremio: vuelve a esta página con la AuthKey en el fragmento (#…),
 // que nunca llega al servidor; se borra de la barra de direcciones al leerla.
 var STREMIO_RETURN='#stremio-login';
@@ -1727,7 +1741,7 @@ document.getElementById('nextAddons').addEventListener('click',function(){
 });
 function floatingAction(){
   var id;
-  if(currentWizardStep===1)id=connected?'nextAccount':'connectBtn';
+  if(currentWizardStep===1)id=connected?'nextAccount':(document.getElementById('platform').value==='stremio'&&!passwordLoginMode?'stremioLoginBtn':'connectBtn');
   else if(currentWizardStep===2)id=backupReady?'nextBackup':'backupBtn';
   else if(currentWizardStep===3)id='nextPreferences';
   else if(currentWizardStep===4)id='nextAddons';
