@@ -1380,7 +1380,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
         '<div id="customizeList"></div>'+
         '<div class="actions"><button class="primary" id="customizeSave" type="button">Guardar orden y catálogos</button></div>'+
         '<div class="small" id="customizeResult"></div></details>'+
-      traktGuideHtml(d.platform,!!(d.watchly&&(d.watchly.installed||d.watchly.reused)))+
+      traktGuideHtml(d.platform,!!(d.watchly&&(d.watchly.installed||d.watchly.reused)),d.trakt)+
       (d.platform==='nuvio'?fusionBadgesHtml():'')+
       '<details class="fold"><summary>Ver detalles de la instalación</summary><pre>'+esc(details.join('\n'))+'</pre></details>'+
       '<div class="actions">'+(lastRecovery?'<button class="secondary" id="downloadRecovery" type="button">Descargar JSON con credenciales AIOStreams</button>':'')+
@@ -1771,16 +1771,19 @@ function watchlyResultHtml(d){
   if(d.watchly.reused)return '<div class="note"><b>Watchly no respondió</b>, así que se conservó el Watchly que ya tenías. Puedes volver a intentarlo más tarde.</div>';
   return '<div class="note bad"><b>Watchly no respondió y no se instaló.</b> El resto quedó configurado. Puedes intentarlo más tarde repitiendo el wizard con Watchly marcado.</div>';
 }
-function traktGuideHtml(platform,watchly){
-  var app=platform==='nuvio'
-    ?'<li>En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.</li>'
-    :'<li>Abre <a class="link" href="https://web.stremio.com/#/settings" target="_blank" rel="noopener noreferrer">web.stremio.com ↗</a> o Stremio en el computador e inicia sesión. En Ajustes, busca «Trakt Scrobbling» (en algunas versiones está en la pestaña Integraciones) y pulsa Autenticar. La app del iPhone no trae esta opción.</li>'+
-      '<li>Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de Trakt. Si no quieres esas filas, puedes quitarlo: la sincronización sigue funcionando.</li>';
-  return '<details class="fold"><summary>Conectar Trakt (opcional)</summary>'+
+function traktGuideHtml(platform,watchly,trakt){
+  var watchlyStep=watchly?'<li>Para que Watchly también use tu historial de Trakt, entra a <a class="link" href="https://watchly.elfhosted.com/configure" target="_blank" rel="noopener noreferrer">Watchly ↗</a>, inicia sesión con la misma cuenta y conecta Trakt.</li>':'';
+  if(platform==='nuvio'){
+    return '<details class="fold"><summary>Conectar Trakt (opcional)</summary>'+
+      '<div class="small" style="margin:8px 0">Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.</div>'+
+      '<ol class="small"><li>En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.</li>'+watchlyStep+'</ol></details>';
+  }
+  var connected=trakt&&trakt.connected;
+  return '<details class="fold" id="traktFold"'+(connected?'':' open')+'><summary>Conectar Trakt (opcional)</summary>'+
     '<div class="small" style="margin:8px 0">Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.</div>'+
-    '<ol class="small">'+app+
-      (watchly?'<li>Para que Watchly también use tu historial de Trakt, entra a <a class="link" href="https://watchly.elfhosted.com/configure" target="_blank" rel="noopener noreferrer">Watchly ↗</a>, inicia sesión con la misma cuenta y conecta Trakt.</li>':'')+
-    '</ol></details>';
+    '<div class="small" id="traktState">'+(connected?'✓ Trakt ya está conectado a tu cuenta de Stremio.':'Trakt todavía no está conectado a tu cuenta de Stremio.')+'</div>'+
+    (connected?'':(trakt&&trakt.authUrl?'<div class="actions"><a class="button primary" id="traktConnect" href="'+esc(trakt.authUrl)+'" target="_blank" rel="noopener noreferrer">Conectar Trakt</a><button class="secondary" id="traktCheck" type="button">Ya lo autoricé, comprobar</button></div>':''))+
+    (watchlyStep?'<ol class="small">'+watchlyStep+'</ol>':'')+'</details>';
 }
 function fusionBadgesHtml(){
   return '<details class="fold"><summary>Sellos de calidad en la lista de fuentes (opcional)</summary>'+
@@ -1839,6 +1842,17 @@ document.addEventListener('input',function(e){
   var index=Number(e.target.dataset.index);
   customize.names[index]=customize.names[index]||{};
   customize.names[index][e.target.dataset.key]=e.target.value;
+});
+document.addEventListener('click',async function(e){
+  var check=e.target.closest('#traktCheck');if(!check)return;
+  var state=document.getElementById('traktState');
+  setBusy(check,true,'Comprobando…');
+  try{
+    var r=await post('/api/trakt-status',authPayload());
+    state.textContent=r.connected?'✓ Trakt ya está conectado a tu cuenta de Stremio.':'Todavía no aparece conectado. Termina la autorización en la pestaña de Trakt y vuelve a comprobar.';
+    if(r.connected){var c=document.getElementById('traktConnect');if(c)c.remove();check.remove();}
+  }catch(err){state.textContent='No se pudo comprobar: '+err.message;}
+  finally{if(document.body.contains(check))setBusy(check,false);}
 });
 document.addEventListener('click',async function(e){
   var btn=e.target.closest('#customizeSave');if(!btn)return;

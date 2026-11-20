@@ -2,6 +2,13 @@
 (function(){
   'use strict';
   var entries = `
+✓ Trakt ya está conectado a tu cuenta de Stremio.	✓ Trakt is already connected to your Stremio account.
+Trakt todavía no está conectado a tu cuenta de Stremio.	Trakt is not connected to your Stremio account yet.
+Conectar Trakt	Connect Trakt
+Ya lo autoricé, comprobar	I authorized it, check
+Comprobando…	Checking…
+Todavía no aparece conectado. Termina la autorización en la pestaña de Trakt y vuelve a comprobar.	It doesn't show as connected yet. Finish authorizing in the Trakt tab and check again.
+Trakt en Nuvio se conecta dentro de la app	In Nuvio, Trakt is connected inside the app
 Abre	Open
 o Stremio en el computador e inicia sesión. En Ajustes, busca «Trakt Scrobbling» (en algunas versiones está en la pestaña Integraciones) y pulsa Autenticar. La app del iPhone no trae esta opción.	or Stremio on a computer and sign in. In Settings, find “Trakt Scrobbling” (in some versions it is under the Integrations tab) and press Authenticate. The iPhone app doesn't have this option.
 Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de Trakt. Si no quieres esas filas, puedes quitarlo: la sincronización sigue funcionando.	Once connected, Stremio adds the Trakt Integration addon with your Trakt lists. If you don't want those rows you can remove it: syncing keeps working.

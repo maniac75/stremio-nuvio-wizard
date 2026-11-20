@@ -50,3 +50,6 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:#8498a2}
 /* Aviso no oficial y apoyo (15-nov-2026) */
 .footerNote,.footerSupport{font-size:12px;line-height:1.5;opacity:.85;margin-top:6px}
 .footerSupport a{margin:0 2px}
+
+a.button{display:inline-flex;align-items:center;justify-content:center;border-radius:13px;padding:11px 16px;font-size:14px;font-weight:700;text-decoration:none}
+a.button.primary{background:#087f86;color:#fff;box-shadow:0 7px 18px rgba(8,127,134,.17)}

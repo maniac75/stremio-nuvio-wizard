@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.21.2';
+const WIZARD_VERSION = '0.22.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -242,10 +242,28 @@ async function resolveStremioAuth(body) {
   if (user.email || (!pasted && email)) aliases.push('email:' + String(user.email || email).toLowerCase());
   return {
     authKey,
+    stremioUserId: String(user._id),
+    traktConnected: traktActive(user),
     identity: 'user:' + String(user._id),
     legacyIdentities: aliases,
     mode: pasted ? 'authkey' : 'login'
   };
+}
+
+// Igual que Stremio Web (isTraktAuthenticated): hay token de Trakt y no venció.
+function traktActive(user) {
+  const trakt = user?.trakt;
+  return !!trakt && (Date.now() / 1000) < (Number(trakt.created_at) + Number(trakt.expires_in));
+}
+// Stremio Web abre esta dirección para autorizar Trakt Scrobbling en la cuenta (useTraktAuth.ts).
+function traktAuthUrl(userId) {
+  return 'https://www.strem.io/trakt/auth/' + encodeURIComponent(userId);
+}
+
+async function handleTraktStatus(body) {
+  const auth = await resolveStremioAuth(body);
+  if (auth.platform === 'nuvio') throw new Error('Trakt en Nuvio se conecta dentro de la app');
+  return { connected: auth.traktConnected, authUrl: traktAuthUrl(auth.stremioUserId) };
 }
 
 function accountOwnsBackup(auth, backup) {
@@ -2574,6 +2592,7 @@ async function handleConfigure(body) {
       metadataReused: built.metadataReused,
       skippedAddons: built.skippedAddons,
       watchly: options.watchly ? { installed: built.watchlyInstalled, reused: built.watchlyReused } : null,
+      trakt: auth.platform === 'nuvio' ? null : { connected: auth.traktConnected, authUrl: traktAuthUrl(auth.stremioUserId) },
       sourceFingerprint: collectionFingerprint(installed)
     };
   } catch (error) {
@@ -3197,6 +3216,7 @@ const ROUTES = {
   'POST /api/aio-push': handleAioPush,
   'POST /api/organize': handleOrganize,
   'POST /api/factory-reset': handleFactoryReset,
+  'POST /api/trakt-status': handleTraktStatus,
   'POST /api/restore': handleRestore,
   'POST /api/nuvio-apply-profiles': handleNuvioApplyProfiles,
   'POST /api/check-setup': handleCheckSetup,
