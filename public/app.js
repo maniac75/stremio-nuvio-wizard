@@ -909,7 +909,10 @@ document.getElementById('connectBtn').addEventListener('click',async function(){
     }
     box.className='result note';
     box.textContent='';
-    showConnectedCard(auth.platform,d.account,rememberNotice);
+    // Si el servidor no pudo leer el correo de la cuenta, usa el que se escribió o se recordó.
+    var typed=(document.getElementById('email').value||'').trim(),shown=d.account||'';
+    if(!shown&&/^[^@\s]+@[^@\s]+$/.test(typed)){var at=typed.indexOf('@');shown=typed.slice(0,Math.min(2,Math.max(1,at-1)))+'•••'+typed.slice(at);}
+    showConnectedCard(auth.platform,shown,rememberNotice);
     showInstalledAddons(d.addons);
     latestSourceFingerprint=d.sourceFingerprint||'';
     document.getElementById('nextAccount').hidden=false;
