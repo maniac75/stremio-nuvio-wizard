@@ -147,7 +147,10 @@ Conectar Trakt (opcional)	Connect Trakt (optional)
 Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.	Trakt keeps track of what you watch and syncs it across apps and devices. You authorize it directly on Trakt; the wizard never sees that account.
 En Nuvio, abre Ajustes › Integraciones, elige Trakt e inicia sesión.	In Nuvio, open Settings › Integrations, choose Trakt and sign in.
 En Stremio, abre Ajustes, busca Trakt y pulsa Autenticar. También puedes hacerlo en	In Stremio, open Settings, find Trakt and tap Authenticate. You can also do it at
-Para que Watchly también use tu historial de Trakt, entra a	For Watchly to also use your Trakt history, go to
+Watchly no necesita Trakt: arma sus recomendaciones con tu historial de Stremio, que ya quedó conectado.	Watchly doesn't need Trakt: it builds its recommendations from your Stremio history, which is already connected.
+Watchly no necesita Trakt: arma sus recomendaciones con tu historial de Nuvio, que ya quedó conectado.	Watchly doesn't need Trakt: it builds its recommendations from your Nuvio history, which is already connected.
+Esperando que autorices en la pestaña de Trakt… se detecta solo.	Waiting for you to authorize in the Trakt tab… it's detected automatically.
+No detecté la autorización. Si ya la diste, aprieta «Ya lo autoricé, comprobar».	I didn't detect the authorization. If you already gave it, press “I authorized it, check”.
 , inicia sesión con la misma cuenta y conecta Trakt.	, sign in with the same account and connect Trakt.
 Watchly se vuelve a conectar con tu cuenta y el idioma elegido.	Watchly is reconnected to your account and chosen language.
 Recomendaciones personalizadas según lo que ves.	Personalized recommendations based on what you watch.

@@ -20,7 +20,7 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Subtitles and trailers:** SubSense, OpenSubtitles PRO, Streailer.
 - **Copy between apps:** Stremio → Nuvio and Nuvio → Stremio, reusing the same AIOStreams instance.
 - **Nuvio extras:** home-screen collections (Watch now, Genres, Decades, Themed, International, and Franchises with your own TMDB key), and one-click copy of the setup to the other profiles of the account. Collections are included in the backup.
-- **Watchly recommendations (optional):** “Because you watched…” rows from your Stremio or Nuvio history, plus a guide to connect Trakt.
+- **Watchly recommendations (optional):** “Because you watched…” rows from your Stremio or Nuvio history, plus one-click Trakt connect for Stremio (auto-detected).
 - **Customize after installing:** reorder add-ons and, in Stremio, hide or rename catalogs, with a safety backup first.
 - **Remember my keys (optional):** service keys saved encrypted in your own browser for the next run.
 - **Restore** any previous backup or an exported JSON.

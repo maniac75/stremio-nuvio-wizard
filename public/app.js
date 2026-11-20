@@ -1779,7 +1779,7 @@ function watchlyResultHtml(d){
   return '<div class="note bad"><b>Watchly no respondió y no se instaló.</b> El resto quedó configurado. Puedes intentarlo más tarde repitiendo el wizard con Watchly marcado.</div>';
 }
 function traktGuideHtml(platform,watchly,trakt){
-  var watchlyStep=watchly?'<li>Para que Watchly también use tu historial de Trakt, entra a <a class="link" href="https://watchly.elfhosted.com/configure" target="_blank" rel="noopener noreferrer">Watchly ↗</a>, inicia sesión con la misma cuenta y conecta Trakt.</li>':'';
+  var watchlyStep=watchly?'<li>Watchly no necesita Trakt: arma sus recomendaciones con tu historial de '+(platform==='nuvio'?'Nuvio':'Stremio')+', que ya quedó conectado.</li>':'';
   if(platform==='nuvio'){
     return '<details class="fold"><summary>Conectar Trakt (opcional)</summary>'+
       '<div class="small" style="margin:8px 0">Trakt guarda lo que ves y lo sincroniza entre apps y dispositivos. La autorización la das tú directamente en Trakt; el wizard nunca ve esa cuenta.</div>'+
@@ -1850,6 +1850,27 @@ document.addEventListener('input',function(e){
   customize.names[index]=customize.names[index]||{};
   customize.names[index][e.target.dataset.key]=e.target.value;
 });
+var traktPoll=null;
+function traktConnectedUi(){
+  var state=document.getElementById('traktState');if(state)state.textContent='✓ Trakt ya está conectado a tu cuenta de Stremio.';
+  ['traktConnect','traktCheck'].forEach(function(id){var el=document.getElementById(id);if(el)el.remove();});
+  clearInterval(traktPoll);traktPoll=null;
+}
+// Al abrir la autorización, el wizard revisa solo cada 5 s durante 3 minutos.
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#traktConnect'))return;
+  var state=document.getElementById('traktState');
+  if(state)state.textContent='Esperando que autorices en la pestaña de Trakt… se detecta solo.';
+  clearInterval(traktPoll);
+  var until=Date.now()+180000,busy=false;
+  traktPoll=setInterval(async function(){
+    if(Date.now()>until){clearInterval(traktPoll);traktPoll=null;
+      if(state&&document.body.contains(state))state.textContent='No detecté la autorización. Si ya la diste, aprieta «Ya lo autoricé, comprobar».';return;}
+    if(busy)return;busy=true;
+    try{var r=await post('/api/trakt-status',authPayload());if(r.connected)traktConnectedUi();}catch(_){}
+    finally{busy=false;}
+  },5000);
+});
 document.addEventListener('click',async function(e){
   var check=e.target.closest('#traktCheck');if(!check)return;
   var state=document.getElementById('traktState');
@@ -1857,7 +1878,7 @@ document.addEventListener('click',async function(e){
   try{
     var r=await post('/api/trakt-status',authPayload());
     state.textContent=r.connected?'✓ Trakt ya está conectado a tu cuenta de Stremio.':'Todavía no aparece conectado. Termina la autorización en la pestaña de Trakt y vuelve a comprobar.';
-    if(r.connected){var c=document.getElementById('traktConnect');if(c)c.remove();check.remove();}
+    if(r.connected){traktConnectedUi();return;}
   }catch(err){state.textContent='No se pudo comprobar: '+err.message;}
   finally{if(document.body.contains(check))setBusy(check,false);}
 });
