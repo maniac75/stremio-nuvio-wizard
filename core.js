@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.25.3';
+const WIZARD_VERSION = '0.25.4';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -195,12 +195,25 @@ async function nuvioRequest(endpoint, options) {
   }, 20000);
 }
 
+function reusableNuvioSession(token, email) {
+  try {
+    const value = String(token || '');
+    if (!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(value) || value.length > 4096) return null;
+    const payload = JSON.parse(Buffer.from(value.split('.')[1], 'base64url').toString('utf8'));
+    if (!payload.sub || String(payload.email || '').toLowerCase() !== email.toLowerCase()) return null;
+    if (Number(payload.exp || 0) < Date.now() / 1000 + 120) return null;
+    return { access_token: value, refresh_token: '', expires_at: Number(payload.exp) };
+  } catch { return null; }
+}
+
 async function resolveStremioAuth(body) {
   if (body?.platform === 'nuvio') {
     const email = String(body.email || '').trim(), password = String(body.password || '');
     if (!email || !password) throw new Error('Ingresa el correo y la contraseña de tu cuenta Nuvio');
-    let login;
-    try {
+    // Reutiliza la sesión de Nuvio de la conexión anterior si sigue vigente y es del mismo correo:
+    // todos los usuarios del wizard salen por las mismas IP de Cloudflare y Nuvio limita los inicios de sesión.
+    let login = reusableNuvioSession(body.nuvioToken, email);
+    if (!login) try {
       login = await nuvioRequest('/auth/v1/token?grant_type=password', {
         method: 'POST', body: JSON.stringify({ email, password })
       });
@@ -2435,7 +2448,6 @@ async function handleAnalyze(body) {
   }
 
   return {
-    account: maskEmail(auth.platform === 'nuvio' ? body.email : auth.accountEmail),
     count: addons.length,
     addons: addonSummary(addons),
     plans,
@@ -2463,6 +2475,9 @@ async function handleConnect(body) {
     profileId: auth.profileId || 1,
     profiles: auth.profiles || [],
     ...(body.rememberOnDevice === true && auth.platform !== 'nuvio' ? { authKey: auth.authKey } : {}),
+    account: maskEmail(auth.platform === 'nuvio' ? body.email : auth.accountEmail),
+    // Sesión temporal de Nuvio (≈1 h) para no iniciar sesión en cada paso; queda sólo en la memoria de la página.
+    ...(auth.platform === 'nuvio' ? { nuvioToken: auth.authKey } : {}),
     count: addons.length,
     addons: addonSummary(addons),
     sourceFingerprint: collectionFingerprint(addons),

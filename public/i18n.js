@@ -734,6 +734,7 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
     [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
     [/^Paso (\d)\/(\d)$/,'Step $1/$2'],
+    [/^Aplicando perfil (\d+) de (\d+)…$/,'Applying profile $1 of $2…'],
     [/^Conectado a (Stremio|Nuvio)$/,'Connected to $1'],
     [/^Cuenta: (.*)$/,'Account: $1'],
     [/^No se pudo crear el enlace: (.*)$/,'Could not create the link: $1'],

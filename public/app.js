@@ -322,8 +322,10 @@ function setBusy(btn,busy,label){
   btn.innerHTML=busy?'<span class="spinner"></span>'+esc(label||'Procesando…'):btn.dataset.original;
 }
 
+var nuvioToken='';
 function authPayload(){
   return {
+    nuvioToken:document.getElementById('platform').value==='nuvio'?nuvioToken:'',
     platform:document.getElementById('platform').value,
     profileId:Number(document.getElementById('profileId').value)||0,
     email:document.getElementById('email').value.trim(),
@@ -534,6 +536,7 @@ document.getElementById('changeAccount').addEventListener('click',function(){
 document.getElementById('connectedForget').addEventListener('click',function(){document.getElementById('forgetAccount').click();});
 function disconnectState(message){
   hideConnectedCard();
+  nuvioToken='';
   latestSourceFingerprint='';
   document.getElementById('copyAccountsDialog').close();
   connected=false;
@@ -888,6 +891,7 @@ document.getElementById('connectBtn').addEventListener('click',async function(){
       try{await saveRememberedAccount(d.authKey,auth.email);}catch(_){rememberNotice='No se pudo guardar la cuenta en este navegador.';}
     }else if(auth.platform==='stremio')forgetRememberedAccount();
     connected=true;
+    nuvioToken=d.nuvioToken||'';
     if(auth.platform==='nuvio'){
       var profileSelect=document.getElementById('profileId');
       profileSelect.innerHTML=(d.profiles||[]).map(function(p){
@@ -1535,7 +1539,14 @@ document.getElementById('configureBtn').addEventListener('click',async function(
       if(!confirm('¿Copiar la configuración de este perfil a '+targets.length+' perfil(es)? Sus complementos actuales se reemplazarán; cada uno queda respaldado antes del cambio.'))return;
       setBusy(otherProfilesButton,true,'Aplicando…');
       try{
-        var r=await post('/api/nuvio-apply-profiles',Object.assign({},authPayload(),{targetProfiles:targets,includeCollections:true}));
+        // Un perfil por solicitud: Cloudflare limita las llamadas externas que puede hacer cada solicitud.
+        var all=[];
+        for(var ti=0;ti<targets.length;ti++){
+          status.textContent='Aplicando perfil '+(ti+1)+' de '+targets.length+'…';
+          var one=await post('/api/nuvio-apply-profiles',Object.assign({},authPayload(),{targetProfiles:[targets[ti]],includeCollections:true}));
+          all=all.concat(one.results||[]);
+        }
+        var r={results:all};
         status.innerHTML=r.results.map(function(x){
           return x.ok?'✓ '+esc(x.name)+': '+x.total+' complementos'+(x.collections?' y colecciones':'')+'.':'✗ '+esc(x.name)+': '+esc(x.error);
         }).join('<br>');
