@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.25.4';
+const WIZARD_VERSION = '0.25.5';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -3313,7 +3313,7 @@ const ROUTES = {
 };
 
 // Devuelve { status, body } o null si la ruta no es de la API.
-async function handleApi(method, pathname, body) {
+async function handleApi(method, pathname, body, context) {
   if (method === 'GET' && pathname === '/api/health') return { status: 200, body: await handleHealth() };
   if (method === 'GET' && pathname === '/api/addon-health') return { status: 200, body: await handleAddonHealth() };
   const handler = ROUTES[method + ' ' + pathname];
@@ -3321,13 +3321,13 @@ async function handleApi(method, pathname, body) {
   const started = Date.now();
   try {
     const result = { status: 200, body: await handler(body || {}) };
-    recordStep(pathname, body, true, started, null);
+    recordStep(pathname, body, true, started, null, context);
     return result;
   } catch (error) {
     // No registrar URLs completas: pueden llevar claves Debrid o tokens.
     const safe = String(error?.message || error).replace(/https?:\/\/([^\/\s'"]+)[^\s'"]*/g, 'https://$1/…');
     logError(new Date().toISOString(), method, pathname, safe);
-    recordStep(pathname, body, false, started, error);
+    recordStep(pathname, body, false, started, error, context);
     return { status: 400, body: { error: error?.message || 'Error inesperado' } };
   }
 }
@@ -3350,11 +3350,12 @@ function errorType(error) {
   return 'other';
 }
 
-function recordStep(pathname, body, ok, started, error) {
+function recordStep(pathname, body, ok, started, error, context) {
   try {
     const platform = body?.platform || body?.target?.platform || null;
+    const country = /^[A-Z]{2}$/.test(String(context?.country || '')) ? context.country : null;
     console.log(JSON.stringify({ event: 'step', step: String(pathname).replace(/^\/api\//, ''),
-      platform: platform === 'nuvio' || platform === 'stremio' ? platform : null,
+      platform: platform === 'nuvio' || platform === 'stremio' ? platform : null, country,
       ok, ms: Date.now() - started, ...(ok ? {} : { error: errorType(error) }) }));
   } catch {}
 }

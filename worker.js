@@ -49,7 +49,8 @@ export default {
       try { body = text ? JSON.parse(text) : {}; } catch { return reply(400, { error: 'JSON inválido' }); }
     }
 
-    const result = await core.handleApi(request.method, url.pathname, body);
+    // Sólo el código de país (2 letras) para las estadísticas anónimas; nada de ciudad ni IP.
+    const result = await core.handleApi(request.method, url.pathname, body, { country: request.cf?.country });
     return result ? reply(result.status, result.body) : reply(404, { error: 'No encontrado' });
   }
 };
