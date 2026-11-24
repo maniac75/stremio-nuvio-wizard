@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.25.5';
+const WIZARD_VERSION = '0.26.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -434,9 +434,48 @@ async function buildNuvioCollections(options, preset) {
   if (options.tmdbMode === 'personal' && options.tmdbKey && data.nuvioFranchisesCollectionConfig) {
     list.push(deepClone(data.nuvioFranchisesCollectionConfig));
   }
+  list = applyCollectionLayout(list, options.nuvioCollectionLayout);
   let messages = {};
   try { messages = await fetchJson(BOOTSTRAPPER_LOCALE_URL + bootstrapperLocale(options.language) + '.json', {}, 12000) || {}; } catch {}
   return translateNuvioCollections(list, messages);
+}
+
+// Orden y selección elegidos por el usuario: [{ id, folders: [idCarpeta…] }]. Sin diseño, se usa el del preset.
+function applyCollectionLayout(list, layout) {
+  if (!Array.isArray(layout) || !layout.length) return list;
+  const byId = new Map(list.map(c => [String(c.id), c]));
+  const out = [];
+  for (const item of layout) {
+    const collection = byId.get(String(item?.id || ''));
+    if (!collection) continue;
+    const wanted = new Set((Array.isArray(item.folders) ? item.folders : []).map(String));
+    const folders = (collection.folders || []).filter(f => wanted.has(String(f.id)));
+    if (folders.length) out.push({ ...collection, folders });
+  }
+  return out;
+}
+
+function normalizeCollectionLayout(value) {
+  if (!Array.isArray(value)) return null;
+  const clean = value.slice(0, 12).map(item => ({
+    id: String(item?.id || '').slice(0, 80),
+    folders: (Array.isArray(item?.folders) ? item.folders : []).slice(0, 120).map(f => String(f).slice(0, 80))
+  })).filter(item => item.id);
+  return clean.length ? clean : [];
+}
+
+// Lista de colecciones disponibles (traducidas) para que el usuario elija y ordene.
+async function handleNuvioCollectionsCatalog(body) {
+  const data = await fetchJson(PRESET_URL, {}, 20000);
+  const list = deepClone(data.nuvioCollectionsConfig || []);
+  const franchises = data.nuvioFranchisesCollectionConfig ? deepClone(data.nuvioFranchisesCollectionConfig) : null;
+  if (franchises) list.push(franchises);
+  let messages = {};
+  try { messages = await fetchJson(BOOTSTRAPPER_LOCALE_URL + bootstrapperLocale(String(body?.language || 'es-MX')) + '.json', {}, 12000) || {}; } catch {}
+  return { collections: translateNuvioCollections(list, messages).map(c => ({
+    id: String(c.id), title: String(c.title || ''), requiresTmdb: !!franchises && String(c.id) === String(franchises.id),
+    folders: (c.folders || []).map(f => ({ id: String(f.id), title: String(f.title || '') }))
+  })) };
 }
 
 async function setAddonCollection(auth, addons) {
@@ -1210,7 +1249,7 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews', 'trakttoken']);
+  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews', 'trakttoken', 'simkltoken', 'maltoken']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
@@ -1219,7 +1258,7 @@ async function handleValidateKey(body) {
   if (secret.length > 512 || /[\r\n]/.test(secret)) return { status: 'invalid', message: 'Contraseña no válida.' };
   const names = { tmdb: 'TMDB', tvdb: 'TVDB', rpdb: 'RPDB', mdblist: 'MDBList', debridio: 'Debridio', gemini: 'Gemini',
     torbox: 'TorBox', realdebrid: 'Real-Debrid', premiumize: 'Premiumize', alldebrid: 'AllDebrid', debridlink: 'Debrid-Link',
-    easydebrid: 'EasyDebrid', offcloud: 'Offcloud', debrider: 'Debrider', easynews: 'Easynews', trakttoken: 'AIOMetadata' };
+    easydebrid: 'EasyDebrid', offcloud: 'Offcloud', debrider: 'Debrider', easynews: 'Easynews', trakttoken: 'AIOMetadata', simkltoken: 'AIOMetadata', maltoken: 'AIOMetadata' };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 9000);
   try {
@@ -1259,7 +1298,7 @@ async function handleValidateKey(body) {
       url = 'https://offcloud.com/api/account/info?key=' + encodeURIComponent(key);
     } else if (service === 'debrider') {
       url = 'https://debrider.app/api/v1/account'; bearer();
-    } else if (service === 'trakttoken') {
+    } else if (service === 'trakttoken' || service === 'simkltoken' || service === 'maltoken') {
       // Token ID que entrega AIOMetadata tras autorizar Trakt; su API dice a qué usuario pertenece.
       url = AIOMETA_BASE + '/api/oauth/token/info';
       options = { ...options, method: 'POST', headers: { ...options.headers, 'Content-Type': 'application/json' },
@@ -1278,8 +1317,9 @@ async function handleValidateKey(body) {
     if (service === 'debridio' && response.status === 403) {
       return { status: 'invalid', message: 'Debridio rechazó la clave o la suscripción no está activa.' };
     }
-    if (service === 'trakttoken' && (response.status === 404 || response.status === 400)) {
-      return { status: 'invalid', message: 'AIOMetadata no reconoce ese Token ID. Vuelve a conectar Trakt y copia el código completo.' };
+    if (/^(trakt|simkl|mal)token$/.test(service) && (response.status === 404 || response.status === 400)) {
+      const label = { traktToken: 'Trakt', simkltoken: 'Simkl', maltoken: 'MyAnimeList', trakttoken: 'Trakt' }[service];
+      return { status: 'invalid', message: 'AIOMetadata no reconoce ese Token ID. Vuelve a conectar ' + label + ' y copia el código completo.' };
     }
     if (response.status === 401 || response.status === 403) {
       return { status: 'invalid', message: service === 'easynews' ? 'Easynews rechazó el usuario o la contraseña.' : 'La clave fue rechazada por ' + names[service] + '.' };
@@ -1291,10 +1331,11 @@ async function handleValidateKey(body) {
     }
     const result = await response.json().catch(() => null);
     if (!result) return unknown;
-    if (service === 'trakttoken') {
-      if (result.provider !== 'trakt') return { status: 'invalid', message: 'Ese Token ID no es de Trakt.' };
-      if (result.status === 'invalid') return { status: 'invalid', message: 'La autorización de Trakt venció o fue revocada. Vuelve a conectar Trakt.' };
-      return { status: 'valid', message: 'Trakt conectado como @' + String(result.username || '').slice(0, 60) + '.' };
+    if (/^(trakt|simkl|mal)token$/.test(service)) {
+      const provider = service.replace('token', ''), label = { trakt: 'Trakt', simkl: 'Simkl', mal: 'MyAnimeList' }[provider];
+      if (result.provider !== provider) return { status: 'invalid', message: 'Ese Token ID no es de ' + label + '.' };
+      if (result.status === 'invalid') return { status: 'invalid', message: 'La autorización de ' + label + ' venció o fue revocada. Vuelve a conectar ' + label + '.' };
+      return { status: 'valid', message: label + ' conectado' + (result.username ? ' como @' + String(result.username).slice(0, 60) : '') + '.' };
     }
     if ((service === 'premiumize' || service === 'alldebrid') && result.status !== 'success') {
       return { status: 'invalid', message: 'La clave fue rechazada por ' + names[service] + '.' };
@@ -1370,6 +1411,25 @@ async function configureAioMetadata(preset, options) {
     if (options.traktUpNext) addCatalog({ id: 'trakt.upnext', type: 'series', name: 'Trakt Up Next', enabled: true, showInHome: true, source: 'trakt', cacheTTL: 300 });
   } else {
     delete config.apiKeys.traktTokenId;
+  }
+  // Simkl y MyAnimeList (opcionales): mismo mecanismo de Token ID que Trakt.
+  for (const [key, rows] of [
+    ['simklTokenId', [['simklWatching', { id: 'simkl.watchlist.all.watching', type: 'all', name: 'Simkl Watching', metadata: { status: 'watching' } }],
+      ['simklPlan', { id: 'simkl.watchlist.all.plantowatch', type: 'all', name: 'Simkl Plan to Watch', metadata: { status: 'plantowatch' } }],
+      ['simklUpNext', { id: 'simkl.upnext', type: 'series', name: 'Simkl Up Next', cacheTTL: 300, metadata: { useShowPosterForUpNext: false, includeAnimeInUpNext: true } }]]],
+    ['malTokenId', [['malWatching', { id: 'mal.userlist.watching', type: 'anime', name: 'MAL Watching' }],
+      ['malPlan', { id: 'mal.userlist.plan_to_watch', type: 'anime', name: 'MAL Plan to Watch' }]]]
+  ]) {
+    const token = options[key];
+    if (!token) { delete config.apiKeys[key]; continue; }
+    config.apiKeys[key] = token;
+    config.catalogs = Array.isArray(config.catalogs) ? config.catalogs : [];
+    const source = key === 'malTokenId' ? 'mal' : 'simkl';
+    for (const [flag, catalog] of rows.slice().reverse()) {
+      if (options[flag] && !config.catalogs.some(c => c.id === catalog.id)) {
+        config.catalogs.unshift({ ...catalog, enabled: true, showInHome: true, source });
+      }
+    }
   }
   config.search = config.search || {};
   config.search.ai_enabled = !!options.geminiKey;
@@ -2242,10 +2302,15 @@ function normalizeOptions(body) {
     geminiKey: String(body.geminiKey || '').trim().slice(0, 128),
     traktTokenId: /^[A-Za-z0-9_-]{8,128}$/.test(String(body.traktTokenId || '').trim()) ? String(body.traktTokenId).trim() : '',
     traktUpNext: body.traktUpNext !== false,
+    simklTokenId: /^[A-Za-z0-9_-]{8,128}$/.test(String(body.simklTokenId || '').trim()) ? String(body.simklTokenId).trim() : '',
+    simklWatching: body.simklWatching !== false, simklPlan: body.simklPlan !== false, simklUpNext: body.simklUpNext !== false,
+    malTokenId: /^[A-Za-z0-9_-]{8,128}$/.test(String(body.malTokenId || '').trim()) ? String(body.malTokenId).trim() : '',
+    malWatching: body.malWatching !== false, malPlan: body.malPlan !== false,
     traktWatchlist: body.traktWatchlist !== false,
     anime: body.anime === true,
     argentinaTv: false, // retirado: Argentina TV ya no se ofrece; si estaba instalado, se quita
     nuvioCollections: body.nuvioCollections !== false,
+    nuvioCollectionLayout: normalizeCollectionLayout(body.nuvioCollectionLayout),
     stores: noDebrid ? false : body.stores !== false,
     trailers: body.trailers !== false,
     subtitles: body.subtitles !== false,
@@ -3291,6 +3356,7 @@ async function handleAddonHealth() {
 const ROUTES = {
   'POST /api/validate-key': handleValidateKey,
   'POST /api/connect': handleConnect,
+  'POST /api/nuvio-collections-catalog': handleNuvioCollectionsCatalog,
   'POST /api/analyze': handleAnalyze,
   'POST /api/backup': handleBackup,
   'POST /api/configure': handleConfigure,
@@ -3363,4 +3429,4 @@ function recordStep(pathname, body, ok, started, error, context) {
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,
   languageProfile, backupCollection, readBackup, parseAioManifest, handleAioPush, createOrUpdateAio,
   handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan,
-  _configureAioMetadata: configureAioMetadata };
+  _configureAioMetadata: configureAioMetadata, _buildNuvioCollections: buildNuvioCollections };

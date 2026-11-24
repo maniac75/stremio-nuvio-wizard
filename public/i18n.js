@@ -366,6 +366,23 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
 Entrar con Stremio	Sign in with Stremio
 Cambiar de cuenta	Switch account
+Simkl y MyAnimeList	Simkl and MyAnimeList
+Si llevas tu historial en Simkl o MyAnimeList (anime), agrega tus listas como filas del inicio. Funciona igual que Trakt: conecta, autoriza, copia el Token ID que muestra AIOMetadata y pégalo.	If you track your history on Simkl or MyAnimeList (anime), add your lists as home rows. It works like Trakt: connect, authorize, copy the Token ID AIOMetadata shows and paste it.
+Conectar Simkl ↗	Connect Simkl ↗
+Conectar MyAnimeList ↗	Connect MyAnimeList ↗
+Token ID de Simkl (opcional)	Simkl Token ID (optional)
+Token ID de MyAnimeList (opcional)	MyAnimeList Token ID (optional)
+Agregar «Viendo» de Simkl	Add Simkl “Watching”
+Agregar «Por ver» de Simkl	Add Simkl “Plan to Watch”
+Agregar «Simkl Up Next»	Add “Simkl Up Next”
+Agregar «Viendo» de MyAnimeList	Add MyAnimeList “Watching”
+Agregar «Por ver» de MyAnimeList	Add MyAnimeList “Plan to Watch”
+Elegir y ordenar colecciones	Choose and order collections
+Marca las colecciones que quieres, ordénalas con las flechas y abre cada una para elegir sus carpetas. Si no cambias nada, se instalan todas en el orden recomendado.	Tick the collections you want, order them with the arrows and open each one to pick its folders. If you change nothing, all of them are installed in the recommended order.
+Abriendo la lista…	Loading the list…
+Restablecer orden y selección	Reset order and selection
+Carpetas	Folders
+Solo se instala con tu propia clave de TMDB (paso 4).	Only installed with your own TMDB key (step 4).
 Sesión iniciada en el sitio de Stremio	Signed in on Stremio's site
 Elige cómo conectar tu cuenta.	Choose how to connect your account.
 Inicias sesión en el sitio oficial de Stremio y vuelves aquí solo. Tu contraseña nunca pasa por el wizard.	You sign in on Stremio's official site and come back here automatically. Your password never goes through the wizard.
@@ -734,6 +751,12 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^Preparar copia a (Stremio|Nuvio)$/,'Prepare copy to $1'],
     [/^Configurar mi (Stremio|Nuvio)$/,'Set up my $1'],
     [/^Paso (\d)\/(\d)$/,'Step $1/$2'],
+    [/^AIOMetadata no reconoce ese Token ID\. Vuelve a conectar (.+?) y copia el código completo\.$/,'AIOMetadata does not recognize that Token ID. Connect $1 again and copy the full code.'],
+    [/^Ese Token ID no es de (.+?)\.$/,'That Token ID is not from $1.'],
+    [/^La autorización de (.+?) venció o fue revocada\. Vuelve a conectar (.+?)\.$/,'The $1 authorization expired or was revoked. Connect $2 again.'],
+    [/^(Trakt|Simkl|MyAnimeList) conectado como @(.*?)\.$/,'$1 connected as @$2.'],
+    [/^(Trakt|Simkl|MyAnimeList) conectado\.$/,'$1 connected.'],
+    [/^No se pudo cargar la lista: (.*)$/,'Could not load the list: $1'],
     [/^Aplicando perfil (\d+) de (\d+)…$/,'Applying profile $1 of $2…'],
     [/^Conectado a (Stremio|Nuvio)$/,'Connected to $1'],
     [/^Cuenta: (.*)$/,'Account: $1'],
