@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.27.0';
+const WIZARD_VERSION = '0.27.1';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -3343,6 +3343,7 @@ const ADDON_HEALTH_STATIC = [
   { key: 'tamtaro', name: 'Tamtaro template', url: TAMTARO_URL, expect: d => Array.isArray(d) && d.some(x => x?.metadata?.id === 'tamtaro.complete') },
   { key: 'watchly', name: 'Watchly', url: WATCHLY_BASE + '/health', expect: d => d?.status === 'healthy' },
   { key: 'postersplus', name: 'PostersPlus', url: POSTERSPLUS_BASE + '/server-caps', expect: d => Array.isArray(d?.presets) && d.presets.length > 0 },
+  { key: 'subsync', name: 'SubSync', url: SUBSYNC_BASE + '/manifest.json', expect: d => d?.id === 'community.subsync' },
   { key: 'peerflix', name: 'Peerflix', url: 'https://addon.peerflix.mov/manifest.json' },
   { key: 'cometa', name: 'Cometa', url: 'https://cometa.stremx.net/manifest.json' },
   { key: 'latinobrid', name: 'Latinobrid', url: 'https://latinobrid.stremx.net/manifest.json' },
