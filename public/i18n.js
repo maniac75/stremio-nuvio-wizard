@@ -366,6 +366,8 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
 Entrar con Stremio	Sign in with Stremio
 Cambiar de cuenta	Switch account
+Agrega subtítulos ya corregidos cuando fueron hechos para otra velocidad de video (23,976 o 25 cuadros por segundo), el desfase que va creciendo durante la película. No pide cuentas ni claves. Es un complemento nuevo: si no te convence, desactívalo.	Adds subtitles already corrected when they were made for another video speed (23.976 or 25 frames per second), the drift that grows during the movie. No accounts or keys needed. It's a new addon: if you don't like it, turn it off.
+Corrige subtítulos desfasados por la velocidad del video.	Fixes subtitles that drift because of the video speed.
 Clave de API corta (32 caracteres)	Short API key (32 characters)
 Ese es el «Token de acceso de lectura» (el largo). Pega la «Clave de API» corta, de 32 caracteres, que aparece en la misma página de TMDB.	That's the long “API Read Access Token”. Paste the short 32-character “API Key” shown on the same TMDB page.
 Simkl y MyAnimeList	Simkl and MyAnimeList

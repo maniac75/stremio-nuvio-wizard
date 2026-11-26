@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.26.1';
+const WIZARD_VERSION = '0.27.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1509,6 +1509,29 @@ function applyCatalogGroups(catalogs, groups) {
   });
 }
 
+// SubSync: corrige subtítulos desfasados por la velocidad del video (23,976 / 25 fps). Sin cuentas ni claves.
+const SUBSYNC_BASE = 'https://aa70b04b669d-subsync.baby-beamup.club';
+const SUBSYNC_CODES = { English: 'eng', Spanish: 'spa', Latino: 'spa', Portuguese: 'por', 'Portuguese (Brazil)': 'pob',
+  French: 'fre', German: 'ger', Italian: 'ita', Dutch: 'dut', Russian: 'rus', Polish: 'pol', Romanian: 'rum', Greek: 'gre',
+  Turkish: 'tur', Arabic: 'ara', Serbian: 'srp', Croatian: 'hrv', Japanese: 'jpn', Korean: 'kor', Chinese: 'chi',
+  Swedish: 'swe', Norwegian: 'nor', Danish: 'dan', Finnish: 'fin', Hebrew: 'heb', Czech: 'cze', Hungarian: 'hun',
+  Ukrainian: 'ukr', Bulgarian: 'bul', Vietnamese: 'vie', Thai: 'tha', Indonesian: 'ind', Slovenian: 'slv', Slovak: 'slo' };
+async function buildSubSyncAddon(options) {
+  const names = languageProfile(options.language, options).subtitles;
+  const langs = [...new Set(names.map(n => SUBSYNC_CODES[n]).filter(Boolean))].slice(0, 3);
+  const data = await fetchJson(SUBSYNC_BASE + '/api/config', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ langs: langs.length ? langs : ['eng'], videoFps: 0, maxPerLang: 3, manualFor: 0, film24: false,
+      translate: false, translateModel: '', offsetMs: 0, apiKey: '', keepKeyFrom: '', removeKey: true })
+  }, 15000);
+  const config = String(data?.config || '');
+  if (!/^[A-Za-z0-9_-]{8,2000}$/.test(config)) throw new Error('SubSync no entregó su configuración');
+  const transportUrl = SUBSYNC_BASE + '/' + config + '/manifest.json';
+  const manifest = await fetchJson(transportUrl, {}, 15000);
+  if (manifest?.id !== 'community.subsync') throw new Error('SubSync respondió un manifiesto inesperado');
+  return { transportUrl, transportName: '', manifest, flags: {} };
+}
+
 function presetAddon(preset, key, language) {
   const base = preset.languages?.en?.[key] || {};
   const local = preset.languages?.[language]?.[key] || {};
@@ -2059,6 +2082,11 @@ function addonPlan(addon, options) {
       ? { action: 'replace', reason: 'Se reinstala con el idioma elegido.' }
       : { action: 'remove', reason: 'SubSense está desactivado en el formulario.' };
   }
+  if (id === 'community.subsync') {
+    return options.subSync
+      ? { action: 'replace', reason: 'Se reinstala con los idiomas elegidos.' }
+      : { action: 'remove', reason: 'SubSync está desactivado en el formulario.' };
+  }
   if (id === 'community.opensubtitlesv3.pro') {
     return options.openSubtitles
       ? { action: 'replace', reason: 'Se reinstala con la configuración elegida.' }
@@ -2181,6 +2209,10 @@ async function buildDesiredAddons(options, currentAddons, auth) {
   if (options.trailers) staticDesired.push(presetAddon(preset, 'streailer', options.language));
   if (options.subtitles) staticDesired.push(presetAddon(preset, 'subsense', options.language));
   if (options.openSubtitles) staticDesired.push(presetAddon(preset, 'opensubtitlespro', options.language));
+  if (options.subSync) {
+    try { staticDesired.push(await buildSubSyncAddon(options)); }
+    catch (error) { logError('SubSync omitido:', error.message); }
+  }
   if (options.anime && preset.extras?.kitsu) staticDesired.push(deepClone(preset.extras.kitsu));
   if (options.argentinaTv && preset.extras?.argentinatv) staticDesired.push(deepClone(preset.extras.argentinatv));
 
@@ -2323,6 +2355,7 @@ function normalizeOptions(body) {
     trailers: body.trailers !== false,
     subtitles: body.subtitles !== false,
     openSubtitles: body.openSubtitles !== false,
+    subSync: body.subSync === true,
     kids: body.kids === true,
     no4k: body.no4k === true,
     cachedOnly: noDebrid ? false : body.cachedOnly === true,
@@ -2480,6 +2513,7 @@ async function handleAnalyze(body) {
   }
   if (options.subtitles) addIfMissing(ids.has('com.subsense.nepiraw'), 'SubSense', 'Subtítulos multi-fuente.');
   if (options.openSubtitles) addIfMissing(ids.has('community.opensubtitlesv3.pro'), 'OpenSubtitles PRO', 'Proveedor adicional de subtítulos.');
+  if (options.subSync) addIfMissing(ids.has('community.subsync'), 'SubSync', 'Corrige subtítulos desfasados por la velocidad del video.');
   if (options.anime) addIfMissing(ids.has('community.anime.kitsu'), 'Anime Kitsu', 'Catálogos y metadata de anime.');
   if (options.argentinaTv) addIfMissing(ids.has('community.argentinatv'), 'Argentina TV', 'Canales en vivo.');
   if (options.watchly) addIfMissing(addons.some(isWatchlyAddon), 'Watchly', 'Recomendaciones personalizadas según lo que ves.');
@@ -3437,4 +3471,4 @@ function recordStep(pathname, body, ok, started, error, context) {
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,
   languageProfile, backupCollection, readBackup, parseAioManifest, handleAioPush, createOrUpdateAio,
   handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan,
-  _configureAioMetadata: configureAioMetadata, _buildNuvioCollections: buildNuvioCollections };
+  _configureAioMetadata: configureAioMetadata, _buildNuvioCollections: buildNuvioCollections, _buildSubSyncAddon: buildSubSyncAddon };

@@ -228,7 +228,7 @@ function exportWizardProfile(){
     tmdbMode:c.tmdbMode,tvdbMode:c.tvdbMode,rpdbMode:c.rpdbMode,postersPlusStyle:c.postersPlusStyle,
     kids:c.kids,anime:c.anime,argentinaTv:c.argentinaTv,no4k:c.no4k,
     cachedOnly:c.cachedOnly,removeWatchHub:c.removeWatchHub,
-    trailers:c.trailers,subtitles:c.subtitles,openSubtitles:c.openSubtitles,
+    trailers:c.trailers,subtitles:c.subtitles,openSubtitles:c.openSubtitles,subSync:c.subSync,
     stores:c.stores,standaloneAddons:c.standaloneAddons,
     audioLanguages:c.audioLanguages,subtitleLanguages:c.subtitleLanguages,watchly:c.watchly,
     startPreset:c.startPreset,catalogGroups:c.catalogGroups};
@@ -441,6 +441,7 @@ function collect(){
     trailers:document.getElementById('trailers').checked,
     subtitles:document.getElementById('subtitles').checked,
     openSubtitles:document.getElementById('openSubtitles').checked,
+    subSync:document.getElementById('subSync').checked,
     stores:free?false:document.getElementById('stores').checked,
     standaloneAddons:Array.from(document.querySelectorAll('.standaloneAddon:checked')).map(function(x){return x.value;}).filter(function(x){return !free||freeStandaloneAddons.has(x);}),
     customAddons:document.getElementById('customAddons').value.split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean),
@@ -1711,7 +1712,7 @@ document.getElementById('profileInput').addEventListener('change',async function
     setLanguageOrder(p.audioLanguages,p.subtitleLanguages);
     if(p.catalogGroups&&typeof p.catalogGroups==='object')document.querySelectorAll('.catalogGroup').forEach(function(x){if(x.value in p.catalogGroups)x.checked=p.catalogGroups[x.value]===true;});
     if(['recommended','minimal','full','http'].indexOf(p.startPreset)>=0)markPreset(p.startPreset);
-    ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','stores','watchly'].forEach(function(id){
+    ['kids','anime','no4k','cachedOnly','removeWatchHub','trailers','subtitles','openSubtitles','subSync','stores','watchly'].forEach(function(id){
       if(typeof p[id]==='boolean')document.getElementById(id).checked=p[id];
     });
     document.querySelectorAll('.standaloneAddon').forEach(function(x){x.checked=Array.isArray(p.standaloneAddons)&&p.standaloneAddons.includes(x.value);});
