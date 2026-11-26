@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.27.1';
+const WIZARD_VERSION = '0.28.0';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1253,7 +1253,7 @@ async function validateMetadataOptions(options) {
 async function handleValidateKey(body) {
   const service = String(body?.service || '').toLowerCase();
   const key = String(body?.key || '').trim();
-  const known = new Set(['tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews', 'trakttoken', 'simkltoken', 'maltoken']);
+  const known = new Set(['opensubtitles', 'tmdb', 'tvdb', 'rpdb', 'mdblist', 'debridio', 'gemini', 'torbox', 'realdebrid', 'premiumize', 'alldebrid', 'debridlink', 'easydebrid', 'offcloud', 'debrider', 'easynews', 'trakttoken', 'simkltoken', 'maltoken']);
   if (!known.has(service)) throw new Error('Servicio de clave no reconocido');
   if (!key || key.length > 512 || /[\r\n]/.test(key)) return { status: 'invalid', message: 'Ingresa una clave válida.' };
   const unknown = { status: 'unknown', message: 'No hay una comprobación automática fiable para este servicio. Revisa que la clave esté completa.' };
@@ -1268,6 +1268,27 @@ async function handleValidateKey(body) {
   try {
     let url, options = { signal: controller.signal, redirect: 'manual', headers: { Accept: 'application/json' } };
     const bearer = () => { options.headers.Authorization = 'Bearer ' + key; };
+    if (service === 'opensubtitles') {
+      if (!/^[A-Za-z0-9]{32}$/.test(key)) return { status: 'invalid', message: 'La API key de OpenSubtitles tiene 32 letras y números. Cópiala completa desde opensubtitles.com/consumers.' };
+      const username = String(body?.username || '').trim().slice(0, 100);
+      const payload = { service: 'opensubtitles', apiKey: key, ...(username && secret ? { username, password: secret } : {}) };
+      const response = await fetch(SUBTITLESYNC_BASE + '/api/check', { method: 'POST', signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) });
+      if (response.status === 429 || response.status >= 500) return { status: 'unknown', message: 'Subtitle Sync no pudo comprobar ahora. Prueba de nuevo en un rato.' };
+      const data = await response.json().catch(() => null);
+      if (!data || typeof data.ok !== 'boolean') return unknown;
+      if (data.ok) {
+        const n = Number(data.detail?.downloadsPerDay);
+        return { status: 'valid', message: username && secret
+          ? 'Cuenta de OpenSubtitles verificada' + (Number.isFinite(n) ? ' (' + n + ' descargas al día).' : '.')
+          : 'API key verificada. Escribe también tu usuario y contraseña de OpenSubtitles.' };
+      }
+      if (data.reason === 'invalid') {
+        return { status: 'invalid', message: data.detail?.what === 'apikey'
+          ? 'OpenSubtitles rechazó la API key.' : 'OpenSubtitles rechazó el usuario o la contraseña.' };
+      }
+      return unknown;
+    }
     if (service === 'tmdb' && (key.startsWith('eyJ') || key.length > 80)) {
       // El token de lectura (v4) sirve en TMDB, pero AIOMetadata sólo acepta la clave de API corta (v3).
       return { status: 'invalid', message: 'Ese es el «Token de acceso de lectura» (el largo). Pega la «Clave de API» corta, de 32 caracteres, que aparece en la misma página de TMDB.' };
@@ -1530,6 +1551,47 @@ async function buildSubSyncAddon(options) {
   const manifest = await fetchJson(transportUrl, {}, 15000);
   if (manifest?.id !== 'community.subsync') throw new Error('SubSync respondió un manifiesto inesperado');
   return { transportUrl, transportName: '', manifest, flags: {} };
+}
+
+// Subtitle Sync (subtitlesync.stream): sincroniza con la pista del propio video (TorBox) o con OpenSubtitles.
+// Exige cuenta y API key de OpenSubtitles del usuario: se envían a Subtitle Sync para sellar su enlace y no se guardan.
+// Se instala sólo cuando el formulario lo pide (sección oculta salvo ?subtitlesync=1, hasta que el autor responda).
+const SUBTITLESYNC_BASE = 'https://subtitlesync.stream';
+const SUBTITLESYNC_CODES = { Latino: 'es-419', Spanish: 'es-es', English: 'en', 'Portuguese (Brazil)': 'pt-br', Portuguese: 'pt-pt',
+  French: 'fr', German: 'de', Italian: 'it', Dutch: 'nl', Russian: 'ru', Polish: 'pl', Romanian: 'ro', Greek: 'el', Turkish: 'tr',
+  Arabic: 'ar', Serbian: 'sr', Croatian: 'hr', Japanese: 'ja', Korean: 'ko', Chinese: 'zh-cn', Swedish: 'sv', Norwegian: 'no',
+  Danish: 'da', Finnish: 'fi', Hebrew: 'he', Czech: 'cs', Hungarian: 'hu', Ukrainian: 'uk', Bulgarian: 'bg', Vietnamese: 'vi',
+  Thai: 'th', Indonesian: 'id', Slovenian: 'sl', Slovak: 'sk' };
+function subtitleSyncConfig(options, aioManifestUrl) {
+  const creds = options.subtitleSync;
+  const names = languageProfile(options.language, options).subtitles;
+  const langs = [...new Set(names.map(n => SUBTITLESYNC_CODES[n]).filter(Boolean))].slice(0, 4);
+  const torbox = options.debrids.find(d => d.service === 'torbox');
+  const config = { languages: (langs.length ? langs : ['en']).join(','),
+    osApiKey: creds.apiKey, osUsername: creds.username, osPassword: creds.password };
+  if (torbox && aioManifestUrl) {
+    // Con TorBox lee la pista de subtítulos del video a través de AIOStreams: la mejor sincronización.
+    Object.assign(config, { watch: 'torbox', addon: 'aiostreams', torboxApiKey: torbox.key, streamAddons: aioManifestUrl });
+  } else {
+    config.watch = options.debrids.length ? 'debrid' : 'web';
+  }
+  return config;
+}
+async function buildSubtitleSyncAddon(options, aioManifestUrl) {
+  const sealed = await fetchJson(SUBTITLESYNC_BASE + '/api/seal', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ config: subtitleSyncConfig(options, aioManifestUrl) })
+  }, 20000);
+  const segment = String(sealed?.segment || '');
+  if (!/^[A-Za-z0-9_-]{8,4000}$/.test(segment)) throw new Error('Subtitle Sync no entregó su enlace');
+  const transportUrl = SUBTITLESYNC_BASE + '/' + segment + '/manifest.json';
+  const manifest = await fetchJson(transportUrl, {}, 15000);
+  if (manifest?.id !== 'org.subtitlesync.reference') throw new Error('Subtitle Sync respondió un manifiesto inesperado');
+  return { transportUrl, transportName: '', manifest, flags: {} };
+}
+function isSubtitleSyncAddon(addon) {
+  return addon?.manifest?.id === 'org.subtitlesync.reference' ||
+    String(addon?.transportUrl || '').toLowerCase().startsWith(SUBTITLESYNC_BASE + '/');
 }
 
 function presetAddon(preset, key, language) {
@@ -2082,6 +2144,11 @@ function addonPlan(addon, options) {
       ? { action: 'replace', reason: 'Se reinstala con el idioma elegido.' }
       : { action: 'remove', reason: 'SubSense está desactivado en el formulario.' };
   }
+  if (isSubtitleSyncAddon(addon)) {
+    return options.subtitleSync
+      ? { action: 'replace', reason: 'Se reinstala con tu cuenta de OpenSubtitles y los idiomas elegidos.' }
+      : { action: 'ask', reason: 'Complemento ajeno al wizard: tú decides si conservarlo.' };
+  }
   if (id === 'community.subsync') {
     return options.subSync
       ? { action: 'replace', reason: 'Se reinstala con los idiomas elegidos.' }
@@ -2243,6 +2310,15 @@ async function buildDesiredAddons(options, currentAddons, auth) {
     }
   }
   const aio = await createOrUpdateAio(options, currentAddons);
+  let subtitleSync = null;
+  if (options.subtitleSync) {
+    try { subtitleSync = await buildSubtitleSyncAddon(options, aio.addon?.transportUrl); }
+    catch (error) {
+      logError('Subtitle Sync omitido:', error.message);
+      const old = currentAddons.find(isSubtitleSyncAddon);
+      if (old) subtitleSync = deepClone(old); else skipped.push('Subtitle Sync');
+    }
+  }
   // Orden recomendado por las guías: las filas de Watchly antes que los catálogos de AIOMetadata.
   const desired = [
     ...(options.trailers ? [staticDesired[1]] : []),
@@ -2251,6 +2327,7 @@ async function buildDesiredAddons(options, currentAddons, auth) {
     metadata,
     aio.addon,
     ...staticDesired.slice(options.trailers ? 2 : 1),
+    ...(subtitleSync ? [subtitleSync] : []),
     ...standalone,
     ...stores,
     ...custom
@@ -2279,6 +2356,15 @@ const FREE_STANDALONE_ADDONS = new Set([
 function languageList(value, allowed) {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.map(String).filter(name => allowed.has(name)))].slice(0, 8);
+}
+
+function normalizeSubtitleSync(value) {
+  if (!value || typeof value !== 'object') return null;
+  const apiKey = String(value.apiKey || '').trim();
+  const username = String(value.username || '').trim();
+  const password = String(value.password || '');
+  if (!/^[A-Za-z0-9]{32}$/.test(apiKey) || !username || username.length > 100 || !password || password.length > 200 || /[\r\n]/.test(username + password)) return null;
+  return { apiKey, username, password };
 }
 
 function normalizeOptions(body) {
@@ -2356,6 +2442,7 @@ function normalizeOptions(body) {
     subtitles: body.subtitles !== false,
     openSubtitles: body.openSubtitles !== false,
     subSync: body.subSync === true,
+    subtitleSync: normalizeSubtitleSync(body.subtitleSync),
     kids: body.kids === true,
     no4k: body.no4k === true,
     cachedOnly: noDebrid ? false : body.cachedOnly === true,
@@ -2513,6 +2600,7 @@ async function handleAnalyze(body) {
   }
   if (options.subtitles) addIfMissing(ids.has('com.subsense.nepiraw'), 'SubSense', 'Subtítulos multi-fuente.');
   if (options.openSubtitles) addIfMissing(ids.has('community.opensubtitlesv3.pro'), 'OpenSubtitles PRO', 'Proveedor adicional de subtítulos.');
+  if (options.subtitleSync) addIfMissing(addons.some(isSubtitleSyncAddon), 'Subtitle Sync', 'Sincroniza los subtítulos con el video.');
   if (options.subSync) addIfMissing(ids.has('community.subsync'), 'SubSync', 'Corrige subtítulos desfasados por la velocidad del video.');
   if (options.anime) addIfMissing(ids.has('community.anime.kitsu'), 'Anime Kitsu', 'Catálogos y metadata de anime.');
   if (options.argentinaTv) addIfMissing(ids.has('community.argentinatv'), 'Argentina TV', 'Canales en vivo.');
@@ -3344,6 +3432,7 @@ const ADDON_HEALTH_STATIC = [
   { key: 'watchly', name: 'Watchly', url: WATCHLY_BASE + '/health', expect: d => d?.status === 'healthy' },
   { key: 'postersplus', name: 'PostersPlus', url: POSTERSPLUS_BASE + '/server-caps', expect: d => Array.isArray(d?.presets) && d.presets.length > 0 },
   { key: 'subsync', name: 'SubSync', url: SUBSYNC_BASE + '/manifest.json', expect: d => d?.id === 'community.subsync' },
+  { key: 'subtitlesync', name: 'Subtitle Sync', url: SUBTITLESYNC_BASE + '/manifest.json', expect: d => d?.id === 'org.subtitlesync.reference' },
   { key: 'peerflix', name: 'Peerflix', url: 'https://addon.peerflix.mov/manifest.json' },
   { key: 'cometa', name: 'Cometa', url: 'https://cometa.stremx.net/manifest.json' },
   { key: 'latinobrid', name: 'Latinobrid', url: 'https://latinobrid.stremx.net/manifest.json' },
@@ -3472,4 +3561,4 @@ function recordStep(pathname, body, ok, started, error, context) {
 module.exports = { configure, handleApi, WIZARD_VERSION, buildAioConfig, buildStandaloneAddons, normalizeOptions,
   languageProfile, backupCollection, readBackup, parseAioManifest, handleAioPush, createOrUpdateAio,
   handleTransferPreview, handleTransferApply, transferDesired, createWatchlyAddon, addonPlan,
-  _configureAioMetadata: configureAioMetadata, _buildNuvioCollections: buildNuvioCollections, _buildSubSyncAddon: buildSubSyncAddon };
+  _configureAioMetadata: configureAioMetadata, _buildNuvioCollections: buildNuvioCollections, _buildSubSyncAddon: buildSubSyncAddon, _subtitleSyncConfig: subtitleSyncConfig };
