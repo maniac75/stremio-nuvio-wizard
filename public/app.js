@@ -442,7 +442,6 @@ function collect(){
     subtitles:document.getElementById('subtitles').checked,
     openSubtitles:document.getElementById('openSubtitles').checked,
     subSync:document.getElementById('subSync').checked,
-    subtitleSync:subtitleSyncPayload(),
     stores:free?false:document.getElementById('stores').checked,
     standaloneAddons:Array.from(document.querySelectorAll('.standaloneAddon:checked')).map(function(x){return x.value;}).filter(function(x){return !free||freeStandaloneAddons.has(x);}),
     customAddons:document.getElementById('customAddons').value.split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean),
@@ -580,28 +579,17 @@ function disconnectState(message){
   if(message) document.getElementById('accountHint').textContent=message;
 }
 
-function subtitleSyncOn(){
-  var box=document.getElementById('subtitleSyncBox');
-  return !!(box&&!box.hidden&&document.getElementById('subtitleSync').checked);
-}
-function subtitleSyncPayload(){
-  if(!subtitleSyncOn())return null;
-  return {apiKey:document.getElementById('osApiKey').value.trim(),username:document.getElementById('osUser').value.trim(),password:document.getElementById('osPass').value};
-}
 async function validateKeyInput(input, service) {
   var key=input.value.trim(),status=input.parentElement.querySelector('.keyStatus');
-  var secretInput=service==='easynews'&&input.closest('.debrid')?input.closest('.debrid').querySelector('.secret')
-    :service==='opensubtitles'?document.getElementById('osPass'):null;
+  var secretInput=service==='easynews'&&input.closest('.debrid')?input.closest('.debrid').querySelector('.secret'):null;
   var secret=secretInput?secretInput.value:'';
-  var username=service==='opensubtitles'?document.getElementById('osUser').value.trim():'';
-  if(service==='opensubtitles')secret=username?secret:'';
   if(!status)return 'unknown';
   if(!key){
     status.textContent='';
     input.dataset.keyCheck='';
     return 'invalid';
   }
-  if(input.dataset.checkedValue===service+':'+key+':'+username+':'+secret && input.dataset.keyCheck && input.dataset.keyCheck!=='checking')
+  if(input.dataset.checkedValue===service+':'+key+':'+secret && input.dataset.keyCheck && input.dataset.keyCheck!=='checking')
     return input.dataset.keyCheck;
   var request=String(Number(input.dataset.keyRequest||0)+1);
   input.dataset.keyRequest=request;
@@ -609,10 +597,10 @@ async function validateKeyInput(input, service) {
   status.textContent='Comprobando clave…';
   status.style.color='';
   try{
-    var result=await post('/api/validate-key',{service:service,key:key,secret:secret,username:username});
-    if(input.dataset.keyRequest!==request||input.value.trim()!==key||(secretInput&&username&&secretInput.value!==secret))return 'changed';
+    var result=await post('/api/validate-key',{service:service,key:key,secret:secret});
+    if(input.dataset.keyRequest!==request||input.value.trim()!==key||(secretInput&&secretInput.value!==secret))return 'changed';
     input.dataset.keyCheck=result.status;
-    input.dataset.checkedValue=service+':'+key+':'+username+':'+secret;
+    input.dataset.checkedValue=service+':'+key+':'+secret;
     status.textContent=(result.status==='valid'?'✓ ':result.status==='invalid'?'✗ ':'ⓘ ')+result.message;
     status.style.color=result.status==='invalid'?'#ff9da5':result.status==='valid'?'#9ce6c9':'#ffdc93';
     return result.status;
@@ -635,14 +623,6 @@ async function checkEnteredKeys(step){
       .concat(document.getElementById('geminiKey').value.trim()?[{input:document.getElementById('geminiKey'),service:'gemini'}]:[])
       .concat(['trakttoken','simkltoken','maltoken'].filter(function(s){return document.getElementById(TOKEN_INPUTS[s]).value.trim();})
         .map(function(s){return {input:document.getElementById(TOKEN_INPUTS[s]),service:s};}));
-  if(step===4&&subtitleSyncOn()){
-    var osUser=document.getElementById('osUser'),osPass=document.getElementById('osPass'),osStatus=document.querySelector('#osApiKey').parentElement.querySelector('.keyStatus');
-    if(!document.getElementById('osApiKey').value.trim()||!osUser.value.trim()||!osPass.value){
-      osStatus.textContent='✗ Subtitle Sync necesita la API key, el usuario y la contraseña de OpenSubtitles (o desmárcalo).';osStatus.style.color='#ff9da5';
-      (document.getElementById('osApiKey').value.trim()?(osUser.value.trim()?osPass:osUser):document.getElementById('osApiKey')).focus();return false;
-    }
-    entries.push({input:document.getElementById('osApiKey'),service:'opensubtitles'});
-  }
   if(step===4&&document.getElementById('rpdbMode').value==='custom'){
     var patternInput=document.getElementById('posterPattern'),problem=posterPatternProblem(patternInput.value.trim());
     if(problem){var ps=document.getElementById('posterPatternStatus');ps.textContent='✗ '+problem;ps.style.color='#ff9da5';patternInput.focus();return false;}
@@ -2358,22 +2338,3 @@ document.getElementById('language').addEventListener('change',function(){
   if(document.getElementById('collectionLayoutFold').open||collectionLayout){collectionCatalogLang='';loadCollectionCatalog();}
 });
 if(document.getElementById('tmdbMode'))document.getElementById('tmdbMode').addEventListener('change',renderCollectionLayout);
-
-(function initSubtitleSync(){
-  var box=document.getElementById('subtitleSyncBox');
-  if(!box)return;
-  // Beta: visible sólo con ?subtitlesync=1 (se recuerda en este navegador) hasta confirmar con el autor.
-  try{
-    var q=new URLSearchParams(location.search).get('subtitlesync');
-    if(q==='1')localStorage.setItem('wizard-subtitlesync','1');
-    if(q==='0')localStorage.removeItem('wizard-subtitlesync');
-    box.hidden=localStorage.getItem('wizard-subtitlesync')!=='1';
-  }catch(_){box.hidden=q!=='1';}
-  var check=document.getElementById('subtitleSync'),fields=document.getElementById('subtitleSyncFields');
-  var sync=function(){fields.hidden=!check.checked;};
-  check.addEventListener('change',sync);sync();
-  var key=document.getElementById('osApiKey');
-  var later=function(){clearTimeout(key.keyTimer);if(key.value.trim())key.keyTimer=setTimeout(function(){validateKeyInput(key,'opensubtitles');},650);};
-  ['input','paste'].forEach(function(ev){key.addEventListener(ev,later);});
-  ['osUser','osPass'].forEach(function(id){document.getElementById(id).addEventListener('change',later);});
-})();

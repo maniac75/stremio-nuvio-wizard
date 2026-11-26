@@ -12,24 +12,9 @@ Trakt en Nuvio se conecta dentro de la app	In Nuvio, Trakt is connected inside t
 Abre	Open
 o Stremio en el computador e inicia sesión. En Ajustes, busca «Trakt Scrobbling» (en algunas versiones está en la pestaña Integraciones) y pulsa Autenticar. La app del iPhone no trae esta opción.	or Stremio on a computer and sign in. In Settings, find “Trakt Scrobbling” (in some versions it is under the Integrations tab) and press Authenticate. The iPhone app doesn't have this option.
 Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de Trakt. Si no quieres esas filas, puedes quitarlo: la sincronización sigue funcionando.	Once connected, Stremio adds the Trakt Integration addon with your Trakt lists. If you don't want those rows you can remove it: syncing keeps working.
-OPCIONAL · BETA	OPTIONAL · BETA
-Busca subtítulos en tus idiomas y los ajusta al archivo exacto que estás viendo. Con TorBox usa la pista de subtítulos del propio video (la mejor sincronización); con otros Debrid o sin Debrid se guía por OpenSubtitles. Necesita una cuenta gratuita de OpenSubtitles.	Finds subtitles in your languages and times them to the exact file you're watching. With TorBox it uses the video's own subtitle track (the best sync); with other Debrid services or none it uses OpenSubtitles as the reference. Needs a free OpenSubtitles account.
-1. Crea una cuenta en	1. Create an account at
-. 2. Crea una API key en	. 2. Create an API key at
-(«New consumer») y pégala aquí. Los datos se envían a Subtitle Sync para crear tu enlace y el wizard no los guarda. Con TorBox, Subtitle Sync también recibe tu enlace de AIOStreams y tu clave de TorBox para leer la pista del video.	(“New consumer”) and paste it here. Your details are sent to Subtitle Sync to create your link and the wizard doesn't store them. With TorBox, Subtitle Sync also receives your AIOStreams link and TorBox key to read the video's track.
-API key de OpenSubtitles	OpenSubtitles API key
-32 letras y números	32 letters and numbers
-Usuario de OpenSubtitles	OpenSubtitles username
-Contraseña de OpenSubtitles	OpenSubtitles password
-Subtitle Sync necesita la API key, el usuario y la contraseña de OpenSubtitles (o desmárcalo).	Subtitle Sync needs the OpenSubtitles API key, username and password (or untick it).
-La API key de OpenSubtitles tiene 32 letras y números. Cópiala completa desde opensubtitles.com/consumers.	The OpenSubtitles API key has 32 letters and numbers. Copy it in full from opensubtitles.com/consumers.
-OpenSubtitles rechazó la API key.	OpenSubtitles rejected the API key.
-OpenSubtitles rechazó el usuario o la contraseña.	OpenSubtitles rejected the username or password.
-API key verificada. Escribe también tu usuario y contraseña de OpenSubtitles.	API key verified. Also enter your OpenSubtitles username and password.
-Cuenta de OpenSubtitles verificada.	OpenSubtitles account verified.
-Subtitle Sync no pudo comprobar ahora. Prueba de nuevo en un rato.	Subtitle Sync couldn't check right now. Try again in a while.
-Sincroniza los subtítulos con el video.	Times subtitles to the video.
-Se reinstala con tu cuenta de OpenSubtitles y los idiomas elegidos.	Reinstalled with your OpenSubtitles account and chosen languages.
+OPCIONAL · EXTERNO	OPTIONAL · EXTERNAL
+Busca subtítulos en tus idiomas y los ajusta al archivo exacto que estás viendo. Funciona mejor con TorBox. Se configura en su propia página con una cuenta gratuita de OpenSubtitles:	Finds subtitles in your languages and times them to the exact file you're watching. Works best with TorBox. It's set up on its own page with a free OpenSubtitles account:
+abrir subtitlesync.stream	open subtitlesync.stream
 Recordar mis claves en este navegador	Remember my keys in this browser
 Guarda cifradas las claves Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini y Easynews para la próxima vez. Quedan sólo en este navegador, nunca en el servidor. Úsalo sólo en un equipo personal: quien use este navegador podrá volver a usarlas.	Saves your Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini and Easynews keys encrypted for next time. They stay only in this browser, never on the server. Use it only on a personal device: anyone using this browser will be able to reuse them.
 Olvidar claves guardadas	Forget saved keys
@@ -721,7 +706,6 @@ No se pudo comprobar ahora. Comprueba la clave en el sitio del servicio.	Could n
     [/^1 · Conecta tu cuenta (.*)$/,'1 · Connect your $1 account'],
     [/^Complementos actuales: (.*)$/,'Current addons: $1'],
     [/^Clave verificada con (.*?)\.$/,'Key verified with $1.'],
-    [/^Cuenta de OpenSubtitles verificada \((\d+) descargas al día\)\.$/,'OpenSubtitles account verified ($1 downloads a day).'],
     [/^La clave fue rechazada por (.*?)\.$/,'The key was rejected by $1.'],
     [/^Complementos instalados \((.*)\)$/,'Installed addons ($1)'],
     [/^Ver complementos instalados \((.*)\)$/,'View installed addons ($1)'],

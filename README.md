@@ -18,7 +18,7 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Starting points:** Recommended, Minimal, Full or HTTP only (no torrents), plus a factory reset to Stremio's official add-ons.
 - **AIOStreams + AIOMetadata** set up with sensible defaults for your language, optional Debrid (TorBox, Real-Debrid, AllDebrid, Premiumize, Debrid-Link, EasyDebrid, Offcloud, Debrider) and Easynews (Usenet), with "cached only" mode.
 - **Home catalogs:** choose AIOMetadata row groups (streaming services, genres, decades, studios, countries, themes, anime) before installing; optional Gemini AI search.
-- **Subtitles and trailers:** SubSense, OpenSubtitles PRO, optional SubSync (fixes frame-rate drift), Streailer.
+- **Subtitles and trailers:** SubSense, OpenSubtitles PRO, optional SubSync (fixes frame-rate drift), Streailer, plus a link to Subtitle Sync (set up on its own page).
 - **Copy between apps:** Stremio → Nuvio and Nuvio → Stremio, reusing the same AIOStreams instance.
 - **Nuvio extras:** home-screen collections (Watch now, Genres, Decades, Themed, International, and Franchises with your own TMDB key), and one-click copy of the setup to the other profiles of the account. Collections are included in the backup.
 - **Watchly recommendations (optional):** “Because you watched…” rows from your Stremio or Nuvio history, plus one-click Trakt connect for Stremio (auto-detected).
