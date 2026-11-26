@@ -366,6 +366,8 @@ Usar en Stremio y Nuvio	Use in Stremio and Nuvio
 Entrar con Stremio, sin escribir tu contraseña aquí	Sign in with Stremio, without typing your password here
 Entrar con Stremio	Sign in with Stremio
 Cambiar de cuenta	Switch account
+Clave de API corta (32 caracteres)	Short API key (32 characters)
+Ese es el «Token de acceso de lectura» (el largo). Pega la «Clave de API» corta, de 32 caracteres, que aparece en la misma página de TMDB.	That's the long “API Read Access Token”. Paste the short 32-character “API Key” shown on the same TMDB page.
 Simkl y MyAnimeList	Simkl and MyAnimeList
 Si llevas tu historial en Simkl o MyAnimeList (anime), agrega tus listas como filas del inicio. Funciona igual que Trakt: conecta, autoriza, copia el Token ID que muestra AIOMetadata y pégalo.	If you track your history on Simkl or MyAnimeList (anime), add your lists as home rows. It works like Trakt: connect, authorize, copy the Token ID AIOMetadata shows and paste it.
 Conectar Simkl ↗	Connect Simkl ↗

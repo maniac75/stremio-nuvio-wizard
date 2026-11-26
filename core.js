@@ -26,7 +26,7 @@ const TAMTARO_URL = 'https://git.tamtaro.de/complete.json';
 const PRESET_URL = 'https://raw.githubusercontent.com/DryKillLogic/stremio-account-bootstrapper/main/public/preset.json';
 const AIOMETA_BASE = 'https://aiometadata.elfhosted.com';
 const STREMIO_API = 'https://api.strem.io/api';
-const WIZARD_VERSION = '0.26.0';
+const WIZARD_VERSION = '0.26.1';
 const NUVIO_API = 'https://api.nuvio.tv';
 // Clave pública de aplicación de Nuvio; el usuario conserva sus credenciales.
 const NUVIO_PUBLIC_KEY = 'sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN';
@@ -1058,8 +1058,12 @@ async function buildAioConfig(options) {
     }
   }
 
-  if (options.tmdbMode === 'personal' && options.tmdbKey) config.tmdbApiKey = options.tmdbKey;
-  else delete config.tmdbApiKey;
+  // AIOStreams separa la clave corta (v3) del token de lectura (v4); por si llegara un token, va en su campo.
+  delete config.tmdbApiKey; delete config.tmdbAccessToken;
+  if (options.tmdbMode === 'personal' && options.tmdbKey) {
+    if (options.tmdbKey.startsWith('eyJ')) config.tmdbAccessToken = options.tmdbKey;
+    else config.tmdbApiKey = options.tmdbKey;
+  }
   if (options.tvdbMode === 'personal' && options.tvdbKey) config.tvdbApiKey = options.tvdbKey;
   else delete config.tvdbApiKey;
   if (!options.tmdbKey) {
@@ -1264,8 +1268,12 @@ async function handleValidateKey(body) {
   try {
     let url, options = { signal: controller.signal, redirect: 'manual', headers: { Accept: 'application/json' } };
     const bearer = () => { options.headers.Authorization = 'Bearer ' + key; };
+    if (service === 'tmdb' && (key.startsWith('eyJ') || key.length > 80)) {
+      // El token de lectura (v4) sirve en TMDB, pero AIOMetadata sólo acepta la clave de API corta (v3).
+      return { status: 'invalid', message: 'Ese es el «Token de acceso de lectura» (el largo). Pega la «Clave de API» corta, de 32 caracteres, que aparece en la misma página de TMDB.' };
+    }
     if (service === 'tmdb') {
-      const v4 = key.startsWith('eyJ') || key.length > 80;
+      const v4 = false;
       url = 'https://api.themoviedb.org/3/configuration' + (v4 ? '' : '?api_key=' + encodeURIComponent(key));
       if (v4) bearer();
     } else if (service === 'tvdb') {
