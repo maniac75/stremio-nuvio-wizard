@@ -2,7 +2,7 @@
 
 A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account, take a verified backup, pick add-ons, review every change, then apply. Built for Spanish-speaking users (UI in Spanish and English).
 
-**Live:** <https://wizard.stremio-nuvio.workers.dev> · **Beginner guide (ES):** <https://wizard.stremio-nuvio.workers.dev/guia.html>
+**Live:** <https://wizard.mandrake-setup.workers.dev> · **Beginner guide (ES):** <https://wizard.mandrake-setup.workers.dev/guia.html>
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-support-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/supermaniac)
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-support-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/maniac75)
@@ -34,7 +34,7 @@ A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account,
 - **Simkl and MyAnimeList (optional):** your lists as home rows in AIOMetadata, like Trakt.
 - **Trakt (optional):** one-click Trakt connect for your Stremio account (auto-detected), plus Trakt Up Next and Watchlist rows in AIOMetadata with a validated Token ID.
 - **Light and dark theme:** follows your system by default, or pick one (saved in your browser).
-- **Beginner's guide** in [English](https://wizard.stremio-nuvio.workers.dev/guide.html) and [Spanish](https://wizard.stremio-nuvio.workers.dev/guia.html).
+- **Beginner's guide** in [English](https://wizard.mandrake-setup.workers.dev/guide.html) and [Spanish](https://wizard.mandrake-setup.workers.dev/guia.html).
 
 ## How it works
 
@@ -85,7 +85,7 @@ If the wizard saved you time, you can support it on [Ko-fi](https://ko-fi.com/su
 
 Asistente paso a paso para configurar **Stremio** y **Nuvio**: conecta tu cuenta, crea un respaldo verificado, elige complementos, revisa los cambios y aplica. Proyecto **no oficial** y sin relación con Stremio ni Nuvio; no aloja ni enlaza contenido, sólo configura complementos de terceros en tu propia cuenta.
 
-- Úsalo en <https://wizard.stremio-nuvio.workers.dev> o sigue la [guía para principiantes](https://wizard.stremio-nuvio.workers.dev/guia.html).
+- Úsalo en <https://wizard.mandrake-setup.workers.dev> o sigue la [guía para principiantes](https://wizard.mandrake-setup.workers.dev/guia.html).
 - Tu contraseña no se guarda y el servidor no guarda nada: los respaldos quedan cifrados en tu navegador y vencen a los 30 días ([detalle](PRIVACY.md)).
 - Errores y sugerencias en [Issues](https://github.com/maniac75/stremio-nuvio-wizard/issues), sin pegar claves ni contraseñas.
 - ¿Te sirvió? Apóyalo en [Ko-fi](https://ko-fi.com/supermaniac) o [GitHub Sponsors](https://github.com/sponsors/maniac75).

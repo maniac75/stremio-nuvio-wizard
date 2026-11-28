@@ -9,10 +9,10 @@
 <meta property="og:title" content="Mandrake — setup wizard for Stremio &amp; Nuvio">
 <meta name="description" content="Set up Stremio or Nuvio step by step: connect your account, back it up and pick your addons. / Configura Stremio o Nuvio paso a paso, con respaldo y complementos recomendados.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://wizard.stremio-nuvio.workers.dev/">
+<meta property="og:url" content="https://wizard.mandrake-setup.workers.dev/">
 <meta property="og:description" content="Free, open-source wizard to set up Stremio and Nuvio step by step, with automatic backup and recommended addons. English &amp; Español.">
-<meta property="og:image" content="https://wizard.stremio-nuvio.workers.dev/preview-en.png?v=29">
-<meta property="og:image:secure_url" content="https://wizard.stremio-nuvio.workers.dev/preview-en.png?v=29">
+<meta property="og:image" content="https://wizard.mandrake-setup.workers.dev/preview-en.png?v=29">
+<meta property="og:image:secure_url" content="https://wizard.mandrake-setup.workers.dev/preview-en.png?v=29">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -279,6 +279,7 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
     <label class="uiLanguage" for="uiLanguage" title="Idioma de la página"><span class="langIcon" aria-hidden="true">🌐</span><select id="uiLanguage" aria-label="Idioma de la página"><option value="es">ES</option><option value="en">EN</option></select></label>
   </div>
 </header>
+<div id="movedNotice" class="small" role="status" hidden style="margin:10px 0;padding:10px 12px;border-radius:12px;border:1px solid rgba(129,211,255,.35)">El asistente ahora se llama <b>Mandrake</b> y vive en esta dirección. Guárdala en tus favoritos. Si habías guardado tu cuenta o tus claves en este navegador, tendrás que escribirlas una vez más.</div>
 
 <dialog id="copyAccountsDialog" class="toolDialog" aria-labelledby="copyAccountsTitle">
   <div class="dialogHeader"><h2 id="copyAccountsTitle">Misma configuración en Stremio y Nuvio</h2><button class="secondary" type="button" id="closeCopyAccounts">Cerrar ✕</button></div>
@@ -344,7 +345,7 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
   <h2>2 · Respalda tu cuenta</h2>
   <div class="backupCallout"><div class="section-kicker">PASO NECESARIO PARA CONTINUAR</div><p><b>Crea un respaldo antes de continuar.</b> El wizard verificará la lista actual de complementos. Al terminar, podrás pasar a preferencias.</p><div class="small" id="backupIntro">Guardaremos tus complementos y sus URL antes de instalar un AIOStreams nuevo. El AIOStreams anterior no se modificará.</div><div class="actions"><button class="primary" id="backupBtn" type="button" disabled>Crear respaldo seguro</button><button class="primary" id="nextBackup" type="button" hidden>Continuar a preferencias →</button></div></div>
   <input id="aioInstallMode" type="hidden" value="new">
-  <details class="fold" id="restoreOptions"><summary>Restaurar una configuración anterior (opcional)</summary><div class="small">Restaurar reemplaza los complementos actuales. Usa estas opciones sólo si quieres volver a una configuración anterior.</div><div class="actions"><button class="secondary" id="restoreJsonBtn" type="button" disabled>Restaurar desde JSON</button><button class="danger" id="restoreBtn" type="button" style="display:none">Restaurar respaldo anterior</button><input id="restoreJsonInput" type="file" accept=".json,application/json" style="display:none"></div></details>
+  <details class="fold" id="restoreOptions"><summary>Restaurar una configuración anterior (opcional)</summary><div class="small">Restaurar reemplaza los complementos actuales. Usa estas opciones sólo si quieres volver a una configuración anterior.</div><div class="small" id="legacyBackupNote" hidden>¿Tienes respaldos creados antes del 28-nov-2026? Siguen en la dirección anterior hasta el 28-dic-2026: <a href="https://wizard.stremio-nuvio.workers.dev/?legacy=1" target="_blank" rel="noopener">abrir la dirección anterior</a>.</div><div class="actions"><button class="secondary" id="restoreJsonBtn" type="button" disabled>Restaurar desde JSON</button><button class="danger" id="restoreBtn" type="button" style="display:none">Restaurar respaldo anterior</button><input id="restoreJsonInput" type="file" accept=".json,application/json" style="display:none"></div></details>
   <div id="installedAddons" class="result note"></div>
   <div id="backupStatus" class="result note"></div>
   <details class="fold" id="advancedBackup"><summary>Opciones avanzadas (la mayoría no las necesita)</summary>

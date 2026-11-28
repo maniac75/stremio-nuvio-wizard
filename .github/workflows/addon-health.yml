@@ -24,7 +24,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const endpoint = 'https://wizard.stremio-nuvio.workers.dev/api/addon-health';
+            const endpoint = 'https://wizard.mandrake-setup.workers.dev/api/addon-health';
             const fetchHealth = async () => {
               const res = await fetch(endpoint + '?t=' + Date.now(), { headers: { 'cache-control': 'no-cache' } });
               if (!res.ok) throw new Error('Wizard health endpoint returned HTTP ' + res.status);
@@ -32,7 +32,7 @@ jobs:
             };
             let first;
             try { first = await fetchHealth(); }
-            catch (e) { first = { ok: false, failing: ['wizard'], results: [{ key: 'wizard', name: 'Wizard itself', host: 'wizard.stremio-nuvio.workers.dev', ok: false, error: e.message }] }; }
+            catch (e) { first = { ok: false, failing: ['wizard'], results: [{ key: 'wizard', name: 'Wizard itself', host: 'wizard.mandrake-setup.workers.dev', ok: false, error: e.message }] }; }
 
             let confirmed = first;
             if (!first.ok) {

@@ -2338,3 +2338,12 @@ document.getElementById('language').addEventListener('change',function(){
   if(document.getElementById('collectionLayoutFold').open||collectionLayout){collectionCatalogLang='';loadCollectionCatalog();}
 });
 if(document.getElementById('tmdbMode'))document.getElementById('tmdbMode').addEventListener('change',renderCollectionLayout);
+
+(function movedToMandrake(){
+  try{
+    if(sessionStorage.getItem('mandrake-moved')==='1'){var n=document.getElementById('movedNotice');if(n)n.hidden=false;sessionStorage.removeItem('mandrake-moved');}
+  }catch(_){}
+  // Respaldos anteriores a la mudanza: siguen en la dirección antigua hasta el 28-dic-2026.
+  var legacy=document.getElementById('legacyBackupNote');
+  if(legacy&&location.hostname!=='wizard.stremio-nuvio.workers.dev'&&Date.now()<Date.parse('2026-12-29T03:00:00Z'))legacy.hidden=false;
+})();
