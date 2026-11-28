@@ -279,7 +279,12 @@ footer{font-size:11px;line-height:1.5;text-align:center;color:var(--muted)}
     <label class="uiLanguage" for="uiLanguage" title="Idioma de la página"><span class="langIcon" aria-hidden="true">🌐</span><select id="uiLanguage" aria-label="Idioma de la página"><option value="es">ES</option><option value="en">EN</option></select></label>
   </div>
 </header>
-<div id="movedNotice" class="small" role="status" hidden style="margin:10px 0;padding:10px 12px;border-radius:12px;border:1px solid rgba(129,211,255,.35)">El asistente ahora se llama <b>Mandrake</b> y vive en esta dirección. Guárdala en tus favoritos. Si habías guardado tu cuenta o tus claves en este navegador, tendrás que escribirlas una vez más.</div>
+<div id="newsCard" role="status" hidden style="position:relative;margin:10px 0;padding:12px 40px 12px 14px;border-radius:14px;border:1px solid rgba(129,211,255,.35)">
+  <button type="button" id="newsClose" aria-label="Cerrar" title="Cerrar" style="position:absolute;top:6px;right:8px;background:none;border:0;font-size:18px;line-height:1;cursor:pointer;color:inherit;padding:4px">✕</button>
+  <div><span aria-hidden="true">📣 </span><b>Novedad: el wizard ahora tiene nombre. Se llama Mandrake.</b></div>
+  <div class="small" style="margin-top:6px">Cada vez más personas lo usan para configurar Stremio y Nuvio, así que quisimos darle una identidad propia. Es la misma herramienta de siempre, ahora en una dirección nueva: <b>wizard.mandrake-setup.workers.dev</b>. Guárdala en tus favoritos. El link anterior te seguirá trayendo aquí.</div>
+  <div class="small" style="margin-top:6px">Si habías guardado tu cuenta o tus claves en este navegador, tendrás que escribirlas una vez más. ¡Gracias por usarlo!</div>
+</div>
 
 <dialog id="copyAccountsDialog" class="toolDialog" aria-labelledby="copyAccountsTitle">
   <div class="dialogHeader"><h2 id="copyAccountsTitle">Misma configuración en Stremio y Nuvio</h2><button class="secondary" type="button" id="closeCopyAccounts">Cerrar ✕</button></div>

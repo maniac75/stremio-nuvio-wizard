@@ -2341,8 +2341,15 @@ if(document.getElementById('tmdbMode'))document.getElementById('tmdbMode').addEv
 
 (function movedToMandrake(){
   try{
-    if(sessionStorage.getItem('mandrake-moved')==='1'){var n=document.getElementById('movedNotice');if(n)n.hidden=false;sessionStorage.removeItem('mandrake-moved');}
+    sessionStorage.removeItem('mandrake-moved');
   }catch(_){}
+  // Novedad del nombre Mandrake: visible para todos hasta el 31-dic-2026; la ✕ la oculta en este navegador.
+  var news=document.getElementById('newsCard'),NEWS_KEY='mandrake-news-name-v1';
+  var dismissed=false;try{dismissed=localStorage.getItem(NEWS_KEY)==='1';}catch(_){}
+  if(news&&!dismissed&&location.hostname!=='wizard.stremio-nuvio.workers.dev'&&Date.now()<Date.parse('2027-01-01T03:00:00Z')){
+    news.hidden=false;
+    document.getElementById('newsClose').addEventListener('click',function(){news.hidden=true;try{localStorage.setItem(NEWS_KEY,'1');}catch(_){}});
+  }
   // Respaldos anteriores a la mudanza: siguen en la dirección antigua hasta el 28-dic-2026.
   var legacy=document.getElementById('legacyBackupNote');
   if(legacy&&location.hostname!=='wizard.stremio-nuvio.workers.dev'&&Date.now()<Date.parse('2026-12-29T03:00:00Z'))legacy.hidden=false;

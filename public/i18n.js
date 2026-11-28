@@ -15,10 +15,13 @@ Al conectarlo, Stremio agrega el complemento Trakt Integration con tus listas de
 OPCIONAL · EXTERNO	OPTIONAL · EXTERNAL
 Busca subtítulos en tus idiomas y los ajusta al archivo exacto que estás viendo. Funciona mejor con TorBox. Se configura en su propia página con una cuenta gratuita de OpenSubtitles:	Finds subtitles in your languages and times them to the exact file you're watching. Works best with TorBox. It's set up on its own page with a free OpenSubtitles account:
 abrir subtitlesync.stream	open subtitlesync.stream
-El asistente ahora se llama	The setup wizard is now called
-y vive en esta dirección. Guárdala en tus favoritos. Si habías guardado tu cuenta o tus claves en este navegador, tendrás que escribirlas una vez más.	and lives at this address. Bookmark it. If you had saved your account or keys in this browser, you'll need to enter them once more.
 ¿Tienes respaldos creados antes del 28-nov-2026? Siguen en la dirección anterior hasta el 28-dic-2026:	Have backups made before 28 Nov 2026? They stay at the previous address until 28 Dec 2026:
 abrir la dirección anterior	open the previous address
+Novedad: el wizard ahora tiene nombre. Se llama Mandrake.	News: the wizard now has a name. Meet Mandrake.
+Cada vez más personas lo usan para configurar Stremio y Nuvio, así que quisimos darle una identidad propia. Es la misma herramienta de siempre, ahora en una dirección nueva:	More and more people use it to set up Stremio and Nuvio, so we gave it an identity of its own. Same tool as always, at a new address:
+. Guárdala en tus favoritos. El link anterior te seguirá trayendo aquí.	. Bookmark it. The old link will keep bringing you here.
+Si habías guardado tu cuenta o tus claves en este navegador, tendrás que escribirlas una vez más. ¡Gracias por usarlo!	If you had saved your account or keys in this browser, you'll need to enter them once more. Thanks for using it!
+Cerrar	Close
 Recordar mis claves en este navegador	Remember my keys in this browser
 Guarda cifradas las claves Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini y Easynews para la próxima vez. Quedan sólo en este navegador, nunca en el servidor. Úsalo sólo en un equipo personal: quien use este navegador podrá volver a usarlas.	Saves your Debrid, Debridio, TMDB, TVDB, RPDB, MDBList, Gemini and Easynews keys encrypted for next time. They stay only in this browser, never on the server. Use it only on a personal device: anyone using this browser will be able to reuse them.
 Olvidar claves guardadas	Forget saved keys
