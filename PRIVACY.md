@@ -1,8 +1,8 @@
-# Privacy
+# Privacy — Mandrake
 
 *Español abajo.*
 
-This describes the public instance at <https://wizard.stremio-nuvio.workers.dev>. If you self-host, you are the operator.
+This describes the public instance of Mandrake at <https://wizard.stremio-nuvio.workers.dev>. If you self-host, you are the operator.
 
 - **Email and password.** Sent over HTTPS to the wizard server only to sign in to Stremio or Nuvio. They are used once and not stored.
 - **Access token.** Used only while a request runs. If you tick "Remember account", it is stored in your browser encrypted with a non-exportable key kept in IndexedDB. Use it only on a personal device; "Forget saved account" removes it.

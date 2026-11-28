@@ -1,4 +1,4 @@
-function syncDocumentTitle(){document.title='Stremio & Nuvio Wizard';}
+function syncDocumentTitle(){document.title='Mandrake — Stremio & Nuvio';}
 syncDocumentTitle();
 window.addEventListener('pageshow',syncDocumentTitle);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)syncDocumentTitle();});
@@ -832,7 +832,7 @@ var viaStremioSite=false;
 document.getElementById('stremioLoginBtn').addEventListener('click',function(){
   try{sessionStorage.setItem('wizard-stremio-login',JSON.stringify({remember:document.getElementById('rememberAccount').checked}));}catch(_){}
   var callback=location.origin+location.pathname+STREMIO_RETURN;
-  location.href='https://www.stremio.com/login?appName='+encodeURIComponent('Stremio & Nuvio Wizard')+'&appCallback='+encodeURIComponent(callback);
+  location.href='https://www.stremio.com/login?appName='+encodeURIComponent('Mandrake')+'&appCallback='+encodeURIComponent(callback);
 });
 function consumeStremioReturn(){
   var hash=location.hash||'';
@@ -1605,7 +1605,7 @@ document.getElementById('configureBtn').addEventListener('click',async function(
         var cell=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
         var csv='name,url,username,password,note\r\n'+[
           'AIOStreams',aioOrigin||'',lastRecovery.uuid,lastRecovery.password,
-          'Creado con Stremio & Nuvio Wizard el '+new Date().toISOString().slice(0,10)
+          'Creado con Mandrake el '+new Date().toISOString().slice(0,10)
         ].map(cell).join(',')+'\r\n';
         var blob=new Blob([csv],{type:'text/csv'});
         var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AIOStreams-para-importar.csv';a.click();

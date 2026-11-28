@@ -92,4 +92,4 @@ http.createServer(async (req, res) => {
   } catch (error) {
     send(res, 400, JSON.stringify({ error: error?.message || 'Error inesperado' }), 'application/json; charset=utf-8');
   }
-}).listen(PORT, HOST, () => console.log('Stremio Wizard ' + core.WIZARD_VERSION + ' en http://localhost:' + PORT));
+}).listen(PORT, HOST, () => console.log('Mandrake ' + core.WIZARD_VERSION + ' en http://localhost:' + PORT));

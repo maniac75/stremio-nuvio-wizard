@@ -434,7 +434,7 @@ Revisa el plan: elige si conservas complementos que sólo tiene el destino y, en
 Confirmar plan para aplicar	Confirm plan to apply
 Aplicación donde instalar	App to configure
 AuthKey de Stremio	Stremio AuthKey
-Stremio & Nuvio Wizard · creado por supermaniac75 · 2026	Stremio & Nuvio Wizard · created by supermaniac75 · 2026
+Mandrake · asistente de configuración para Stremio y Nuvio · creado por supermaniac75 · 2026	Mandrake · setup wizard for Stremio & Nuvio · created by supermaniac75 · 2026
 Comprobando servicios…	Checking services…
 ⚠ Algún servicio no responde	⚠ A service is not responding
 ✓ Servicios funcionando	✓ Services working

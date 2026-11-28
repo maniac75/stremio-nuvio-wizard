@@ -1,4 +1,4 @@
-# Stremio & Nuvio Wizard
+# Mandrake — setup wizard for Stremio & Nuvio
 
 A step-by-step setup wizard for **Stremio** and **Nuvio**: connect your account, take a verified backup, pick add-ons, review every change, then apply. Built for Spanish-speaking users (UI in Spanish and English).
 
